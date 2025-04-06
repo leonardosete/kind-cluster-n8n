@@ -1,0 +1,10 @@
+postgres:
+  name: {{ n8n_postgres_name }}
+  image: {{ n8n_postgres_image }}
+  username: {{ n8n_postgres_username }}
+  password: {{ n8n_postgres_password }}
+  database: {{ n8n_postgres_database }}
+  storage: {{ n8n_postgres_storage }}
+  servicePort: {{ n8n_postgres_serviceport }}
+  volume: {{ n8n_postgres_volume }}
+  pvcName: {{ n8n_postgres_pvc_name }}
