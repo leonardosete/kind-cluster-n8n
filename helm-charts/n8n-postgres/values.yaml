@@ -1,0 +1,7 @@
+postgres:
+  image: postgres:15
+  username: n8n
+  password: supersecreto
+  database: n8n
+  storage: 1Gi
+  servicePort: 5432

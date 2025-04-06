@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cert-bundle
+description: Instala o ClusterIssuer para cert-manager
+type: application
+version: 0.1.0

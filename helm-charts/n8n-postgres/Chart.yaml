@@ -1,0 +1,4 @@
+apiVersion: v2
+name: n8n-postgres
+version: 0.1.0
+description: Helm chart for PostgreSQL to be used with n8n
