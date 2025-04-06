@@ -88,7 +88,7 @@ ansible-playbook setup-servidor.yml --tags n8n
 
 Após o provisionamento, acesse sua instância:
 
-🔗 **https://n8n.antonellagoldsemijoias.com**
+🔗 **https://n8n-vps.antonellagoldsemijoias.com**
 
 **Usuário:** `admin`  
 **Senha:** `superadmin123` (ou valor configurado no `values.yaml`)
