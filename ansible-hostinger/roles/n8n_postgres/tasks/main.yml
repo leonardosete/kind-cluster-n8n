@@ -6,6 +6,17 @@
         recursive: yes
       register: sync_postgres_chart
 
+    - name: Verifica se existe o template do values do n8n-postgres
+      stat:
+        path: "{{ helm_charts_dir }}/n8n-postgres/values-yaml.j2"
+      register: n8n_postgres_template
+
+    - name: Renderiza values.yaml a partir do template Jinja2
+      template:
+        src: "{{ helm_charts_dir }}/n8n-postgres/values-yaml.j2"
+        dest: /root/helm-charts/n8n-postgres/values.yaml
+      tags: [n8n]
+
     - name: Instala n8n-postgres via Helm
       tags: [n8n_postgres]
       shell: |

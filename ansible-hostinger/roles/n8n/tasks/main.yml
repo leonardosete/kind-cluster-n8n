@@ -6,9 +6,14 @@
         recursive: yes
       register: sync_n8n_chart
 
+    - name: Verifica se existe o template do values do n8n
+      stat:
+        path: "{{ helm_charts_dir }}/n8n/values-yaml.j2"
+      register: n8n_template
+
     - name: Renderiza values.yaml a partir do template Jinja2
       template:
-        src: "{{ helm_charts_dir }}/n8n/values.yaml.j2"
+        src: "{{ helm_charts_dir }}/n8n/values-yaml.j2"
         dest: /root/helm-charts/n8n/values.yaml
       tags: [n8n]
 

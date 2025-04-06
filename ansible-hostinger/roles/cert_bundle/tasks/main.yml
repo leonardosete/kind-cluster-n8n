@@ -11,9 +11,14 @@
     recursive: yes
   register: sync_cert_bundle
 
+- name: Verifica se existe o template do values do cert_bundle
+  stat:
+    path: "{{ helm_charts_dir }}/n8n/values-yaml.j2"
+  register: cert_bundle_template
+
 - name: Renderiza values.yaml a partir do template Jinja2
   template:
-    src: "{{ helm_charts_dir }}/cert-bundle/values.yaml.j2"
+    src: "{{ helm_charts_dir }}/cert-bundle/values-yaml.j2"
     dest: /root/helm-charts/cert-bundle/values.yaml
   tags: [cert_bundle]
 
