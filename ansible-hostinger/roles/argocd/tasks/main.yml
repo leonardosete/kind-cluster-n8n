@@ -1,0 +1,47 @@
+# - name: Adiciona repositório Helm do ArgoCD
+#   tags: [argocd]
+#   shell: |
+#     helm repo add argo https://argoproj.github.io/argo-helm || true
+#     helm repo update
+#   register: add_repo_argo
+#   changed_when: false
+
+# - name: Copia chart ArgoCD para o servidor
+#   tags: [argocd]
+#   synchronize:
+#     src: "{{ helm_charts_dir }}/argocd/"
+#     dest: /root/helm-charts/argocd/
+#     recursive: yes
+#   register: sync_argocd_chart
+
+# - name: Instala ArgoCD via Helm com values.yaml
+#   tags: [argocd]
+#   shell: |
+#     helm repo add argo https://argoproj.github.io/argo-helm && helm repo update
+#     helm upgrade --install argocd argo/argo-cd \
+#       -n argocd \
+#       --create-namespace \
+#       -f /root/helm-charts/argocd/values.yaml
+#   register: helm_argocd
+
+# - name: Aguarda deployment "argocd-server" ser criado no cluster
+#   tags: [argocd]
+#   shell: |
+#     kubectl get deployments -n argocd -o name | grep argocd-server
+#   register: argocd_server_created
+#   until: argocd_server_created.rc == 0
+#   retries: 15
+#   delay: 8
+#   changed_when: false
+
+# - name: Aguarda ArgoCD estar pronto (todos os principais pods)
+#   tags: [argocd]
+#   shell: |
+#     kubectl rollout status deployment/argocd-server -n argocd --timeout=120s
+#     kubectl rollout status deployment/argocd-repo-server -n argocd --timeout=120s
+#     kubectl rollout status deployment/argocd-dex-server -n argocd --timeout=120s
+#     kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=120s
+#   register: rollout_argocd
+#   until: rollout_argocd.rc == 0
+#   retries: 3
+#   delay: 10
