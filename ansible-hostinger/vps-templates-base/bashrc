@@ -1,0 +1,56 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# ------------------------------------------------------------
+# PROMPT E SHELL
+# ------------------------------------------------------------
+if [ -n "$debian_chroot" ]; then
+    debian_chroot="($debian_chroot)"
+fi
+PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+export LS_OPTIONS='--color=auto'
+eval "$(dircolors)"
+# ------------------------------------------------------------
+# ALIASES ÚTEIS
+# ------------------------------------------------------------
+alias ls='ls $LS_OPTIONS'
+alias ll='ls -lFh $LS_OPTIONS'
+alias la='ls -lAh $LS_OPTIONS'
+alias l='ls -CF $LS_OPTIONS'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias f='find . -name'
+alias h='history'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline --graph --decorate'
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+# ------------------------------------------------------------
+# BASH COMPLETION
+# ------------------------------------------------------------
+if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
+# Autocomplete do kubectl
+if command -v kubectl &>/dev/null; then
+    source <(kubectl completion bash)
+fi
+# ------------------------------------------------------------
+# HISTÓRICO DE COMANDOS
+# ------------------------------------------------------------
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTCONTROL=ignoreboth
+export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
+export HISTTIMEFORMAT='%F %T '
+# ------------------------------------------------------------
+# ATIVAÇÃO DE ALIAS E CONFIGURAÇÕES PERSONALIZADAS
+# ------------------------------------------------------------
+if [ -f /etc/bash.bashrc ]; then
+    . /etc/bash.bashrc
+fi

@@ -58,143 +58,22 @@
 
     - name: Define MOTD personalizado
       copy:
+        src: "{{ playbook_dir }}/vps-templates-base/motd"
         dest: /etc/motd
-        content: |
-          █████████████████████████████████████████████████████████████████
-          🚀 Bem-vindo ao servidor Debian (saúde do sistema)
+        owner: root
+        group: root
+        mode: '0644'
 
-          📌 Comandos úteis para monitoramento:
-            → htop
-            → btop
-
-          💾 Uso de disco:
-            → ncdu /
-            → duf
-
-          🔍 Busca de arquivos (mlocate):
-            → locate <nome-do-arquivo>
-            → updatedb  (atualiza o banco de dados caso algo não apareça)
-
-          🐍 Python:
-            → python3 --version
-            → pip3 --version
-            → pip3 install <pacote>
-            → python3 -m venv <nome_da_venv> (criar virtualenv)
-
-          🐳 Docker:
-            → docker ps                     # Containers em execução
-            → docker ps -a                 # Todos containers
-            → docker images                # Imagens disponíveis
-            → docker run -it ubuntu bash   # Rodar container Ubuntu
-            → docker exec -it <nome|id> bash  # Acessar container rodando
-            → docker stop <nome|id>        # Parar container
-            → docker rm <nome|id>          # Remover container
-            → docker rmi <imagem>          # Remover imagem
-            → docker stats                 # Métricas em tempo real
-            → docker-compose up -d         # Subir com Compose
-            → docker-compose down          # Derrubar stack Compose
-
-          🧹 Limpeza de containers/imagens Docker:
-            → docker container prune -f
-            → docker image prune -f
-            → docker system prune -a --volumes -f  # Limpa geral (⚠️ cuidado!)
-
-          ☸️ Kubernetes (kubectl):
-            → kubectl get pods,deployments,services   # listar recursos
-            → kubectl create -f <arquivo>.yaml        # criar recurso de um manifest
-            → kubectl apply -f <arquivo>.yaml         # atualizar/criar recurso
-            → kubectl delete -f <arquivo>.yaml        # remover recurso
-            → kubectl describe pod <nome-do-pod>      # detalhes do pod
-            → kubectl logs <nome-do-pod>             # logs do pod
-            → kubectl exec -it <nome-do-pod> -- bash  # acessar container do pod
-
-          🧠 Info geral:
-            → uptime
-            → free -h
-            → df -h
-
-          📎 Dica:
-            → Pressione Ctrl + L para limpar a tela
-          █████████████████████████████████████████████████████████████████
-
-    ###################################################################
-    # Passo 2: Configura ~/.bashrc - ## DEBIAN ###
-    ###################################################################
     - name: Configura ~/.bashrc personalizado (root)
       copy:
+        src: "{{ playbook_dir }}/vps-templates-base/bashrc"
         dest: /root/.bashrc
+        owner: root
+        group: root
         mode: '0644'
-        content: |
-          # ~/.bashrc: executed by bash(1) for non-login shells.
-
-          # ------------------------------------------------------------
-          # PROMPT E SHELL
-          # ------------------------------------------------------------
-          if [ -n "$debian_chroot" ]; then
-              debian_chroot="($debian_chroot)"
-          fi
-          PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-
-          export LS_OPTIONS='--color=auto'
-          eval "$(dircolors)"
-
-          # ------------------------------------------------------------
-          # ALIASES ÚTEIS
-          # ------------------------------------------------------------
-          alias ls='ls $LS_OPTIONS'
-          alias ll='ls -lFh $LS_OPTIONS'
-          alias la='ls -lAh $LS_OPTIONS'
-          alias l='ls -CF $LS_OPTIONS'
-
-          alias ..='cd ..'
-          alias ...='cd ../..'
-          alias ....='cd ../../..'
-
-          alias grep='grep --color=auto'
-          alias egrep='egrep --color=auto'
-          alias f='find . -name'
-          alias h='history'
-
-          alias gs='git status'
-          alias ga='git add'
-          alias gc='git commit'
-          alias gp='git push'
-          alias gl='git log --oneline --graph --decorate'
-
-          alias rm='rm -i'
-          alias cp='cp -i'
-          alias mv='mv -i'
-
-          # ------------------------------------------------------------
-          # BASH COMPLETION
-          # ------------------------------------------------------------
-          if [ -f /etc/bash_completion ]; then
-              . /etc/bash_completion
-          fi
-
-          # Autocomplete do kubectl
-          if command -v kubectl &>/dev/null; then
-              source <(kubectl completion bash)
-          fi
-
-          # ------------------------------------------------------------
-          # HISTÓRICO DE COMANDOS
-          # ------------------------------------------------------------
-          export HISTSIZE=10000
-          export HISTFILESIZE=20000
-          export HISTCONTROL=ignoreboth
-          export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
-          export HISTTIMEFORMAT='%F %T '
-
-          # ------------------------------------------------------------
-          # ATIVAÇÃO DE ALIAS E CONFIGURAÇÕES PERSONALIZADAS
-          # ------------------------------------------------------------
-          if [ -f /etc/bash.bashrc ]; then
-              . /etc/bash.bashrc
-          fi
 
     ###################################################################
-    # Passo 3: Instalação do KIND
+    # Passo 2: Instalação do KIND
     ###################################################################
     - name: Seleciona binário do KIND de acordo com a arquitetura
       set_fact:
@@ -217,7 +96,7 @@
         msg: "Versão do KIND: {{ kind_version_out.stdout | default('Não foi possível obter') }}"
 
     ###################################################################
-    # Passo 4: Instala e configura kubectl
+    # Passo 3: Instala e configura kubectl
     ###################################################################
     - name: Adiciona chave GPG do repositório K8s
       apt_key:
@@ -245,7 +124,7 @@
         msg: "kubectl: {{ kubectl_version_out.stdout | default('Não foi possível obter') }}"
 
     ###################################################################
-    # Passo 5: Cria cluster KIND (portas 80, 443 e 6443->42885) + Ingress
+    # Passo 4: Cria cluster KIND (portas 80, 443 e 6443->42885) + Ingress
     ###################################################################
 
     - name: Verifica se já existe algum cluster KIND
@@ -255,23 +134,7 @@
       ignore_errors: true
 
     - name: Cria o cluster KIND com portas 80, 443 e 6443->42885 (se não existir)
-      shell: |
-        cat <<EOF | kind create cluster --config=-
-        kind: Cluster
-        apiVersion: kind.x-k8s.io/v1alpha4
-        nodes:
-        - role: control-plane
-          extraPortMappings:
-          - containerPort: 80
-            hostPort: 80
-            protocol: TCP
-          - containerPort: 443
-            hostPort: 443
-            protocol: TCP
-          - containerPort: 6443
-            hostPort: 42885
-            protocol: TCP
-        EOF
+      command: kind create cluster --config={{ playbook_dir }}/vps-templates-base/kind-config.yaml
       when: "'kind' not in clusters_list.stdout"
 
     - name: Libera porta 42885 no firewall UFW
@@ -296,7 +159,7 @@
 
 
     ###################################################################
-    # Passo 6: Instalação do Helm
+    # Passo 5: Instalação do Helm
     ###################################################################
     - name: Adiciona chave GPG do Helm
       apt_key:
@@ -328,7 +191,7 @@
 
 
     ###################################################################
-    # Passo 7: CRIA NAMESPACE n8n-vps
+    # Passo 6: CRIA NAMESPACE n8n-vps
     ###################################################################
     - name: Cria namespace n8n-vps
       command: kubectl create namespace n8n-vps
@@ -336,7 +199,7 @@
       failed_when: ns_n8n.rc not in [0,1]  # se já existir, ignora
 
     ###################################################################
-    # Passo 8: Cria /root/helm-charts no server
+    # Passo 7: Cria /root/helm-charts no server
     ###################################################################
     - name: Garante que a pasta /root/helm-charts existe no servidor
       file:
@@ -347,7 +210,7 @@
         mode: '0755'
 
     ###################################################################
-    # Passo 9: Instalação via Helm (cert-bundle) = Cert-Manager + ClusterIssuer - Lets Encrypt
+    # Passo 8: Instalação via Helm (cert-bundle) = Cert-Manager + ClusterIssuer - Lets Encrypt
     # Instalação => n8n-postgress e n8n
     ###################################################################
 

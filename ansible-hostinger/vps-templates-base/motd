@@ -1,0 +1,56 @@
+          █████████████████████████████████████████████████████████████████
+          🚀 Bem-vindo ao servidor Debian (saúde do sistema)
+
+          📌 Comandos úteis para monitoramento:
+            → htop
+            → btop
+
+          💾 Uso de disco:
+            → ncdu /
+            → duf
+
+          🔍 Busca de arquivos (mlocate):
+            → locate <nome-do-arquivo>
+            → updatedb  (atualiza o banco de dados caso algo não apareça)
+
+          🐍 Python:
+            → python3 --version
+            → pip3 --version
+            → pip3 install <pacote>
+            → python3 -m venv <nome_da_venv> (criar virtualenv)
+
+          🐳 Docker:
+            → docker ps                     # Containers em execução
+            → docker ps -a                 # Todos containers
+            → docker images                # Imagens disponíveis
+            → docker run -it ubuntu bash   # Rodar container Ubuntu
+            → docker exec -it <nome|id> bash  # Acessar container rodando
+            → docker stop <nome|id>        # Parar container
+            → docker rm <nome|id>          # Remover container
+            → docker rmi <imagem>          # Remover imagem
+            → docker stats                 # Métricas em tempo real
+            → docker-compose up -d         # Subir com Compose
+            → docker-compose down          # Derrubar stack Compose
+
+          🧹 Limpeza de containers/imagens Docker:
+            → docker container prune -f
+            → docker image prune -f
+            → docker system prune -a --volumes -f  # Limpa geral (⚠️ cuidado!)
+
+          ☸️ Kubernetes (kubectl):
+            → kubectl get pods,deployments,services   # listar recursos
+            → kubectl create -f <arquivo>.yaml        # criar recurso de um manifest
+            → kubectl apply -f <arquivo>.yaml         # atualizar/criar recurso
+            → kubectl delete -f <arquivo>.yaml        # remover recurso
+            → kubectl describe pod <nome-do-pod>      # detalhes do pod
+            → kubectl logs <nome-do-pod>             # logs do pod
+            → kubectl exec -it <nome-do-pod> -- bash  # acessar container do pod
+
+          🧠 Info geral:
+            → uptime
+            → free -h
+            → df -h
+
+          📎 Dica:
+            → Pressione Ctrl + L para limpar a tela
+          █████████████████████████████████████████████████████████████████
