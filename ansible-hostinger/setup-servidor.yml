@@ -191,15 +191,7 @@
 
 
     ###################################################################
-    # Passo 6: CRIA NAMESPACE n8n-vps
-    ###################################################################
-    - name: Cria namespace n8n-vps
-      command: kubectl create namespace n8n-vps
-      register: ns_n8n
-      failed_when: ns_n8n.rc not in [0,1]  # se já existir, ignora
-
-    ###################################################################
-    # Passo 7: Cria /root/helm-charts no server
+    # Passo 6: Cria /root/helm-charts no server
     ###################################################################
     - name: Garante que a pasta /root/helm-charts existe no servidor
       file:
@@ -209,17 +201,7 @@
         group: root
         mode: '0755'
 
-    ###################################################################
-    # Passo 8: Instalação via Helm (cert-bundle) = Cert-Manager + ClusterIssuer - Lets Encrypt
-    # Instalação => n8n-postgress e n8n
-    ###################################################################
-
-  roles:
-    - role: cert_bundle
-    - role: n8n_postgres
-    - role: n8n
-
   post_tasks:
-    - name: Exibe URL final do n8n
+    - name: Mensagem Final
       debug:
-        msg: "Acesse https://{{ n8n_domain_name }} para usar seu n8n!"
+        msg: "VPS e Cluster Kind configurado com o básico necessário - siga para o deploy via ArgoCD"
