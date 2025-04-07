@@ -77,7 +77,7 @@ jobs:
         echo "::endgroup::"
 
     - name: 📤 Publica kubeconfig como artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: kubeconfig-vps
         path: ~/.kube/config-vps
