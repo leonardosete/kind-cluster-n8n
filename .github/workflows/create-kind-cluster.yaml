@@ -1,0 +1,31 @@
+name: Deploy na VPS com Ansible
+
+on:
+  workflow_dispatch:  # permite execução manual
+  push:
+    branches: [main]  # ou qualquer outra que você use
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do repositório
+      uses: actions/checkout@v3
+
+    - name: Instala dependências (Ansible)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ansible sshpass
+
+    - name: Adiciona chave SSH da VPS (secreta)
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/hostinger-vps
+        chmod 600 ~/.ssh/hostinger-vps
+        ssh-keyscan -H srv774237.hstgr.cloud >> ~/.ssh/known_hosts
+
+    - name: Executa o playbook Ansible na VPS
+      working-directory: ./ansible-hostinger
+      run: |
+        ansible-playbook -i inventory.ini setup-servidor.yml

@@ -1,0 +1,72 @@
+---
+- name: Setup Core - Docker, KIND, Helm, kubectl
+  hosts: vps_hostinger
+  become: yes
+  gather_facts: true
+  collections:
+    - community.general
+
+  vars:
+    kind_version: "v0.27.0"
+    kind_binary_x86_64: "kind-linux-amd64"
+    kind_binary_arm64: "kind-linux-arm64"
+
+  pre_tasks:
+    - name: Atualiza cache e realiza upgrade de pacotes
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Instala pacotes essenciais
+      apt:
+        name:
+          - git
+          - docker.io
+          - python3
+          - python3-pip
+          - bash-completion
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+        update_cache: yes
+
+    - name: Habilita e inicia serviço Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Instala Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/latest/download/docker-compose-{{ ansible_system|lower }}-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Instala KIND
+      get_url:
+        url: "https://kind.sigs.k8s.io/dl/{{ kind_version }}/{{ (kind_binary_x86_64 if ansible_architecture == 'x86_64' else kind_binary_arm64) }}"
+        dest: /usr/local/bin/kind
+        mode: '0755'
+
+    - name: Instala kubectl
+      apt:
+        name: kubectl
+        state: present
+        update_cache: yes
+
+    - name: Adiciona chave GPG do Helm
+      apt_key:
+        url: https://baltocdn.com/helm/signing.asc
+        state: present
+
+    - name: Adiciona repositório do Helm
+      apt_repository:
+        repo: deb https://baltocdn.com/helm/stable/debian/ all main
+        state: present
+
+    - name: Instala Helm
+      apt:
+        name: helm
+        state: present

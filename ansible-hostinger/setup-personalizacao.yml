@@ -1,0 +1,20 @@
+---
+- name: Setup Personalização - MOTD e Bashrc
+  hosts: vps_hostinger
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Define MOTD personalizado
+      copy:
+        dest: /etc/motd
+        content: |
+          🚀 Bem-vindo ao servidor Debian
+
+    - name: Configura ~/.bashrc personalizado (root)
+      copy:
+        dest: /root/.bashrc
+        mode: '0644'
+        content: |
+          # ~/.bashrc customizado
+          alias ll='ls -lh --color=auto'
