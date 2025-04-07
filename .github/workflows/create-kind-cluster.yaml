@@ -81,3 +81,32 @@ jobs:
       with:
         name: kubeconfig-vps
         path: ~/.kube/config-vps
+
+    - name: ✅ Mensagem final de conclusão
+      run: |
+        echo ""
+        echo "====================== ✅ SETUP CONCLUÍDO ======================"
+        echo ""
+        echo "🧰 Ferramentas instaladas:"
+        echo "  - Docker"
+        echo "  - Docker Compose"
+        echo "  - KIND (Kubernetes in Docker)"
+        echo "  - kubectl"
+        echo "  - Python + pip"
+        echo "  - Helm"
+        echo "  - Pacotes de monitoramento: htop, btop, ncdu, duf, etc."
+        echo ""
+        echo "🧾 MotD atualizado com comandos úteis ao acessar via SSH."
+        echo ""
+        echo "🧠 Para carregar as novas configurações do bash:"
+        echo "   → Execute: source ~/.bashrc"
+        echo "   → Ou desconecte e conecte novamente no terminal."
+        echo ""
+        echo "🔑 Se quiser gerar nova chave SSH com outro e-mail:"
+        echo "   → ansible-playbook -i inventory.ini setup-servidor.yml -e \"ssh_email=outro@exemplo.com\""
+        echo ""
+        echo "☸️  Use o comando 'kubectl' para interagir com seu cluster Kubernetes remoto."
+        echo ""
+        echo "🚀 Tudo pronto para usar! Divirta-se!"
+        echo ""
+        echo "==============================================================="
