@@ -133,6 +133,14 @@
       changed_when: false
       ignore_errors: true
 
+    - name: Copia o kind-config.yaml para a VPS
+      copy:
+        src: "{{ playbook_dir }}/vps-templates-base/kind-config.yaml"
+        dest: /root/kind-config.yaml
+        owner: root
+        group: root
+        mode: '0644'
+
     - name: Cria o cluster KIND com portas 80, 443 e 6443->42885 (se não existir)
       command: kind create cluster --config={{ playbook_dir }}/vps-templates-base/kind-config.yaml
       when: "'kind' not in clusters_list.stdout"
