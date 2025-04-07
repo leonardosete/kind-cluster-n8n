@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Values.postgres.name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.postgres.replicas }}
   selector:
     matchLabels:
       app: {{ .Values.postgres.name }}
@@ -19,8 +19,10 @@ spec:
         - containerPort: {{ .Values.postgres.servicePort }}
         envFrom:
         - secretRef:
+#            name: "{{ .Values.postgres.secretName }}"
             name: postgres-secret
         volumeMounts:
+#        - mountPath: {{ .Values.postgres.mountPath }}
         - mountPath: /var/lib/postgresql/data
           name: {{ .Values.postgres.volume }}
       volumes:

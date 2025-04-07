@@ -7,4 +7,8 @@ n8n_postgres_database: "n8n"
 n8n_postgres_storage: "1Gi"
 n8n_postgres_serviceport: "5432"
 n8n_postgres_volume: "pgdata"
-n8n_postgres_pvc_name: "postgres-pvc"
+n8n_postgres_replicas: "1"
+n8n_postgres_pvc_name: postgres-pvc
+#n8n_postgres_secret_name: "postgres-secret"
+#n8n_postgres_mount_path: "/var/lib/postgresql/data"
+
