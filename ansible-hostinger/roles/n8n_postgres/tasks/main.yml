@@ -15,7 +15,7 @@
       template:
         src: "{{ helm_charts_dir }}/n8n-postgres/values-yaml.j2"
         dest: /root/helm-charts/n8n-postgres/values.yaml
-      tags: [n8n]
+      tags: [n8n_postgres]
 
     - name: Instala n8n-postgres via Helm
       tags: [n8n_postgres]
