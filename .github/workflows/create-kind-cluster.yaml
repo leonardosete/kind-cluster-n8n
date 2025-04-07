@@ -1,31 +1,83 @@
 name: Deploy na VPS com Ansible
 
 on:
-  workflow_dispatch:  # permite execução manual
+  workflow_dispatch:
   push:
-    branches: [main]  # ou qualquer outra que você use
+    branches: [main]
 
 jobs:
-  deploy:
+  configure-vps-kind-cluster:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout do repositório
+    - name: 📦 Checkout do repositório
       uses: actions/checkout@v3
 
-    - name: Instala dependências (Ansible)
+    - name: 🔧 Instala dependências (Ansible, SSH, kubectl)
       run: |
+        echo "::group::🛠️ Instalando dependências"
         sudo apt-get update
-        sudo apt-get install -y ansible sshpass
+        sudo apt-get install -y ansible sshpass openssh-client curl
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+        echo "::endgroup::"
 
-    - name: Adiciona chave SSH da VPS (secreta)
+    - name: 🔐 Configura chave SSH da VPS
       run: |
+        echo "::group::🔐 Adicionando chave SSH"
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/hostinger-vps
         chmod 600 ~/.ssh/hostinger-vps
         ssh-keyscan -H srv774237.hstgr.cloud >> ~/.ssh/known_hosts
+        echo "✅ Chave SSH configurada"
+        echo "::endgroup::"
 
-    - name: Executa o playbook Ansible na VPS
+    - name: ⚙️ Executa o playbook Ansible na VPS
       working-directory: ./ansible-hostinger
       run: |
+        echo "::group::⚙️ Playbook Ansible"
+        echo "📡 Executando playbook: setup-servidor.yml"
         ansible-playbook -i inventory.ini setup-servidor.yml
+        echo "::endgroup::"
+
+    - name: 📥 Baixa kubeconfig da VPS
+      run: |
+        echo "::group::📥 Baixando kubeconfig"
+        mkdir -p ~/.kube
+        echo "📡 Copiando arquivo /root/.kube/config da VPS..."
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/hostinger-vps root@srv774237.hstgr.cloud:/root/.kube/config ~/.kube/config-vps
+        chmod 600 ~/.kube/config-vps
+        echo "✅ kubeconfig salvo localmente"
+        echo "::endgroup::"
+
+    - name: 🧩 Ajusta kubeconfig com IP público e TLS desabilitado
+      env:
+        VPS_IP: ${{ vars.VPS_IP }}
+        VPS_CLUSTER_PORT: ${{ vars.VPS_CLUSTER_PORT }}
+      run: |
+        echo "::group::🧩 Ajustando kubeconfig"
+        export KUBECONFIG=~/.kube/config-vps
+
+        echo "🔁 Atualizando cluster endpoint para https://$VPS_IP:$VPS_CLUSTER_PORT"
+        kubectl config set-cluster kind-kind \
+          --server="https://$VPS_IP:$VPS_CLUSTER_PORT" \
+          --insecure-skip-tls-verify=true \
+          --kubeconfig=$KUBECONFIG
+
+        echo "🔍 Identificando usuário atual do cluster"
+        EXISTING_USER=$(kubectl config view --kubeconfig=$KUBECONFIG -o jsonpath='{.users[0].name}')
+
+        echo "🔗 Atualizando contexto"
+        kubectl config set-context kind-kind \
+          --cluster=kind-kind \
+          --user="$EXISTING_USER" \
+          --kubeconfig=$KUBECONFIG
+
+        echo "✅ kubeconfig ajustado com IP e TLS desativado"
+        echo "::endgroup::"
+
+    - name: 📤 Publica kubeconfig como artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: kubeconfig-vps
+        path: ~/.kube/config-vps
