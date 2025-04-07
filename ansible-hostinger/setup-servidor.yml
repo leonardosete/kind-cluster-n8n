@@ -142,7 +142,7 @@
         mode: '0644'
 
     - name: Cria o cluster KIND com portas 80, 443 e 6443->42885 (se não existir)
-      command: kind create cluster --config={{ playbook_dir }}/vps-templates-base/kind-config.yaml
+      command: kind create cluster --config=/root/kind-config.yaml
       when: "'kind' not in clusters_list.stdout"
 
     - name: Libera porta 42885 no firewall UFW
