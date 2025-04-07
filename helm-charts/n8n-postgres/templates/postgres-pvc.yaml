@@ -4,7 +4,7 @@ metadata:
   name: {{ .Values.postgres.pvcName }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{ .Values.postgres.accessModes }}
   resources:
     requests:
       storage: {{ .Values.postgres.storage }}

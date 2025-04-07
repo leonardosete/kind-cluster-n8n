@@ -9,5 +9,8 @@ postgres:
   volume: {{ n8n_postgres_volume }}
   replicas: {{ n8n_postgres_replicas }}
   pvcName: {{ n8n_postgres_pvc_name }}
+  secretName: {{ n8n_postgres_secret_name }}
+  mountPath: {{ n8n_postgres_mount_path }}
+  accessModes: {{ n8n_postgres_access_modes }}
 
 

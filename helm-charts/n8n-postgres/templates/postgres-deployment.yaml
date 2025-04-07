@@ -19,11 +19,9 @@ spec:
         - containerPort: {{ .Values.postgres.servicePort }}
         envFrom:
         - secretRef:
-#            name: "{{ .Values.postgres.secretName }}"
-            name: postgres-secret
+            name: "{{ .Values.postgres.secretName }}"
         volumeMounts:
-#        - mountPath: {{ .Values.postgres.mountPath }}
-        - mountPath: /var/lib/postgresql/data
+        - mountPath: {{ .Values.postgres.mountPath }}
           name: {{ .Values.postgres.volume }}
       volumes:
       - name: {{ .Values.postgres.volume }}
