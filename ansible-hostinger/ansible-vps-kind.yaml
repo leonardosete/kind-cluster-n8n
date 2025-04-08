@@ -12,7 +12,7 @@
     kind_binary_arm64: "kind-linux-arm64"
     helm_charts_dir: "{{ playbook_dir }}/../helm-charts"
 
-  pre_tasks:
+  tasks:
     ###################################################################
     # Passo 1: Setup inicial (apt upgrade, pacotes, Docker, etc.)
     ###################################################################
@@ -177,6 +177,7 @@
           --timeout=90s
       when: "'kind' not in clusters_list.stdout"
 
+
     ###################################################################
     # Passo 6: Instalação do Helm
     ###################################################################
@@ -220,10 +221,6 @@
         group: root
         mode: '0755'
 
-#  roles:
-#    - role: argocd
-
-  post_tasks:
     - name: Exibe status final da configuração
       debug:
         msg: "✅ VPS provisionada e cluster KIND inicializado com sucesso."

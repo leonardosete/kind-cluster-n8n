@@ -1,9 +1,12 @@
-name: Deploy na VPS com Ansible
+name: Deploy da VPS e Cluster KIND
 
 on:
   workflow_dispatch:
-#  push:
-#    branches: [deploy-via-argocd]
+    inputs:
+      acionar_infra_base:
+        description: "Deseja executar o deploy da infraestrutura base (cert-manager, ArgoCD)?"
+        required: false
+        default: "false"
 
 jobs:
   configure-vps-kind-cluster:
@@ -26,9 +29,9 @@ jobs:
       run: |
         echo "::group::🔐 Adicionando chave SSH"
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/hostinger-vps
-        chmod 600 ~/.ssh/hostinger-vps
-        ssh-keyscan -H srv774237.hstgr.cloud >> ~/.ssh/known_hosts
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
         echo "✅ Chave SSH configurada"
         echo "::endgroup::"
 
@@ -36,16 +39,16 @@ jobs:
       working-directory: ./ansible-hostinger
       run: |
         echo "::group::⚙️ Playbook Ansible"
-        echo "📡 Executando playbook: setup-servidor.yml"
-        ansible-playbook -i inventory.ini setup-servidor.yml
+        echo "📡 Executando playbook: ansible-vps-kind.yaml"
+        ansible-playbook -i inventory.ini ansible-vps-kind.yaml
         echo "::endgroup::"
 
     - name: 📥 Baixa kubeconfig da VPS
       run: |
         echo "::group::📥 Baixando kubeconfig"
         mkdir -p ~/.kube
-        echo "📡 Copiando arquivo /root/.kube/config da VPS..."
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/hostinger-vps root@srv774237.hstgr.cloud:/root/.kube/config ~/.kube/config-vps
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} \
+          root@${{ vars.VPS_HOSTNAME }}:/root/.kube/config ~/.kube/config-vps
         chmod 600 ~/.kube/config-vps
         echo "✅ kubeconfig salvo localmente"
         echo "::endgroup::"
@@ -58,16 +61,13 @@ jobs:
         echo "::group::🧩 Ajustando kubeconfig"
         export KUBECONFIG=~/.kube/config-vps
 
-        echo "🔁 Atualizando cluster endpoint para https://$VPS_IP:$VPS_CLUSTER_PORT"
         kubectl config set-cluster kind-kind \
           --server="https://$VPS_IP:$VPS_CLUSTER_PORT" \
           --insecure-skip-tls-verify=true \
           --kubeconfig=$KUBECONFIG
 
-        echo "🔍 Identificando usuário atual do cluster"
         EXISTING_USER=$(kubectl config view --kubeconfig=$KUBECONFIG -o jsonpath='{.users[0].name}')
 
-        echo "🔗 Atualizando contexto"
         kubectl config set-context kind-kind \
           --cluster=kind-kind \
           --user="$EXISTING_USER" \
@@ -97,20 +97,15 @@ jobs:
         echo "  - Pacotes de monitoramento: htop, btop, ncdu, duf, etc."
         echo ""
         echo ""
-        echo ""
         echo "🧾 MotD atualizado com comandos úteis ao acessar via SSH."
         echo ""
+        echo "📤 Acesse o step: '📤 Publica kubeconfig como artifact'"
+        echo "Lá haverá um link para baixar o kubeconfig como arquivo ZIP."
         echo ""
-        echo " Acesse o step - 📤 Publica kubeconfig como artifact:"
-        echo " Que haverá um link para download do kubeconfig como artifact."
-        echo ""
-        echo "📥 Ou acesse a aba 'Actions' e entre na execução do Workflow."
-        echo ""
-        echo ""
-        echo "📦 Após o download:"
+        echo "📥 Após o download:"
         echo "   → Extraia o arquivo ZIP"
-        echo "   → Mova o kubeconfig =>"config-vps" para:"
-        echo "      ➤ $HOME/.kube/config-vps"
+        echo "   → Mova o kubeconfig para:"
+        echo "      ➤ \$HOME/.kube/config-vps"
         echo ""
         echo "🔧 Depois execute no terminal local (macOS):"
         echo ""
@@ -125,3 +120,9 @@ jobs:
         echo ""
         echo "==============================================================="
 
+    - name: ▶️ Aciona deploy da infraestrutura base (se solicitado)
+      if: ${{ github.event.inputs.acionar_infra_base == 'true' }}
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: "git-actions-infra-base.yaml"
+        token: ${{ secrets.GITHUB_TOKEN }}

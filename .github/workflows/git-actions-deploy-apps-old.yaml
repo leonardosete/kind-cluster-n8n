@@ -25,9 +25,9 @@ jobs:
       run: |
         echo "::group::🔐 Adicionando chave SSH"
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/hostinger-vps
-        chmod 600 ~/.ssh/hostinger-vps
-        ssh-keyscan -H srv774237.hstgr.cloud >> ~/.ssh/known_hosts
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
         echo "✅ Chave SSH configurada"
         echo "::endgroup::"
 
@@ -35,7 +35,7 @@ jobs:
       working-directory: ./ansible-hostinger
       run: |
         echo "::group::🚀 Deploy das aplicações no cluster KIND"
-        ansible-playbook -i inventory.ini deploy-apps.yml
+        ansible-playbook -i inventory.ini deploy-infra-base.yaml
         echo "::endgroup::"
 
     - name: 🌐 Exibe URL final do n8n

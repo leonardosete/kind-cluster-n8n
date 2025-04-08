@@ -23,4 +23,5 @@ spec:
               service:
                 name: udemy-python-app
                 port:
-                  number: 80
+                  number: 5000
+

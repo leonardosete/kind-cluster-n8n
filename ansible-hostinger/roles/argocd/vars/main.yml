@@ -1,9 +1,10 @@
+## [argocd]
+argocd_hostname: "argocd.antonellagoldsemijoias.com"
+ingress_className: "nginx"
+ingress_tls_secretname: "tls-argocd-antonellagold"
 
-## argocd
+ingress_annotations:
+  kubernetes.io/ingress.class: "nginx"
+  cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-# ## cert-bundle ##
-# issuer_name: letsencrypt-prod
-# issuer_email: leonardosete@gmail.com
-# issuer_secretname: letsencrypt-prod
-# issuer_ingressclass: nginx
-# issuer_server: https://acme-v02.api.letsencrypt.org/directory
