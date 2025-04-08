@@ -2,7 +2,8 @@ name: Deploy de Aplicações no Cluster KIND
 
 on:
   workflow_dispatch:
-
+  push:
+    branches: [deploy-via-argocd]
 jobs:
   deploy-apps:
     runs-on: ubuntu-latest

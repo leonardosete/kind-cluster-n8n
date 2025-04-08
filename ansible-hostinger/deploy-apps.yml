@@ -13,21 +13,25 @@
       register: cluster_check
       failed_when: cluster_check.rc != 0
 
-    - name: Cria namespace n8n-vps
-      command: kubectl create namespace n8n-vps
-      register: ns_n8n
-      failed_when: ns_n8n.rc not in [0,1]  # se já existir, ignora
+    # - name: Cria namespace n8n-vps
+    #   command: kubectl create namespace n8n-vps
+    #   register: ns_n8n
+    #   failed_when: ns_n8n.rc not in [0,1]  # se já existir, ignora
 
   roles:
     - role: cert_bundle
-    - role: n8n_postgres
-    - role: n8n
+#    - role: n8n_postgres
+#    - role: n8n
 
+  # post_tasks:
+  #   - name: Salva a URL final do n8n em um arquivo na VPS
+  #     copy:
+  #       content: "https://{{ n8n_domain_name }}"
+  #       dest: /tmp/n8n-final-url.txt
+  #       owner: root
+  #       group: root
+  #       mode: '0644'
   post_tasks:
-    - name: Salva a URL final do n8n em um arquivo na VPS
-      copy:
-        content: "https://{{ n8n_domain_name }}"
-        dest: /tmp/n8n-final-url.txt
-        owner: root
-        group: root
-        mode: '0644'
+    - name: Exibe status final da configuração
+      debug:
+        msg: "✅ Cert-manager gerado no cluster KIND."
