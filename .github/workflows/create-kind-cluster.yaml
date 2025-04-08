@@ -109,7 +109,7 @@ jobs:
         echo ""
         echo "📦 Após o download:"
         echo "   → Extraia o arquivo ZIP"
-        echo "   → Mova o kubeconfig para:"
+        echo "   → Mova o kubeconfig =>"config-vps" para:"
         echo "      ➤ $HOME/.kube/config-vps"
         echo ""
         echo "🔧 Depois execute no terminal local (macOS):"

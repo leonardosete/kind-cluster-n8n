@@ -209,6 +209,9 @@
         group: root
         mode: '0755'
 
+#  roles:
+#    - role: argocd
+
   post_tasks:
     - name: Exibe status final da configuração
       debug:
