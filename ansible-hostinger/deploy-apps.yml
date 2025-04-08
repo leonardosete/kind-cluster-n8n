@@ -24,6 +24,10 @@
     - role: n8n
 
   post_tasks:
-    - name: Exibe URL final do n8n
-      debug:
-        msg: "Acesse https://{{ n8n_domain_name }} para usar seu n8n!"
+    - name: Salva a URL final do n8n em um arquivo na VPS
+      copy:
+        content: "https://{{ n8n_domain_name }}"
+        dest: /tmp/n8n-final-url.txt
+        owner: root
+        group: root
+        mode: '0644'

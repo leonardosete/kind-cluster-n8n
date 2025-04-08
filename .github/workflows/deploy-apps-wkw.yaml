@@ -36,3 +36,17 @@ jobs:
         echo "::group::🚀 Deploy das aplicações no cluster KIND"
         ansible-playbook -i inventory.ini deploy-apps.yml
         echo "::endgroup::"
+
+    - name: 📥 Resgata URL final do n8n da VPS
+      run: |
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/hostinger-vps root@srv774237.hstgr.cloud:/tmp/n8n-final-url.txt ./n8n-url.txt
+
+    - name: 🌐 Exibe URL final do n8n
+      run: |
+        echo ""
+        echo "====================== 🌐 APLICAÇÃO DISPONÍVEL ======================"
+        echo ""
+        echo "Seu n8n está disponível em:"
+        cat ./n8n-url.txt
+        echo ""
+        echo "======================================================================"
