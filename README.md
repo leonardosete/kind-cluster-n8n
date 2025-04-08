@@ -1,117 +1,125 @@
+# 🔧 Provisionamento de Cluster KIND + n8n via Ansible e GitHub Actions
 
-# 🚀 Provisionamento Kubernetes + Helm (n8n Stack) com Ansible
-
-Este projeto automatiza a configuração de um ambiente Kubernetes completo em um servidor Debian, utilizando:
-
-- [x] Kubernetes via Kind
-- [x] Helm
-- [x] cert-manager + ClusterIssuer
-- [x] PostgreSQL (via Helm)
-- [x] n8n (via Helm com domínio e TLS via Let's Encrypt)
+Este repositório provisiona uma VPS com Debian, instala um cluster Kubernetes usando KIND e realiza o deploy do [n8n](https://n8n.io/) com PostgreSQL, utilizando Ansible e Helm. Toda a automação pode ser executada por workflows do GitHub Actions.
 
 ---
 
-## 📁 Estrutura do projeto
+## 📦 Estrutura do Projeto
 
 ```bash
-create-kind-cluster/
+kind-cluster-n8n/
 ├── ansible-hostinger/
-│   ├── ansible.cfg
-│   ├── inventory.ini
-│   └── setup-servidor.yml
-├── roles/
-│   ├── cert-bundle/      # Helm install do ClusterIssuer
-│   ├── n8n-postgres/     # Helm chart PostgreSQL
-│   └── n8n/              # Helm chart n8n
-├── cert-bundle/          # Chart Helm local (ClusterIssuer)
-├── n8n/                  # Chart Helm local (n8n)
-├── n8n-postgres/         # Chart Helm local (PostgreSQL)
-└── create-kind-cluster.sh  # Script principal de execução
+│   ├── setup-servidor.yml          # Prepara a VPS, instala Docker, KIND, kubectl, Helm
+│   ├── deploy-apps.yml             # Faz deploy do n8n e dependências via Helm
+│   ├── inventory.ini               # Definição do host da VPS para Ansible
+│   ├── ansible.cfg                 # Configuração geral do Ansible
+│   └── vps-templates-base/         # Templates como bashrc, motd, kind-config.yaml
+├── tools/
+│   └── fix-kubeconfig-context.sh   # Corrige o contexto do kubeconfig para uso local
+├── .github/
+│   └── workflows/
+│       ├── create-kind-cluster.yaml  # Workflow para configurar a VPS e o cluster
+│       └── deploy-apps.yaml          # Workflow para deploy das aplicações
 ```
 
 ---
 
-## 🧰 Pré-requisitos
+## ⚙️ O que é automatizado?
 
-- Servidor Debian remoto com acesso via SSH (com chave pública configurada)
-- Helm instalado localmente
-- Python 3 + Ansible instalados na máquina local
+### Setup do Servidor (via `setup-servidor.yml`)
+
+- Atualização de pacotes e instalação de:
+  - Docker + Docker Compose
+  - Python + pip
+  - kubectl
+  - Helm
+  - KIND
+  - Ferramentas úteis (htop, ncdu, btop, duf, etc.)
+- Configuração do `.bashrc` e `motd` personalizados
+- Criação do cluster KIND com:
+  - Portas mapeadas: `80`, `443`, `6443 -> 42885`
+  - Ingress Controller (NGINX)
+- Exportação automática do kubeconfig da VPS
+
+### Deploy das Aplicações (via `deploy-apps.yml`)
+
+- Criação do namespace `n8n-vps`
+- Deploy via Helm:
+  - `cert_bundle`: ClusterIssuer e TLS (se necessário)
+  - `n8n_postgres`: banco de dados PostgreSQL
+  - `n8n`: aplicação principal
+- Geração de URL final do serviço n8n como `/tmp/n8n-final-url.txt`
 
 ---
 
-## 🚀 Como executar
+## 🚀 Execução via GitHub Actions
 
-Para iniciar toda a automação, execute:
+### 🔧 1. `create-kind-cluster.yaml`
+- Prepara a VPS e cluster Kubernetes
+- Ajusta o kubeconfig com IP da VPS e TLS desabilitado
+- Salva o kubeconfig como artifact
+
+### 🚀 2. `deploy-apps.yaml`
+- Conecta via SSH na VPS
+- Executa o `deploy-apps.yml`
+- Exibe a URL final do n8n no terminal do GitHub Actions
+
+---
+
+## 🧠 Como usar localmente (após o provisionamento)
+
+1. Acesse a aba **Actions** no GitHub
+2. Baixe o arquivo `kubeconfig-vps.zip` gerado no workflow
+3. Extraia e mova para:
 
 ```bash
-bash /Users/leonardosete/kind-cluster-n8n/create-kind-cluster.sh
+mv ~/Downloads/kubeconfig-vps ~/.kube/config-vps
 ```
 
-Esse script orquestra o ambiente Kubernetes local via Kind e executa o Ansible com o seguinte comando:
+4. Execute o script de correção de contexto:
 
 ```bash
-ansible-playbook ansible-hostinger/setup-servidor.yml -i ansible-hostinger/inventory.ini
+cd tools
+bash fix-kubeconfig-context.sh
 ```
 
----
-
-## 🧠 O que o playbook faz
-
-- Instala Kind, kubectl, Helm, Docker e outras dependências
-- Prepara o cluster local Kubernetes
-- Instala cert-manager
-- Instala ClusterIssuer via chart Helm `cert-bundle`
-- Instala PostgreSQL via chart Helm `n8n-postgres`
-- Instala o n8n via chart Helm `n8n`
-- Gera a URL final de acesso ao n8n com HTTPS
-
----
-
-## 🏷️ Execução parcial com tags
-
-Você pode rodar partes específicas usando tags:
+5. Teste a conexão com:
 
 ```bash
-# Executa somente o cert-bundle
-ansible-playbook setup-servidor.yml --tags cert-bundle
-
-# Executa somente o deploy do PostgreSQL
-ansible-playbook setup-servidor.yml --tags n8n-postgres
-
-# Executa somente o deploy do n8n
-ansible-playbook setup-servidor.yml --tags n8n
+kubectl get nodes --kubeconfig ~/.kube/config-vps
 ```
 
 ---
 
-## 🌐 Acesso final ao n8n
+## 🌐 Acesso ao n8n
 
-Após o provisionamento, acesse sua instância:
+O link final é exibido no terminal do GitHub Actions após o deploy:
 
-🔗 **https://n8n-k8s.antonellagoldsemijoias.com**
-
-**Usuário:** `admin`  
-**Senha:** `superadmin123` (ou valor configurado no `values.yaml`)
-
----
-
-## 📌 Observações
-
-- Os charts Helm são mantidos localmente no projeto e sincronizados com o servidor via Ansible.
-- A estrutura com `roles` permite modularidade, reaproveitamento e escalabilidade.
-- A instalação usa `helm upgrade --install` para garantir que a execução seja idempotente.
+```
+🌐 Seu n8n está disponível em:
+https://n8n-kind.seu-dominio.com
+```
 
 ---
 
-## 💡 Dicas futuras
+## 📌 Requisitos
 
-- Criar role para backup automatizado do PostgreSQL
-- Integrar com Prometheus + Grafana via Helm
-- Versionar os `values.yaml` por ambiente (dev, staging, prod)
-- Automatizar deploy contínuo com GitHub Actions ou GitLab CI
+- VPS com Debian acessível por SSH
+- Chave SSH configurada nas GitHub Secrets (`SSH_PRIVATE_KEY`)
+- As variáveis de ambiente:
+  - `VPS_IP` e `VPS_CLUSTER_PORT` configuradas no repositório (GitHub Actions)
 
 ---
 
-## 🙌 Autor
+## ✅ Próximos passos sugeridos
 
-Automação e DevOps por **Leonardo Sete** 💪
+- [ ] Adicionar ArgoCD para GitOps completo
+- [ ] Adicionar stack de observabilidade: Prometheus, Grafana, Loki
+- [ ] Configurar SSL automático via Cert-Manager + ClusterIssuer
+- [ ] Automatizar deploy contínuo via push em repositórios de apps
+
+---
+
+## 🛠️ Autor
+
+> Desenvolvido por [Leonardo Sete](https://github.com/leonardosete) • DevOps & SRE
