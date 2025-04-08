@@ -2,8 +2,8 @@ name: Deploy na VPS com Ansible
 
 on:
   workflow_dispatch:
-  push:
-    branches: [deploy-via-argocd]
+#  push:
+#    branches: [deploy-via-argocd]
 
 jobs:
   configure-vps-kind-cluster:
