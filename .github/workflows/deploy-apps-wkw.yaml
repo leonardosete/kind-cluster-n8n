@@ -37,12 +37,9 @@ jobs:
         ansible-playbook -i inventory.ini deploy-apps.yml
         echo "::endgroup::"
 
-    - name: 📥 Resgata URL final do n8n da VPS
-      run: |
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/hostinger-vps root@srv774237.hstgr.cloud:/tmp/n8n-final-url.txt ./n8n-url.txt
-
     - name: 🌐 Exibe URL final do n8n
       run: |
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/hostinger-vps root@srv774237.hstgr.cloud:/tmp/n8n-final-url.txt ./n8n-url.txt
         echo ""
         echo "====================== 🌐 APLICAÇÃO DISPONÍVEL ======================"
         echo ""
