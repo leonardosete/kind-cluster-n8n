@@ -161,13 +161,24 @@
         msg: "{{ kind_nodes.stdout }}"
       when: "'kind' not in clusters_list.stdout"
 
+    ###################################################################
+    # Passo 5: Configura o Ingress
+    ###################################################################
+
     - name: Instala Ingress NGINX no KIND
       command: kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
       when: "'kind' not in clusters_list.stdout"
 
+    - name: Aguarda o Ingress NGINX ficar pronto
+      command: >
+        kubectl wait --namespace ingress-nginx
+          --for=condition=ready pod
+          --selector=app.kubernetes.io/component=controller
+          --timeout=90s
+      when: "'kind' not in clusters_list.stdout"
 
     ###################################################################
-    # Passo 5: Instalação do Helm
+    # Passo 6: Instalação do Helm
     ###################################################################
     - name: Adiciona chave GPG do Helm
       apt_key:
@@ -199,7 +210,7 @@
 
 
     ###################################################################
-    # Passo 6: Cria /root/helm-charts no server
+    # Passo 7: Cria /root/helm-charts no server
     ###################################################################
     - name: Garante que a pasta /root/helm-charts existe no servidor
       file:
