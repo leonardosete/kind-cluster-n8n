@@ -35,7 +35,7 @@ jobs:
       working-directory: ./ansible-hostinger
       run: |
         echo "::group::🚀 Deploy das aplicações no cluster KIND"
-        ansible-playbook -i inventory.ini deploy-infra-base.yaml
+        ansible-playbook -i inventory.ini ansible-deploy-apps.yaml
         echo "::endgroup::"
 
     - name: 🌐 Exibe URL final do n8n

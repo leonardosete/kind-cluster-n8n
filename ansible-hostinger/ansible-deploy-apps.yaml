@@ -1,5 +1,5 @@
 ---
-- name: Deploy de aplicações no cluster KIND
+- name: Deploy de Apps no cluster KIND
   hosts: vps_hostinger
   become: yes
   gather_facts: false
