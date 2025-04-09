@@ -1,5 +1,5 @@
 ## [argocd]
-argocd_hostname: "argocd.antonellagoldsemijoias.com"
+argocd_hostname: "argocd.devops-master.shop"
 ingress_className: "nginx"
 ingress_tls_secretname: "tls-argocd-antonellagold"
 

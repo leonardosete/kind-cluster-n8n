@@ -11,10 +11,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - udemy-python-app.antonellagoldsemijoias.com
+        - udemy-python-app.devops-master.shop
       secretName: udemy-python-app-tls
   rules:
-    - host: udemy-python-app.antonellagoldsemijoias.com
+    - host: udemy-python-app.devops-master.shop
       http:
         paths:
           - path: /
