@@ -51,6 +51,6 @@ jobs:
         echo "Cert-manager e ArgoCD instalados com sucesso!"
         echo "Você pode agora acessar o ArgoCD em:"
         echo ""
-        echo "➡️  https://argocd.devops-master.shop"
+        echo "➡️  https://argocd-test.devops-master.shop"
         echo ""
         echo "==============================================================="

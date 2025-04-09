@@ -6,15 +6,15 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - udemy-python-app.devops-master.shop
+        - udemy-python-app-test.devops-master.shop
       secretName: udemy-python-app-tls
   rules:
-    - host: udemy-python-app.devops-master.shop
+    - host: udemy-python-app-test.devops-master.shop
       http:
         paths:
           - path: /
