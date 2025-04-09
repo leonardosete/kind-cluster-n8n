@@ -21,45 +21,33 @@ jobs:
     - name: 📦 Checkout do repositório
       uses: actions/checkout@v3
 
-    - name: 🔧 Instala dependências (Ansible + kubectl)
+    - name: 🔐 Prepara chave SSH da VPS
       run: |
-        echo "::group::🛠️ Instalando dependências"
-        sudo apt-get update
-        sudo apt-get install -y ansible sshpass openssh-client curl
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-        echo "::endgroup::"
-
-    - name: 🔐 Configura chave SSH da VPS
-      run: |
-        echo "::group::🔐 Adicionando chave SSH"
+        echo "::group::🔐 Preparando chave SSH"
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
         chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
         ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
-        echo "✅ Chave SSH configurada"
         echo "::endgroup::"
 
-    - name: 📁 Cria diretório /root/argo-apps e copia arquivos YAML para VPS
+    - name: 📁 Cria diretório /root/argo-apps e envia manifests para VPS
       run: |
         echo "::group::📁 Copiando arquivos argo-apps para a VPS"
         ssh -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }} "mkdir -p /root/argo-apps"
         scp -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} argo-apps/*.yaml ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }}:/root/argo-apps/
         echo "::endgroup::"
 
-    - name: 🚀 Executa playbook para aplicar Applications do ArgoCD
+    - name: 🚀 Executa Ansible para aplicar Applications no ArgoCD
       working-directory: ./ansible-hostinger
       run: |
-        echo "::group::📦 Aplicando applications ArgoCD (somente se ainda não existem)"
+        echo "::group::🚀 Executando playbook"
         ansible-playbook -i inventory.ini ansible-apply-argo-apps.yml
         echo "::endgroup::"
 
-    - name: ✅ Resultado Final
+    - name: ✅ Resultado final
       run: |
         echo ""
-        echo "====================== ✅ APLICAÇÃO FINALIZADA ======================"
-        echo ""
-        echo "✔️ Os Applications foram verificados e aplicados se necessário."
-        echo "🌐 Confira no painel do ArgoCD: https://argocd-test.devops-master.shop"
-        echo ""
-        echo "====================================================================="
+        echo "====================== ✅ FINALIZADO ======================"
+        echo "✔️ Applications foram aplicados se ainda não existiam."
+        echo "🌐 Acesse o painel do ArgoCD: https://argocd-test.devops-master.shop"
+        echo "=========================================================="
