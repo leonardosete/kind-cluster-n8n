@@ -1,3 +1,5 @@
+Evolution API foi instalada com sucesso!
+
 Acesse:
   https://{{ .Values.evolutionApi.ingress.host }}
 
