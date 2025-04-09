@@ -1,9 +1,3 @@
-- name: Aplica CRDs do ArgoCD
-  tags: [argocd]
-  shell: |
-    kubectl apply --server-side -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-  register: install_argocd_crds
-
 - name: Copia chart argocd para o servidor
   tags: [argocd]
   synchronize:
@@ -23,7 +17,7 @@
     dest: /root/helm-charts/argocd/values.yaml
   tags: [argocd]
 
-- name: Instala o ArgoCD via Helm
+- name: Instala o ArgoCD via Helm (CRDs incluídos)
   tags: [argocd]
   shell: |
     helm repo add argo https://argoproj.github.io/argo-helm
