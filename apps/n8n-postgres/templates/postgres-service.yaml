@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.postgres.name }}
-  namespace: {{ .Values.n8n.namespace }}
+  namespace: {{ .Values.postgres.namespace }}
 spec:
   selector:
     app: {{ .Values.postgres.name }}
