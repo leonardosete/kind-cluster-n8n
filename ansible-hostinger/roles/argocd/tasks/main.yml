@@ -1,7 +1,7 @@
 - name: Aplica CRDs do ArgoCD
   tags: [argocd]
   shell: |
-    kubectl apply -n argocd --server-side -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    kubectl apply --server-side -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
   register: install_argocd_crds
 
 - name: Copia chart argocd para o servidor
