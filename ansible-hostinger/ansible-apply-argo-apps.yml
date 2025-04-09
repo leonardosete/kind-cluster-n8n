@@ -1,0 +1,19 @@
+- name: Aplica Applications do ArgoCD se ainda não existirem
+  hosts: all
+  become: true
+  tasks:
+    - name: Verifica se os Applications já existem no cluster
+      shell: |
+        kubectl get application {{ item }} -n argocd --ignore-not-found
+      register: resultado
+      changed_when: false
+      loop:
+        - n8n
+        - n8n-postgres
+
+    - name: Aplica Application do ArgoCD se ainda não existir
+      shell: kubectl apply -f /root/argo-apps/{{ item }}.yaml -n argocd
+      when: resultado.results[loop.index0].stdout == ""
+      loop:
+        - n8n
+        - n8n-postgres
