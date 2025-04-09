@@ -1,11 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: n8n
+  name: {{ .Values.n8n.name }}
+  namespace: {{ .Values.n8n.namespace }}
 spec:
   selector:
-    app: n8n
+    app: {{ .Values.n8n.name }}
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 5678
+      port: {{ .Values.n8n.port }}
+      targetPort: {{ .Values.n8n.port }}

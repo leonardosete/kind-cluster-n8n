@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.n8n.name }}
+  namespace: {{ .Values.n8n.namespace }}
 spec:
   replicas: 1
   selector:
@@ -23,12 +24,12 @@ spec:
         - name: N8N_BASIC_AUTH_USER
           valueFrom:
             secretKeyRef:
-              name: n8n-secret
+              name: "{{ .Values.n8n.secretName }}"
               key: N8N_BASIC_AUTH_USER
         - name: N8N_BASIC_AUTH_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: n8n-secret
+              name: "{{ .Values.n8n.secretName }}"
               key: N8N_BASIC_AUTH_PASSWORD
         - name: N8N_HOST
           value: {{ .Values.n8n.domain_name }}
@@ -55,5 +56,5 @@ spec:
         - name: DB_POSTGRESDB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: n8n-secret
+              name: "{{ .Values.n8n.secretName }}"
               key: DB_POSTGRESDB_PASSWORD

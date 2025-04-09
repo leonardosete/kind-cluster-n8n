@@ -3,6 +3,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .Values.n8n.name }}
+  namespace: {{ .Values.n8n.namespace }}
   annotations:
     {{- range $key, $value := .Values.n8n.ingress.annotations }}
     {{ $key }}: {{ $value | quote }}
@@ -17,9 +18,9 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: n8n
+            name: {{ .Values.n8n.name }}
             port:
-              number: 80
+              number: {{ .Values.n8n.port }}
   {{- if .Values.n8n.ingress.tls.enabled }}
   tls:
   - hosts:
