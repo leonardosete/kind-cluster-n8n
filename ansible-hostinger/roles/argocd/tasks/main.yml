@@ -1,3 +1,10 @@
+- name: Remove CRDs do ArgoCD (se existirem)
+  shell: |
+    for crd in applications applicationsets appprojects argocdextensions; do
+      kubectl delete crd ${crd}.argoproj.io --ignore-not-found
+    done
+  tags: [argocd]
+
 - name: Copia chart argocd para o servidor
   tags: [argocd]
   synchronize:
