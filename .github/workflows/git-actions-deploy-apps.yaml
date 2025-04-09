@@ -1,53 +1,53 @@
-name: Deploy de Aplicações no Cluster KIND
+# name: Deploy de Aplicações no Cluster KIND
 
-on:
-  workflow_dispatch:
-    inputs:
-      descricao:
-        description: "⚠️ Este workflow instala n8n e n8n_postgres. Confirma a execução?"
-        required: true
-        default: "false"
-jobs:
-  deploy-apps:
-    runs-on: ubuntu-latest
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       descricao:
+#         description: "⚠️ Este workflow instala n8n e n8n_postgres. Confirma a execução?"
+#         required: true
+#         default: "false"
+# jobs:
+#   deploy-apps:
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: 📦 Checkout do repositório
-      uses: actions/checkout@v3
+#     steps:
+#     - name: 📦 Checkout do repositório
+#       uses: actions/checkout@v3
 
-    - name: 🔧 Instala dependências (Ansible + kubectl)
-      run: |
-        echo "::group::🛠️ Instalando dependências"
-        sudo apt-get update
-        sudo apt-get install -y ansible sshpass openssh-client curl
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-        echo "::endgroup::"
+#     - name: 🔧 Instala dependências (Ansible + kubectl)
+#       run: |
+#         echo "::group::🛠️ Instalando dependências"
+#         sudo apt-get update
+#         sudo apt-get install -y ansible sshpass openssh-client curl
+#         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+#         chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+#         echo "::endgroup::"
 
-    - name: 🔐 Configura chave SSH da VPS
-      run: |
-        echo "::group::🔐 Adicionando chave SSH"
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
-        chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
-        ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
-        echo "✅ Chave SSH configurada"
-        echo "::endgroup::"
+#     - name: 🔐 Configura chave SSH da VPS
+#       run: |
+#         echo "::group::🔐 Adicionando chave SSH"
+#         mkdir -p ~/.ssh
+#         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+#         chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+#         ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
+#         echo "✅ Chave SSH configurada"
+#         echo "::endgroup::"
 
-    - name: ⚙️ Executa o playbook de deploy de aplicações
-      working-directory: ./ansible-hostinger
-      run: |
-        echo "::group::🚀 Deploy das aplicações no cluster KIND"
-        ansible-playbook -i inventory.ini ansible-deploy-apps.yaml
-        echo "::endgroup::"
+#     - name: ⚙️ Executa o playbook de deploy de aplicações
+#       working-directory: ./ansible-hostinger
+#       run: |
+#         echo "::group::🚀 Deploy das aplicações no cluster KIND"
+#         ansible-playbook -i inventory.ini ansible-deploy-apps.yaml
+#         echo "::endgroup::"
 
-    - name: 🌐 Exibe URL final do n8n
-      run: |
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/hostinger-vps root@srv774237.hstgr.cloud:/tmp/n8n-final-url.txt ./n8n-url.txt
-        echo ""
-        echo "====================== 🌐 APLICAÇÃO DISPONÍVEL ======================"
-        echo ""
-        echo "Seu n8n está disponível em:"
-        cat ./n8n-url.txt
-        echo ""
-        echo "======================================================================"
+#     - name: 🌐 Exibe URL final do n8n
+#       run: |
+#         scp -o StrictHostKeyChecking=no -i ~/.ssh/hostinger-vps root@srv774237.hstgr.cloud:/tmp/n8n-final-url.txt ./n8n-url.txt
+#         echo ""
+#         echo "====================== 🌐 APLICAÇÃO DISPONÍVEL ======================"
+#         echo ""
+#         echo "Seu n8n está disponível em:"
+#         cat ./n8n-url.txt
+#         echo ""
+#         echo "======================================================================"
