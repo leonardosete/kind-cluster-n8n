@@ -43,7 +43,7 @@ jobs:
         ansible-playbook -i inventory.ini ansible-infra-base.yml
         echo "::endgroup::"
 
-    - name: ✅ Confirmação final
+    - name: ✅ ⚠️ IMPORTANTE ⚠️ ✅
       run: |
         echo ""
         echo "====================== ✅ INFRA BASE PRONTA ======================"
@@ -52,9 +52,12 @@ jobs:
         echo ""
         echo "🌐 URL: https://argocd-test.devops-master.shop"
         echo "👤 Usuário: admin"
-        echo "🔐 Senha: $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
+        echo "🔐 Para descobrir a senha do usuário admin, execute no servidor:"
+        echo ""
+        echo "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=\"{.data.password}\" | base64 -d && echo"
         echo ""
         echo "✅ Você pode acessar o ArgoCD agora e fazer o login"
         echo ""
         echo "==============================================================="
+
 
