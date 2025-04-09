@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.postgres.name }}
-  namespace: {{ .Values.n8n.namespace }}
+  namespace: {{ .Values.postgres.namespace }}
 spec:
   replicas: {{ .Values.postgres.replicas }}
   selector:
