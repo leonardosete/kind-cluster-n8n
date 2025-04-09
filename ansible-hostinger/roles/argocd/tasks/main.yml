@@ -1,8 +1,20 @@
-- name: Remove CRDs do ArgoCD (se existirem)
+- name: 🔥 Remove recursos do ArgoCD de instalações anteriores (CRDs, ClusterRoles etc.)
   shell: |
-    for crd in applications applicationsets appprojects argocdextensions; do
-      kubectl delete crd ${crd}.argoproj.io --ignore-not-found
-    done
+    echo "🧹 Limpando CRDs..."
+    kubectl delete crd applications.argoproj.io --ignore-not-found
+    kubectl delete crd applicationsets.argoproj.io --ignore-not-found
+    kubectl delete crd appprojects.argoproj.io --ignore-not-found
+    kubectl delete crd argocdextensions.argoproj.io --ignore-not-found
+
+    echo "🧹 Limpando ClusterRoles e Bindings..."
+    kubectl delete clusterrole argocd-server --ignore-not-found
+    kubectl delete clusterrole argocd-application-controller --ignore-not-found
+    kubectl delete clusterrolebinding argocd-application-controller --ignore-not-found
+
+    echo "🧹 Limpando namespace (se sobrou algo)..."
+    kubectl delete namespace argocd --ignore-not-found
+
+    sleep 10
   tags: [argocd]
 
 - name: Copia chart argocd para o servidor
