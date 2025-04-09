@@ -1,0 +1,688 @@
+Title: GitHub - leonardosete/kind-cluster-n8n: Creates a kind-cluster with n8n and it dependencies
+
+URL Source: https://github.com/leonardosete/kind-cluster-n8n
+
+Markdown Content:
+GitHub - leonardosete/kind-cluster-n8n: Creates a kind-cluster with n8n and it dependencies
+===============
+                                            
+
+[Skip to content](https://github.com/leonardosete/kind-cluster-n8n#start-of-content)  
+
+Navigation Menu
+---------------
+
+Toggle navigation
+
+[](https://github.com/)
+
+[Sign in](https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fleonardosete%2Fkind-cluster-n8n)
+
+*   Product
+    
+    *   [GitHub Copilot Write better code with AI](https://github.com/features/copilot)
+    *   [GitHub Advanced Security Find and fix vulnerabilities](https://github.com/security/advanced-security)
+    *   [Actions Automate any workflow](https://github.com/features/actions)
+    *   [Codespaces Instant dev environments](https://github.com/features/codespaces)
+    *   [Issues Plan and track work](https://github.com/features/issues)
+    *   [Code Review Manage code changes](https://github.com/features/code-review)
+    *   [Discussions Collaborate outside of code](https://github.com/features/discussions)
+    *   [Code Search Find more, search less](https://github.com/features/code-search)
+    
+    Explore
+    
+    *   [All features](https://github.com/features)
+    *   [Documentation](https://docs.github.com/)
+    *   [GitHub Skills](https://skills.github.com/)
+    *   [Blog](https://github.blog/)
+    
+*   Solutions
+    
+    By company size
+    
+    *   [Enterprises](https://github.com/enterprise)
+    *   [Small and medium teams](https://github.com/team)
+    *   [Startups](https://github.com/enterprise/startups)
+    *   [Nonprofits](https://github.com/solutions/industry/nonprofits)
+    
+    By use case
+    
+    *   [DevSecOps](https://github.com/solutions/use-case/devsecops)
+    *   [DevOps](https://github.com/solutions/use-case/devops)
+    *   [CI/CD](https://github.com/solutions/use-case/ci-cd)
+    *   [View all use cases](https://github.com/solutions/use-case)
+    
+    By industry
+    
+    *   [Healthcare](https://github.com/solutions/industry/healthcare)
+    *   [Financial services](https://github.com/solutions/industry/financial-services)
+    *   [Manufacturing](https://github.com/solutions/industry/manufacturing)
+    *   [Government](https://github.com/solutions/industry/government)
+    *   [View all industries](https://github.com/solutions/industry)
+    
+    [View all solutions](https://github.com/solutions)
+    
+*   Resources
+    
+    Topics
+    
+    *   [AI](https://github.com/resources/articles/ai)
+    *   [DevOps](https://github.com/resources/articles/devops)
+    *   [Security](https://github.com/resources/articles/security)
+    *   [Software Development](https://github.com/resources/articles/software-development)
+    *   [View all](https://github.com/resources/articles)
+    
+    Explore
+    
+    *   [Learning Pathways](https://resources.github.com/learn/pathways)
+    *   [Events & Webinars](https://resources.github.com/)
+    *   [Ebooks & Whitepapers](https://github.com/resources/whitepapers)
+    *   [Customer Stories](https://github.com/customer-stories)
+    *   [Partners](https://partner.github.com/)
+    *   [Executive Insights](https://github.com/solutions/executive-insights)
+    
+*   Open Source
+    
+    *   [GitHub Sponsors Fund open source developers](https://github.com/sponsors)
+    
+    *   [The ReadME Project GitHub community articles](https://github.com/readme)
+    
+    Repositories
+    
+    *   [Topics](https://github.com/topics)
+    *   [Trending](https://github.com/trending)
+    *   [Collections](https://github.com/collections)
+    
+*   Enterprise
+    
+    *   [Enterprise platform AI-powered developer platform](https://github.com/enterprise)
+    
+    Available add-ons
+    
+    *   [GitHub Advanced Security Enterprise-grade security features](https://github.com/security/advanced-security)
+    *   [Copilot for business Enterprise-grade AI features](https://github.com/features/copilot/copilot-business)
+    *   [Premium Support Enterprise-grade 24/7 support](https://github.com/premium-support)
+    
+*   [Pricing](https://github.com/pricing)
+
+Search or jump to...
+
+Search code, repositories, users, issues, pull requests...
+==========================================================
+
+Search
+
+Clear
+
+[Search syntax tips](https://docs.github.com/search-github/github-code-search/understanding-github-code-search-syntax)
+
+Provide feedback
+================
+
+We read every piece of feedback, and take your input very seriously.
+
+ Include my email address so I can be contacted
+
+Cancel Submit feedback
+
+Saved searches
+==============
+
+Use saved searches to filter your results more quickly
+------------------------------------------------------
+
+Name  
+
+Query 
+
+To see all available qualifiers, see our [documentation](https://docs.github.com/search-github/github-code-search/understanding-github-code-search-syntax).
+
+Cancel Create saved search
+
+[Sign in](https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fleonardosete%2Fkind-cluster-n8n)
+
+[Sign up](https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E&source=header-repo&source_repo=leonardosete%2Fkind-cluster-n8n) Reseting focus
+
+You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+
+{{ message }}
+
+[leonardosete](https://github.com/leonardosete) / **[kind-cluster-n8n](https://github.com/leonardosete/kind-cluster-n8n)** Public
+
+*   [Notifications](https://github.com/login?return_to=%2Fleonardosete%2Fkind-cluster-n8n) You must be signed in to change notification settings
+*   [Fork 0](https://github.com/login?return_to=%2Fleonardosete%2Fkind-cluster-n8n)
+*   [Star 0](https://github.com/login?return_to=%2Fleonardosete%2Fkind-cluster-n8n)
+    
+
+Creates a kind-cluster with n8n and it dependencies
+
+[0 stars](https://github.com/leonardosete/kind-cluster-n8n/stargazers) [0 forks](https://github.com/leonardosete/kind-cluster-n8n/forks) [Branches](https://github.com/leonardosete/kind-cluster-n8n/branches) [Tags](https://github.com/leonardosete/kind-cluster-n8n/tags) [Activity](https://github.com/leonardosete/kind-cluster-n8n/activity)
+
+[Star](https://github.com/login?return_to=%2Fleonardosete%2Fkind-cluster-n8n)
+
+[Notifications](https://github.com/login?return_to=%2Fleonardosete%2Fkind-cluster-n8n) You must be signed in to change notification settings
+
+*   [Code](https://github.com/leonardosete/kind-cluster-n8n)
+*   [Issues 0](https://github.com/leonardosete/kind-cluster-n8n/issues)
+*   [Pull requests 0](https://github.com/leonardosete/kind-cluster-n8n/pulls)
+*   [Actions](https://github.com/leonardosete/kind-cluster-n8n/actions)
+*   [Projects 0](https://github.com/leonardosete/kind-cluster-n8n/projects)
+*   [Security](https://github.com/leonardosete/kind-cluster-n8n/security)
+*   [Insights](https://github.com/leonardosete/kind-cluster-n8n/pulse)
+
+Additional navigation options
+
+*   [Code](https://github.com/leonardosete/kind-cluster-n8n)
+*   [Issues](https://github.com/leonardosete/kind-cluster-n8n/issues)
+*   [Pull requests](https://github.com/leonardosete/kind-cluster-n8n/pulls)
+*   [Actions](https://github.com/leonardosete/kind-cluster-n8n/actions)
+*   [Projects](https://github.com/leonardosete/kind-cluster-n8n/projects)
+*   [Security](https://github.com/leonardosete/kind-cluster-n8n/security)
+*   [Insights](https://github.com/leonardosete/kind-cluster-n8n/pulse)
+
+leonardosete/kind-cluster-n8n
+=============================
+
+  
+
+ main
+
+[**3** Branches](https://github.com/leonardosete/kind-cluster-n8n/branches)[**0** Tags](https://github.com/leonardosete/kind-cluster-n8n/tags)
+
+[](https://github.com/leonardosete/kind-cluster-n8n/branches)[](https://github.com/leonardosete/kind-cluster-n8n/tags)
+
+Go to file
+
+Code
+
+Folders and files
+-----------------
+
+| Name | Name | 
+Last commit message
+
+ | 
+
+Last commit date
+
+ |
+| --- | --- | --- | --- |
+| 
+
+Latest commit
+-------------
+
+![Image 1: author](https://github.githubassets.com/images/gravatars/gravatar-user-420.png?size=40)
+
+Leonardo Sete
+
+[ci: adjusting deploy apps](https://github.com/leonardosete/kind-cluster-n8n/commit/cc9e53c75affd8b25016512f12a5bac42a76f9b5)
+
+Apr 9, 2025
+
+[cc9e53c](https://github.com/leonardosete/kind-cluster-n8n/commit/cc9e53c75affd8b25016512f12a5bac42a76f9b5) · Apr 9, 2025
+
+History
+-------
+
+[49 Commits](https://github.com/leonardosete/kind-cluster-n8n/commits/main/)
+
+[](https://github.com/leonardosete/kind-cluster-n8n/commits/main/)
+
+
+
+
+
+
+
+ |
+| 
+
+[.github/workflows](https://github.com/leonardosete/kind-cluster-n8n/tree/main/.github/workflows "This path skips through empty directories")
+
+
+
+
+
+
+
+ | 
+
+[.github/workflows](https://github.com/leonardosete/kind-cluster-n8n/tree/main/.github/workflows "This path skips through empty directories")
+
+
+
+
+
+
+
+ | 
+
+[ci: adjusting deploy apps](https://github.com/leonardosete/kind-cluster-n8n/commit/cc9e53c75affd8b25016512f12a5bac42a76f9b5 "ci: adjusting deploy apps")
+
+
+
+ | 
+
+Apr 9, 2025
+
+ |
+| 
+
+[ansible-hostinger](https://github.com/leonardosete/kind-cluster-n8n/tree/main/ansible-hostinger "ansible-hostinger")
+
+
+
+
+
+
+
+ | 
+
+[ansible-hostinger](https://github.com/leonardosete/kind-cluster-n8n/tree/main/ansible-hostinger "ansible-hostinger")
+
+
+
+
+
+
+
+ | 
+
+[ci: adjusting deploy apps](https://github.com/leonardosete/kind-cluster-n8n/commit/80709e85f2626651a280c8e0fc74f2f0bb1f7b90 "ci: adjusting deploy apps")
+
+
+
+ | 
+
+Apr 9, 2025
+
+ |
+| 
+
+[helm-charts](https://github.com/leonardosete/kind-cluster-n8n/tree/main/helm-charts "helm-charts")
+
+
+
+
+
+
+
+ | 
+
+[helm-charts](https://github.com/leonardosete/kind-cluster-n8n/tree/main/helm-charts "helm-charts")
+
+
+
+
+
+
+
+ | 
+
+[ci: some improvements about argocd values](https://github.com/leonardosete/kind-cluster-n8n/commit/5c707c4a8e6e38933b7bccc6094afc1a6db1aaf3 "ci: some improvements about argocd values")
+
+
+
+ | 
+
+Apr 9, 2025
+
+ |
+| 
+
+[k8s](https://github.com/leonardosete/kind-cluster-n8n/tree/main/k8s "k8s")
+
+
+
+
+
+
+
+ | 
+
+[k8s](https://github.com/leonardosete/kind-cluster-n8n/tree/main/k8s "k8s")
+
+
+
+
+
+
+
+ | 
+
+[ci: some improvements about argocd values](https://github.com/leonardosete/kind-cluster-n8n/commit/5c707c4a8e6e38933b7bccc6094afc1a6db1aaf3 "ci: some improvements about argocd values")
+
+
+
+ | 
+
+Apr 9, 2025
+
+ |
+| 
+
+[tools](https://github.com/leonardosete/kind-cluster-n8n/tree/main/tools "tools")
+
+
+
+
+
+
+
+ | 
+
+[tools](https://github.com/leonardosete/kind-cluster-n8n/tree/main/tools "tools")
+
+
+
+
+
+
+
+ | 
+
+[ci: teste 6 - rodando ansible + kubeconfig](https://github.com/leonardosete/kind-cluster-n8n/commit/2bf7977dc9bc6e9337422b0afd40b60bbb6e73d7 "ci: teste 6 - rodando ansible + kubeconfig")
+
+
+
+ | 
+
+Apr 7, 2025
+
+ |
+| 
+
+[.gitignore](https://github.com/leonardosete/kind-cluster-n8n/blob/main/.gitignore ".gitignore")
+
+
+
+
+
+
+
+ | 
+
+[.gitignore](https://github.com/leonardosete/kind-cluster-n8n/blob/main/.gitignore ".gitignore")
+
+
+
+
+
+
+
+ | 
+
+[ci: ignore .DS\_Store file - macos](https://github.com/leonardosete/kind-cluster-n8n/commit/81a37652adcb06fd23c73c9ee785c4454f80ffd5 "ci: ignore .DS_Store file - macos")
+
+
+
+ | 
+
+Apr 8, 2025
+
+ |
+| 
+
+[README.md](https://github.com/leonardosete/kind-cluster-n8n/blob/main/README.md "README.md")
+
+
+
+
+
+
+
+ | 
+
+[README.md](https://github.com/leonardosete/kind-cluster-n8n/blob/main/README.md "README.md")
+
+
+
+
+
+
+
+ | 
+
+[ci: versao deploy kind + apps via ansible](https://github.com/leonardosete/kind-cluster-n8n/commit/a7708d3cb8f8d0effe8e4b0719c4b880bb436c39 "ci: versao deploy kind + apps via ansible")
+
+
+
+ | 
+
+Apr 8, 2025
+
+ |
+| 
+
+View all files
+
+ |
+
+Repository files navigation
+---------------------------
+
+*   [README](https://github.com/leonardosete/kind-cluster-n8n#)
+
+🔧 Provisionamento de Cluster KIND + n8n via Ansible e GitHub Actions
+=====================================================================
+
+[](https://github.com/leonardosete/kind-cluster-n8n#-provisionamento-de-cluster-kind--n8n-via-ansible-e-github-actions)
+
+Este repositório provisiona uma VPS com Debian, instala um cluster Kubernetes usando KIND e realiza o deploy do [n8n](https://n8n.io/) com PostgreSQL, utilizando Ansible e Helm. Toda a automação pode ser executada por workflows do GitHub Actions.
+
+* * *
+
+📦 Estrutura do Projeto
+-----------------------
+
+[](https://github.com/leonardosete/kind-cluster-n8n#-estrutura-do-projeto)
+
+```shell
+kind-cluster-n8n/
+├── ansible-hostinger/
+│   ├── setup-servidor.yml          # Prepara a VPS, instala Docker, KIND, kubectl, Helm
+│   ├── deploy-apps.yml             # Faz deploy do n8n e dependências via Helm
+│   ├── inventory.ini               # Definição do host da VPS para Ansible
+│   ├── ansible.cfg                 # Configuração geral do Ansible
+│   └── vps-templates-base/         # Templates como bashrc, motd, kind-config.yaml
+├── tools/
+│   └── fix-kubeconfig-context.sh   # Corrige o contexto do kubeconfig para uso local
+├── .github/
+│   └── workflows/
+│       ├── create-kind-cluster.yaml  # Workflow para configurar a VPS e o cluster
+│       └── deploy-apps.yaml          # Workflow para deploy das aplicações
+```
+
+* * *
+
+⚙️ O que é automatizado?
+------------------------
+
+[](https://github.com/leonardosete/kind-cluster-n8n#%EF%B8%8F-o-que-%C3%A9-automatizado)
+
+### Setup do Servidor (via `setup-servidor.yml`)
+
+[](https://github.com/leonardosete/kind-cluster-n8n#setup-do-servidor-via-setup-servidoryml)
+
+*   Atualização de pacotes e instalação de:
+    *   Docker + Docker Compose
+    *   Python + pip
+    *   kubectl
+    *   Helm
+    *   KIND
+    *   Ferramentas úteis (htop, ncdu, btop, duf, etc.)
+*   Configuração do `.bashrc` e `motd` personalizados
+*   Criação do cluster KIND com:
+    *   Portas mapeadas: `80`, `443`, `6443 -> 42885`
+    *   Ingress Controller (NGINX)
+*   Exportação automática do kubeconfig da VPS
+
+### Deploy das Aplicações (via `deploy-apps.yml`)
+
+[](https://github.com/leonardosete/kind-cluster-n8n#deploy-das-aplica%C3%A7%C3%B5es-via-deploy-appsyml)
+
+*   Criação do namespace `n8n-vps`
+*   Deploy via Helm:
+    *   `cert_bundle`: ClusterIssuer e TLS (se necessário)
+    *   `n8n_postgres`: banco de dados PostgreSQL
+    *   `n8n`: aplicação principal
+*   Geração de URL final do serviço n8n como `/tmp/n8n-final-url.txt`
+
+* * *
+
+🚀 Execução via GitHub Actions
+------------------------------
+
+[](https://github.com/leonardosete/kind-cluster-n8n#-execu%C3%A7%C3%A3o-via-github-actions)
+
+### 🔧 1. `create-kind-cluster.yaml`
+
+[](https://github.com/leonardosete/kind-cluster-n8n#-1-create-kind-clusteryaml)
+
+*   Prepara a VPS e cluster Kubernetes
+*   Ajusta o kubeconfig com IP da VPS e TLS desabilitado
+*   Salva o kubeconfig como artifact
+
+### 🚀 2. `deploy-apps.yaml`
+
+[](https://github.com/leonardosete/kind-cluster-n8n#-2-deploy-appsyaml)
+
+*   Conecta via SSH na VPS
+*   Executa o `deploy-apps.yml`
+*   Exibe a URL final do n8n no terminal do GitHub Actions
+
+* * *
+
+🧠 Como usar localmente (após o provisionamento)
+------------------------------------------------
+
+[](https://github.com/leonardosete/kind-cluster-n8n#-como-usar-localmente-ap%C3%B3s-o-provisionamento)
+
+1.  Acesse a aba **Actions** no GitHub
+2.  Baixe o arquivo `kubeconfig-vps.zip` gerado no workflow
+3.  Extraia e mova para:
+
+```shell
+mv ~/Downloads/kubeconfig-vps ~/.kube/config-vps
+```
+
+4.  Execute o script de correção de contexto:
+
+```shell
+cd tools
+bash fix-kubeconfig-context.sh
+```
+
+5.  Teste a conexão com:
+
+```shell
+kubectl get nodes --kubeconfig ~/.kube/config-vps
+```
+
+* * *
+
+🌐 Acesso ao n8n
+----------------
+
+[](https://github.com/leonardosete/kind-cluster-n8n#-acesso-ao-n8n)
+
+O link final é exibido no terminal do GitHub Actions após o deploy:
+
+```
+🌐 Seu n8n está disponível em:
+https://n8n-kind.seu-dominio.com
+```
+
+* * *
+
+📌 Requisitos
+-------------
+
+[](https://github.com/leonardosete/kind-cluster-n8n#-requisitos)
+
+*   VPS com Debian acessível por SSH
+*   Chave SSH configurada nas GitHub Secrets (`SSH_PRIVATE_KEY`)
+*   As variáveis de ambiente:
+    *   `VPS_IP` e `VPS_CLUSTER_PORT` configuradas no repositório (GitHub Actions)
+
+* * *
+
+✅ Próximos passos sugeridos
+---------------------------
+
+[](https://github.com/leonardosete/kind-cluster-n8n#-pr%C3%B3ximos-passos-sugeridos)
+
+*   [ ]  Adicionar ArgoCD para GitOps completo
+*   [ ]  Adicionar stack de observabilidade: Prometheus, Grafana, Loki
+*   [ ]  Configurar SSL automático via Cert-Manager + ClusterIssuer
+*   [ ]  Automatizar deploy contínuo via push em repositórios de apps
+
+* * *
+
+🛠️ Autor
+---------
+
+[](https://github.com/leonardosete/kind-cluster-n8n#%EF%B8%8F-autor)
+
+> Desenvolvido por [Leonardo Sete](https://github.com/leonardosete) • DevOps & SRE
+
+About
+-----
+
+Creates a kind-cluster with n8n and it dependencies
+
+### Resources
+
+[Readme](https://github.com/leonardosete/kind-cluster-n8n#readme-ov-file)
+
+[Activity](https://github.com/leonardosete/kind-cluster-n8n/activity)
+
+### Stars
+
+[**0** stars](https://github.com/leonardosete/kind-cluster-n8n/stargazers)
+
+### Watchers
+
+[**1** watching](https://github.com/leonardosete/kind-cluster-n8n/watchers)
+
+### Forks
+
+[**0** forks](https://github.com/leonardosete/kind-cluster-n8n/forks)
+
+[Report repository](https://github.com/contact/report-content?content_url=https%3A%2F%2Fgithub.com%2Fleonardosete%2Fkind-cluster-n8n&report=leonardosete+%28user%29)
+
+[Releases](https://github.com/leonardosete/kind-cluster-n8n/releases)
+---------------------------------------------------------------------
+
+No releases published
+
+[Packages 0](https://github.com/users/leonardosete/packages?repo_name=kind-cluster-n8n)
+---------------------------------------------------------------------------------------
+
+No packages published  
+
+Languages
+---------
+
+*   [Shell 41.5%](https://github.com/leonardosete/kind-cluster-n8n/search?l=shell)
+*   [Jinja 31.5%](https://github.com/leonardosete/kind-cluster-n8n/search?l=jinja)
+*   [Smarty 27.0%](https://github.com/leonardosete/kind-cluster-n8n/search?l=smarty)
+
+Footer
+------
+
+[](https://github.com/ "GitHub")© 2025 GitHub, Inc.
+
+### Footer navigation
+
+*   [Terms](https://docs.github.com/site-policy/github-terms/github-terms-of-service)
+*   [Privacy](https://docs.github.com/site-policy/privacy-policies/github-privacy-statement)
+*   [Security](https://github.com/security)
+*   [Status](https://www.githubstatus.com/)
+*   [Docs](https://docs.github.com/)
+*   [Contact](https://support.github.com/?tags=dotcom-footer)
+*   Manage cookies
+*   Do not share my personal information
+
+You can’t perform that action at this time.
