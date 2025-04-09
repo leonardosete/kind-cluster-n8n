@@ -1,5 +1,8 @@
 nameOverride: argocd
 
+global:
+  domain: {{ argocd_hostname }}
+
 server:
   ingress:
     enabled: true
