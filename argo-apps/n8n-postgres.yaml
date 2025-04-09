@@ -19,3 +19,9 @@ spec:
     automated:
       prune: true
       selfHeal: true
+  ignoreDifferences:
+    - group: ""
+      kind: Namespace
+      name: n8n-vps
+      jsonPointers:
+        - /metadata/labels
