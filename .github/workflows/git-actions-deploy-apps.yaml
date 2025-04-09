@@ -2,8 +2,11 @@ name: Deploy de Aplicações no Cluster KIND
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [deploy-via-argocd]
+    inputs:
+      descricao:
+        description: "⚠️ Este workflow instala n8n e n8n_postgres. Confirma a execução?"
+        required: true
+        default: "false"
 jobs:
   deploy-apps:
     runs-on: ubuntu-latest
