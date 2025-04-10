@@ -4,16 +4,16 @@ on:
   push:
     branches:
       - main
-  # workflow_dispatch:
-  #   inputs:
-  #     executar:
-  #       description: "⚠️ Deseja aplicar os Applications (n8n, postgres) no ArgoCD?"
-  #       required: true
-  #       default: "nao"
-  #       type: choice
-  #       options:
-  #         - sim
-  #         - nao
+  workflow_dispatch:
+    # inputs:
+    #   executar:
+    #     description: "⚠️ Deseja aplicar os Applications (n8n, postgres) no ArgoCD?"
+    #     required: true
+    #     default: "nao"
+    #     type: choice
+    #     options:
+    #       - sim
+    #       - nao
 
 jobs:
   aplicar-apps:
