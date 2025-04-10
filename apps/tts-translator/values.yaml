@@ -8,10 +8,9 @@ ttsTranslator:
   env:
     ENABLE_CORS: true
     LT_LOAD_ONLY: pt,en
-    LT_PORT: 8089
   service:
-    port: 8089
-    targetPort: 8089
+    port: 8080
+    targetPort: 8080
   persistence:
     enabled: true
     mountPath: /usr/share/tts-translator

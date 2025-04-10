@@ -1,26 +1,30 @@
+{{- if .Values.n8n.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Values.ttsTranslator.name }}
-  namespace: {{ .Values.ttsTranslator.namespace }}
+  name: {{ .Values.n8n.name }}
+  namespace: {{ .Values.n8n.namespace }}
   annotations:
-    {{- with .Values.ttsTranslator.ingress.annotations }}
-    {{ toYaml . | nindent 4 }}
+    {{- range $key, $value := .Values.n8n.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
-  ingressClassName: {{ .Values.ttsTranslator.ingress.className }}
+  ingressClassName: {{ .Values.n8n.ingress.className }}
   rules:
-    - host: {{ .Values.ttsTranslator.ingress.host }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Values.ttsTranslator.name }}
-                port:
-                  number: {{ .Values.ttsTranslator.service.port }}
+  - host: {{ .Values.n8n.domain_name }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.n8n.name }}
+            port:
+              number: {{ .Values.n8n.port }}
+  {{- if .Values.n8n.ingress.tls.enabled }}
   tls:
-    - hosts:
-        - {{ .Values.ttsTranslator.ingress.host }}
-      secretName: {{ .Values.ttsTranslator.ingress.tls.secretName }}
+  - hosts:
+    - {{ .Values.n8n.domain_name }}
+    secretName: {{ .Values.n8n.ingress.tls.secretName }}
+  {{- end }}
+{{- end }}
