@@ -20,7 +20,7 @@ spec:
           service:
             name: {{ .Values.ttsTranslator.name }}
             port:
-              number: {{ .Values.ttsTranslator.port }}
+              number: {{ .Values.ttsTranslator.service.port}}
   {{- if .Values.ttsTranslator.ingress.tls.enabled }}
   tls:
   - hosts:
