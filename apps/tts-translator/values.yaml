@@ -10,7 +10,7 @@ ttsTranslator:
     LT_LOAD_ONLY: pt,en
   service:
     port: 80
-    targetPort: 8089
+    targetPort: 80
   persistence:
     enabled: true
     mountPath: /usr/share/tts-translator
