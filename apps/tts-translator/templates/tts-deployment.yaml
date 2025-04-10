@@ -20,11 +20,14 @@ spec:
           image: {{ .Values.ttsTranslator.image }}
           ports:
             - containerPort: {{ .Values.ttsTranslator.service.port }}
+          args: {{- toYaml .Values.ttsTranslator.command | nindent 10 }}
           env:
             - name: ENABLE_CORS
               value: "{{ .Values.ttsTranslator.env.ENABLE_CORS }}"
             - name: LT_LOAD_ONLY
               value: "{{ .Values.ttsTranslator.env.LT_LOAD_ONLY }}"
+            - name: LT_PORT
+              value: "{{ .Values.ttsTranslator.env.LT_PORT }}"
           volumeMounts:
             - name: data
               mountPath: {{ .Values.ttsTranslator.persistence.mountPath }}
