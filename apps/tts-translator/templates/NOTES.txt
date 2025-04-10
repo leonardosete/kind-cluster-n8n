@@ -1,10 +1,24 @@
-PostgreSQL está rodando com sucesso no cluster!
+{{- if .Values.ingress.enabled }}
 
-Conecte o n8n usando essas variáveis de ambiente:
+tts-translator foi instalado com sucesso! 🚀
 
-  DB_TYPE=postgresdb
-  DB_POSTGRESDB_HOST=postgres
-  DB_POSTGRESDB_PORT=5432
-  DB_POSTGRESDB_DATABASE={{ .Values.postgres.database }}
-  DB_POSTGRESDB_USER={{ .Values.postgres.username }}
-  DB_POSTGRESDB_PASSWORD={{ .Values.postgres.password }}
+Acesse:
+  http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}
+
+Porta:
+  {{ .Values.service.port }}
+
+Se a aplicação não estiver acessível externamente:
+  - Verifique se o Ingress Controller está rodando (ex: nginx)
+  - Certifique-se que DNS e TLS estão corretamente configurados
+
+{{- else }}
+
+tts-translator foi instalado com sucesso! 🚀
+
+Nenhum Ingress foi configurado.
+
+Você pode acessar o serviço dentro do cluster via:
+  kubectl port-forward svc/{{ .Values.name }} 8080:80 -n {{ .Values.namespace }}
+
+{{- end }}
