@@ -1,12 +1,12 @@
-{{- if .Values.tts-translator.ingress.enabled }}
+{{- if .Values.ttsTranslator.ingress.enabled }}
 
 tts-translator foi instalado com sucesso! 🚀
 
 Acesse:
-  http{{ if .Values.tts-translator.ingress.tls.enabled }}s{{ end }}://{{ .Values.tts-translator.ingress.host }}
+  http{{ if .Values.ttsTranslator.ingress.tls.enabled }}s{{ end }}://{{ .Values.ttsTranslator.ingress.host }}
 
 Porta:
-  {{ .Values.tts-translator.service.port }}
+  {{ .Values.ttsTranslator.service.port }}
 
 Se a aplicação não estiver acessível externamente:
   - Verifique se o Ingress Controller está rodando (ex: nginx)
@@ -19,6 +19,6 @@ tts-translator foi instalado com sucesso! 🚀
 Nenhum Ingress foi configurado.
 
 Você pode acessar o serviço dentro do cluster via:
-  kubectl port-forward svc/{{ .Values.tts-translator.name }} 8080:80 -n {{ .Values.tts-translator.namespace }}
+  kubectl port-forward svc/{{ .Values.ttsTranslator.name }} 8080:80 -n {{ .Values.ttsTranslator.namespace }}
 
 {{- end }}

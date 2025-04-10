@@ -1,35 +1,35 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.tts-translator.name }}
-  namespace: {{ .Values.tts-translator.namespace }}
+  name: {{ .Values.ttsTranslator.name }}
+  namespace: {{ .Values.ttsTranslator.namespace }}
   labels:
-    app: {{ .Values.tts-translator.name }}
+    app: {{ .Values.ttsTranslator.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.tts-translator.name }}
+      app: {{ .Values.ttsTranslator.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.tts-translator.name }}
+        app: {{ .Values.ttsTranslator.name }}
     spec:
       containers:
-        - name: {{ .Values.tts-translator.name }}
-          image: {{ .Values.tts-translator.image }}
+        - name: {{ .Values.ttsTranslator.name }}
+          image: {{ .Values.ttsTranslator.image }}
           ports:
-            - containerPort: {{ .Values.tts-translator.service.port }}
-          args: {{ toJson .Values.tts-translator.command }}
+            - containerPort: {{ .Values.ttsTranslator.service.port }}
+          args: {{ toJson .Values.ttsTranslator.command }}
           env:
             - name: ENABLE_CORS
-              value: "{{ .Values.tts-translator.env.ENABLE_CORS }}"
+              value: "{{ .Values.ttsTranslator.env.ENABLE_CORS }}"
             - name: LT_LOAD_ONLY
-              value: "{{ .Values.tts-translator.env.LT_LOAD_ONLY }}"
+              value: "{{ .Values.ttsTranslator.env.LT_LOAD_ONLY }}"
           volumeMounts:
             - name: data
-              mountPath: {{ .Values.tts-translator.persistence.mountPath }}
+              mountPath: {{ .Values.ttsTranslator.persistence.mountPath }}
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: {{ .Values.tts-translator.persistence.pvcName }}
+            claimName: {{ .Values.ttsTranslator.persistence.pvcName }}

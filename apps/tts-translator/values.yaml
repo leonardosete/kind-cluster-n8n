@@ -1,4 +1,4 @@
-tts-translator:
+ttsTranslator:
   name: tts-translator
   namespace: n8n-vps
   image: tmcx/tts-translator:latest

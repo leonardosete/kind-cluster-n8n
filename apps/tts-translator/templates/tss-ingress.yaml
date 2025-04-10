@@ -1,26 +1,26 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Values.tts-translator.name }}
-  namespace: {{ .Values.tts-translator.namespace }}
+  name: {{ .Values.ttsTranslator.name }}
+  namespace: {{ .Values.ttsTranslator.namespace }}
   annotations:
-    {{- with .Values.tts-translator.ingress.annotations }}
+    {{- with .Values.ttsTranslator.ingress.annotations }}
     {{ toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  ingressClassName: {{ .Values.tts-translator.ingress.className }}
+  ingressClassName: {{ .Values.ttsTranslator.ingress.className }}
   rules:
-    - host: {{ .Values.tts-translator.ingress.host }}
+    - host: {{ .Values.ttsTranslator.ingress.host }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.tts-translator.name }}
+                name: {{ .Values.ttsTranslator.name }}
                 port:
-                  number: {{ .Values.tts-translator.service.port }}
+                  number: {{ .Values.ttsTranslator.service.port }}
   tls:
     - hosts:
-        - {{ .Values.tts-translator.ingress.host }}
-      secretName: {{ .Values.tts-translator.ingress.tls.secretName }}
+        - {{ .Values.ttsTranslator.ingress.host }}
+      secretName: {{ .Values.ttsTranslator.ingress.tls.secretName }}
