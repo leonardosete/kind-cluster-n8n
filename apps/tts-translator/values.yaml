@@ -10,12 +10,12 @@ ttsTranslator:
   service:
     port: 8080
     targetPort: 8080
-  persistence:
-    enabled: true
-    mountPath: /usr/share/tts-translator
-    pvcName: tts-translator-data-pvc
-    accessModes: ReadWriteOnce
-    storage: 1Gi
+  # persistence:
+  #   enabled: true
+  #   mountPath: /usr/share/tts-translator
+  #   pvcName: tts-translator-data-pvc
+  #   accessModes: ReadWriteOnce
+  #   storage: 1Gi
   ingress:
     enabled: true
     className: nginx
