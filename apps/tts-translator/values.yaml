@@ -6,6 +6,8 @@ ttsTranslator:
   command:
     - "--cache"
     - "--no-espeak"
+    - "--port"
+    - "8080"
   env:
     ENABLE_CORS: true
     LT_LOAD_ONLY: pt,en
