@@ -25,10 +25,10 @@ spec:
               value: "{{ .Values.ttsTranslator.env.LT_LOAD_ONLY }}"
             - name: LT_PORT
               value: "{{ .Values.ttsTranslator.env.LT_PORT }}"
-          volumeMounts:
-            - name: data
-              mountPath: {{ .Values.ttsTranslator.persistence.mountPath }}
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: {{ .Values.ttsTranslator.persistence.pvcName }}
+      #     volumeMounts:
+      #       - name: data
+      #         mountPath: {{ .Values.ttsTranslator.persistence.mountPath }}
+      # volumes:
+      #   - name: data
+      #     persistentVolumeClaim:
+      #       claimName: {{ .Values.ttsTranslator.persistence.pvcName }}
