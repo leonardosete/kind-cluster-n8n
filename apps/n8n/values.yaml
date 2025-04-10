@@ -7,8 +7,8 @@ n8n:
   password: superadmin123
   protocol: https
   port: 5678
-  domain_name: n8n-kind-test.devops-master.shop
-  webhookUrl: "https://n8n-kind-test.devops-master.shop"
+  domain_name: n8n-test.devops-master.shop
+  webhookUrl: "https://n8n-test.devops-master.shop"
   timezone: America/Sao_Paulo
   postgres:
     db_type: postgresdb
