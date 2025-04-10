@@ -17,7 +17,7 @@ on:
 
 jobs:
   aplicar-apps:
-    if: ${{ github.event.inputs.executar == 'sim' }}
+#    if: ${{ github.event.inputs.executar == 'sim' }}
     runs-on: ubuntu-latest
 
     steps:
