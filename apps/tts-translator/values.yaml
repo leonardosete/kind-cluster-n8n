@@ -9,7 +9,7 @@ ttsTranslator:
     ENABLE_CORS: true
     LT_LOAD_ONLY: pt,en
   service:
-    port: 9999
+    port: 8080
     targetPort: 8080
   persistence:
     enabled: true
