@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.opentts.persistence.pvcName }}
-  namespace: {{ .Values.opentts.namespace }}
+  name: {{ .Values.tts-translator.persistence.pvcName }}
+  namespace: {{ .Values.tts-translator.namespace }}
 spec:
   accessModes:
-    - {{ .Values.opentts.persistence.accessModes }}
+    - {{ .Values.tts-translator.persistence.accessModes }}
   resources:
     requests:
-      storage: {{ .Values.opentts.persistence.storage }}
+      storage: {{ .Values.tts-translator.persistence.storage }}

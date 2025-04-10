@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.opentts.name }}
-  namespace: {{ .Values.opentts.namespace }}
+  name: {{ .Values.tts-translator.name }}
+  namespace: {{ .Values.tts-translator.namespace }}
 spec:
   selector:
-    app: {{ .Values.opentts.name }}
+    app: {{ .Values.tts-translator.name }}
   ports:
     - protocol: TCP
-      port: {{ .Values.opentts.service.port }}
-      targetPort: {{ .Values.opentts.service.port }}
+      port: {{ .Values.tts-translator.service.port }}
+      targetPort: {{ .Values.tts-translator.service.port }}
   type: ClusterIP
