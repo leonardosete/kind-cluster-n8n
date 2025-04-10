@@ -20,7 +20,7 @@ spec:
           image: {{ .Values.ttsTranslator.image }}
           ports:
             - containerPort: {{ .Values.ttsTranslator.service.port }}
-          args: {{- toYaml .Values.ttsTranslator.command | nindent 10 }}
+#          args: {{- toYaml .Values.ttsTranslator.command | nindent 10 }}
           env:
             - name: ENABLE_CORS
               value: "{{ .Values.ttsTranslator.env.ENABLE_CORS }}"

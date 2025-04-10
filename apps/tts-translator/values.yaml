@@ -3,8 +3,8 @@ ttsTranslator:
   namespace: n8n-vps
   image: tmcx/tts-translator:latest
   domain_name: tts-translator-test.devops-master.shop
-  command:
-    - "8080"
+#  command:
+#    - "8080"
   env:
     ENABLE_CORS: true
     LT_LOAD_ONLY: pt,en
