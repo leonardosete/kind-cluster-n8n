@@ -1,7 +1,8 @@
 ttsTranslator:
   name: tts-translator
   namespace: n8n-vps
-  image: tmcx/tts-translator:latest
+  image: sevenleo/tts-translate:v1
+#  image: tmcx/tts-translator:latest
   domain_name: tts-translator-test.devops-master.shop
   env:
     ENABLE_CORS: true
