@@ -1,4 +1,3 @@
-{{- if .Values.ttsTranslator.persistence.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -10,4 +9,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.ttsTranslator.persistence.storage }}
-{{- end }}
+

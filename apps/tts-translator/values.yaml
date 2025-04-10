@@ -16,6 +16,7 @@ ttsTranslator:
     pvcName: tts-translator-data-pvc
     accessModes: ReadWriteOnce
     storage: 1Gi
+    volume: data
   ingress:
     enabled: true
     className: nginx
