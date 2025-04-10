@@ -25,6 +25,8 @@ spec:
               value: "{{ .Values.ttsTranslator.env.LT_LOAD_ONLY }}"
             - name: LT_PORT
               value: "{{ .Values.ttsTranslator.env.LT_PORT }}"
+            - name: PORT
+              value: "8080"
           volumeMounts:
             - name: {{ .Values.ttsTranslator.persistence.volume }}
               mountPath: {{ .Values.ttsTranslator.persistence.mountPath }}
