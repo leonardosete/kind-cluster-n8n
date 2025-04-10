@@ -1,0 +1,29 @@
+opentts:
+  name: tts-translator
+  namespace: n8n-vps
+  image: tmcx/tts-translator:latest
+  command:
+    - "--cache"
+    - "--no-espeak"
+  env:
+    ENABLE_CORS: true
+    LT_LOAD_ONLY: pt,en
+  service:
+    port: 8080
+  persistence:
+    enabled: true
+    mountPath: /usr/share/tts-translator
+    pvcName: tts-translator-data-pvc
+    accessModes: ReadWriteOnce
+    storage: 1Gi
+  ingress:
+    enabled: true
+    className: nginx
+    host: tts-translator-test.devops-master.shop
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: "/"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    tls:
+      enabled: true
+      secretName: tts-translator-tls

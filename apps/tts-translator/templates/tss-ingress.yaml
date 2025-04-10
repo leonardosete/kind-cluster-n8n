@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.opentts.name }}
+  namespace: {{ .Values.opentts.namespace }}
+  annotations:
+    {{- with .Values.opentts.ingress.annotations }}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.opentts.ingress.className }}
+  rules:
+    - host: {{ .Values.opentts.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.opentts.name }}
+                port:
+                  number: {{ .Values.opentts.service.port }}
+  tls:
+    - hosts:
+        - {{ .Values.opentts.ingress.host }}
+      secretName: {{ .Values.opentts.ingress.tls.secretName }}

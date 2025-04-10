@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.opentts.name }}
+  namespace: {{ .Values.opentts.namespace }}
+  labels:
+    app: {{ .Values.opentts.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.opentts.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.opentts.name }}
+    spec:
+      containers:
+        - name: {{ .Values.opentts.name }}
+          image: {{ .Values.opentts.image }}
+          ports:
+            - containerPort: {{ .Values.opentts.service.port }}
+          args: {{ toJson .Values.opentts.command }}
+          env:
+            - name: ENABLE_CORS
+              value: "{{ .Values.opentts.env.ENABLE_CORS }}"
+            - name: LT_LOAD_ONLY
+              value: "{{ .Values.opentts.env.LT_LOAD_ONLY }}"
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.opentts.persistence.mountPath }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.opentts.persistence.pvcName }}
