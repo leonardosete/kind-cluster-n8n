@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: {{ .Values.ttsTranslator.name }}
   namespace: {{ .Values.ttsTranslator.namespace }}
+  labels:
+    app: {{ .Values.ttsTranslator.name }}
 spec:
   replicas: 1
   selector:
@@ -17,7 +19,7 @@ spec:
         - name: {{ .Values.ttsTranslator.name }}
           image: {{ .Values.ttsTranslator.image }}
           ports:
-            - containerPort: {{ .Values.ttsTranslator.service.targetPort }}
+            - containerPort: {{ .Values.ttsTranslator.service.port }}
           env:
             - name: ENABLE_CORS
               value: "{{ .Values.ttsTranslator.env.ENABLE_CORS }}"

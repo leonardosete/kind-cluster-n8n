@@ -7,5 +7,6 @@ spec:
   selector:
     app: {{ .Values.ttsTranslator.name }}
   ports:
-    - port: {{ .Values.ttsTranslator.service.port }}
+    - protocol: TCP
+      port: {{ .Values.ttsTranslator.service.port }}
       targetPort: {{ .Values.ttsTranslator.service.targetPort }}
