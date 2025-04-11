@@ -22,8 +22,7 @@ spec:
   selector:
     app: tts-translator
   ports:
-    - protocol: TCP
-      port: 8080
+    - port: 8080
       targetPort: 8080
 ---
 # Source: tts-translator/templates/tts-deployment.yaml
@@ -32,8 +31,6 @@ kind: Deployment
 metadata:
   name: tts-translator
   namespace: n8n-vps
-  labels:
-    app: tts-translator
 spec:
   replicas: 1
   selector:
@@ -49,12 +46,17 @@ spec:
           image: tmcx/tts-translator:latest
           ports:
             - containerPort: 8080
-          args: ["--cache","--no-espeak","--port","8080"]
           env:
             - name: ENABLE_CORS
               value: "true"
             - name: LT_LOAD_ONLY
-              value: "pt,en"
+              value: "pt,es"
+            - name: LT_PORT
+              value: "8089"
+            - name: API_PORT
+              value: "8080"
+            - name: LT_HOST
+              value: "0.0.0.0"
           volumeMounts:
             - name: data
               mountPath: /usr/share/tts-translator
@@ -67,7 +69,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: tts-translator
+  name: tts-translator-ingress
   namespace: n8n-vps
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-staging"
@@ -76,17 +78,17 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: tts-translator-test.devops-master.shop
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: tts-translator
-            port:
-              number: 8080
+    - host: tts-translator-test.devops-master.shop
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tts-translator
+                port:
+                  number: 8080
   tls:
-  - hosts:
-    - tts-translator-test.devops-master.shop
-    secretName: tts-translator-tls
+    - hosts:
+        - tts-translator-test.devops-master.shop
+      secretName: tts-translator-tls
