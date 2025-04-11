@@ -1,23 +1,17 @@
 ttsTranslator:
   name: tts-translator
   namespace: n8n-vps
-
-  # Imagem base usada nos dois containers (pode separar se quiser)
   image: tmcx/tts-translator:latest
-
   domain_name: tts-translator-test.devops-master.shop
-
   env:
-    ENABLE_CORS: "true"                      # usado pelo container node
-    LT_LOAD_ONLY: "pt,es"                    # usado por ambos
-    API_PORT: "8080"                         # usado pelo container node
-    LT_PORT: "8089"                          # usado pelo libretranslate
-    LT_HOST: "0.0.0.0"                       # usado pelo libretranslate
-
+    ENABLE_CORS: "true"
+    LT_LOAD_ONLY: "pt,es"
+    API_PORT: "8080"
+    LT_PORT: "8089"
+    LT_HOST: "0.0.0.0"
   service:
     port: 8080
     targetPort: 8080
-
   persistence:
     enabled: true
     mountPath: /usr/share/tts-translator
@@ -25,7 +19,6 @@ ttsTranslator:
     accessModes: ReadWriteOnce
     storage: 1Gi
     volume: data
-
   ingress:
     enabled: true
     className: nginx
