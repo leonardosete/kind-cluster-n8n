@@ -14,8 +14,9 @@ spec:
         app: {{ .Values.ttsTranslator.name }}
     spec:
       containers:
-        - name: {{ .Values.ttsTranslator.name }}
+        - name: node-app
           image: {{ .Values.ttsTranslator.image }}
+          command: ["node", "dist"]
           ports:
             - containerPort: {{ .Values.ttsTranslator.service.targetPort }}
           env:
@@ -23,15 +24,32 @@ spec:
               value: "{{ .Values.ttsTranslator.env.ENABLE_CORS }}"
             - name: LT_LOAD_ONLY
               value: "{{ .Values.ttsTranslator.env.LT_LOAD_ONLY }}"
-            - name: LT_PORT
-              value: "{{ .Values.ttsTranslator.env.LT_PORT }}"
             - name: API_PORT
               value: "{{ .Values.ttsTranslator.env.API_PORT }}"
+            - name: LT_PORT
+              value: "{{ .Values.ttsTranslator.env.LT_PORT }}"
             - name: LT_HOST
               value: "{{ .Values.ttsTranslator.env.LT_HOST }}"
           volumeMounts:
             - name: {{ .Values.ttsTranslator.persistence.volume }}
               mountPath: {{ .Values.ttsTranslator.persistence.mountPath }}
+
+        - name: libretranslate
+          image: {{ .Values.ttsTranslator.image }}
+          command: ["/app/venv/bin/libretranslate"]
+          args:
+            - "--host"
+            - "{{ .Values.ttsTranslator.env.LT_HOST }}"
+            - "--port"
+            - "{{ .Values.ttsTranslator.env.LT_PORT }}"
+            - "--load-only"
+            - "{{ .Values.ttsTranslator.env.LT_LOAD_ONLY }}"
+          ports:
+            - containerPort: {{ .Values.ttsTranslator.env.LT_PORT | int }}
+          volumeMounts:
+            - name: {{ .Values.ttsTranslator.persistence.volume }}
+              mountPath: {{ .Values.ttsTranslator.persistence.mountPath }}
+
       volumes:
         - name: {{ .Values.ttsTranslator.persistence.volume }}
           persistentVolumeClaim:
