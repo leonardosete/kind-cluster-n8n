@@ -1,0 +1,8 @@
+Evolution API foi instalada com sucesso!
+
+Acesse:
+  https://{{ .Values.evolutionApi.ingress.host }}
+
+Conexão com PostgreSQL:
+  Host:     {{ .Values.postgresql.host }}
+  Database: {{ .Values.postgresql.env.POSTGRES_DB }}

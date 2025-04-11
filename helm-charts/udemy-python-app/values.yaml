@@ -1,0 +1,58 @@
+replicaCount: 1
+image:
+  repository: sevenleo/udemy-python-app
+  pullPolicy: IfNotPresent
+  tag: v1
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+serviceAccount:
+  create: false
+  automount: true
+  annotations: {}
+  name: ""
+podSecurityContext: {}
+securityContext: {}
+service:
+  type: ClusterIP
+  port: 5000
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+    - host: udemy-python-app-test.devops-master.shop
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - udemy-python-app-test.devops-master.shop
+      secretName: udemy-python-app-tls
+resources:
+  requests:
+    cpu: 50m
+    memory: 50M
+livenessProbe:
+  httpGet:
+    path: /api/v1/healthz
+    port: http
+readinessProbe:
+  httpGet:
+    path: /api/v1/healthz
+    port: http
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+volumes: []
+volumeMounts: []
+nodeSelector: {}
+tolerations: []
+affinity: {}

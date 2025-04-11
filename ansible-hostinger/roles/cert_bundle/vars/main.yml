@@ -1,0 +1,6 @@
+## cert-bundle ##
+issuer_name: letsencrypt-staging
+issuer_email: leonardosete@gmail.com
+issuer_secretname: letsencrypt-staging
+issuer_ingressclass: nginx
+issuer_server: https://acme-v02.api.letsencrypt.org/directory

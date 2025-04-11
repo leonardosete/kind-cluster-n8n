@@ -1,0 +1,30 @@
+{{- if .Values.n8n.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.n8n.name }}
+  namespace: {{ .Values.n8n.namespace }}
+  annotations:
+    {{- range $key, $value := .Values.n8n.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.n8n.ingress.className }}
+  rules:
+  - host: {{ .Values.n8n.domain_name }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.n8n.name }}
+            port:
+              number: {{ .Values.n8n.port }}
+  {{- if .Values.n8n.ingress.tls.enabled }}
+  tls:
+  - hosts:
+    - {{ .Values.n8n.domain_name }}
+    secretName: {{ .Values.n8n.ingress.tls.secretName }}
+  {{- end }}
+{{- end }}

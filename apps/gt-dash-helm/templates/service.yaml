@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.gtDash.name }}
+  namespace: {{ .Values.gtDash.namespace }}
+  labels:
+    app: {{ .Values.gtDash.name }}
+spec:
+  selector:
+    app: {{ .Values.gtDash.name }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.gtDash.port }}
+      targetPort: {{ .Values.gtDash.port }}
+  type: {{ .Values.gtDash.service.type | default "ClusterIP" }}

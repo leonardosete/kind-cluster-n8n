@@ -1,0 +1,26 @@
+## [n8n] ##
+n8n_name: "n8n"
+n8n_image: "n8nio/n8n"
+n8n_username: "admin"
+n8n_password: "superadmin123"
+n8n_domain_name: "n8n-test.devops-master.shop"
+n8n_port: "5678"
+n8n_protocol: "https"
+n8n_timezone: "America/Sao_Paulo"
+
+## [conexão n8n_postgres]
+postgres_host: "postgres"
+postgres_db_type: "postgresdb"
+postgres_port: "5432"
+postgres_database: "n8n"
+postgres_user: "n8n"
+postgres_password: "supersecreto"
+
+## n8n - ingress ##
+ingress_className: "nginx"
+ingress_tls_secretname: "n8n-tls"
+ingress_annotations:
+  nginx.ingress.kubernetes.io/rewrite-target: /
+  nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  cert-manager.io/cluster-issuer: letsencrypt-staging
+

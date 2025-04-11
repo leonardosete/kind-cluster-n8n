@@ -1,0 +1,128 @@
+name: Deploy da VPS e Cluster KIND
+
+on:
+  workflow_dispatch:
+    inputs:
+      acionar_infra_base:
+        description: "Deseja executar o deploy da infraestrutura base (cert-manager, ArgoCD)?"
+        required: false
+        default: "false"
+
+jobs:
+  configure-vps-kind-cluster:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📦 Checkout do repositório
+      uses: actions/checkout@v3
+
+    - name: 🔧 Instala dependências (Ansible, SSH, kubectl)
+      run: |
+        echo "::group::🛠️ Instalando dependências"
+        sudo apt-get update
+        sudo apt-get install -y ansible sshpass openssh-client curl
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+        echo "::endgroup::"
+
+    - name: 🔐 Configura chave SSH da VPS
+      run: |
+        echo "::group::🔐 Adicionando chave SSH"
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
+        echo "✅ Chave SSH configurada"
+        echo "::endgroup::"
+
+    - name: ⚙️ Executa o playbook Ansible na VPS
+      working-directory: ./ansible-hostinger
+      run: |
+        echo "::group::⚙️ Playbook Ansible"
+        echo "📡 Executando playbook: ansible-vps-kind.yaml"
+        ansible-playbook -i inventory.ini ansible-vps-kind.yaml
+        echo "::endgroup::"
+
+    - name: 📥 Baixa kubeconfig da VPS
+      run: |
+        echo "::group::📥 Baixando kubeconfig"
+        mkdir -p ~/.kube
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} \
+          root@${{ vars.VPS_HOSTNAME }}:/root/.kube/config ~/.kube/config-vps
+        chmod 600 ~/.kube/config-vps
+        echo "✅ kubeconfig salvo localmente"
+        echo "::endgroup::"
+
+    - name: 🧩 Ajusta kubeconfig com IP público e TLS desabilitado
+      env:
+        VPS_IP: ${{ vars.VPS_IP }}
+        VPS_CLUSTER_PORT: ${{ vars.VPS_CLUSTER_PORT }}
+      run: |
+        echo "::group::🧩 Ajustando kubeconfig"
+        export KUBECONFIG=~/.kube/config-vps
+
+        kubectl config set-cluster kind-kind \
+          --server="https://$VPS_IP:$VPS_CLUSTER_PORT" \
+          --insecure-skip-tls-verify=true \
+          --kubeconfig=$KUBECONFIG
+
+        EXISTING_USER=$(kubectl config view --kubeconfig=$KUBECONFIG -o jsonpath='{.users[0].name}')
+
+        kubectl config set-context kind-kind \
+          --cluster=kind-kind \
+          --user="$EXISTING_USER" \
+          --kubeconfig=$KUBECONFIG
+
+        echo "✅ kubeconfig ajustado com IP e TLS desativado"
+        echo "::endgroup::"
+
+    - name: 📤 Publica kubeconfig como artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: kubeconfig-vps
+        path: ~/.kube/config-vps
+
+    - name: ✅ Mensagem final de conclusão
+      run: |
+        echo ""
+        echo "====================== ✅ SETUP CONCLUÍDO ======================"
+        echo ""
+        echo "🧰 Ferramentas instaladas:"
+        echo "  - Docker"
+        echo "  - Docker Compose"
+        echo "  - KIND (Kubernetes in Docker)"
+        echo "  - kubectl"
+        echo "  - Python + pip"
+        echo "  - Helm"
+        echo "  - Pacotes de monitoramento: htop, btop, ncdu, duf, etc."
+        echo ""
+        echo ""
+        echo "🧾 MotD atualizado com comandos úteis ao acessar via SSH."
+        echo ""
+        echo "📤 Acesse o step: '📤 Publica kubeconfig como artifact'"
+        echo "Lá haverá um link para baixar o kubeconfig como arquivo ZIP."
+        echo ""
+        echo "📥 Após o download:"
+        echo "   → Extraia o arquivo ZIP"
+        echo "   → Mova o kubeconfig para:"
+        echo "      ➤ \$HOME/.kube/config-vps"
+        echo ""
+        echo "🔧 Depois execute no terminal local (macOS):"
+        echo ""
+        echo "   cd ~/kind-cluster-n8n"
+        echo "   bash tools/fix-kubeconfig-context.sh"
+        echo ""
+        echo "☸️  Após isso, o cluster estará pronto para uso com:"
+        echo "   → kubectl get nodes"
+        echo "   → OpenLens, Lens ou qualquer outro dashboard"
+        echo ""
+        echo "🚀 Tudo pronto para o deploy das aplicações!"
+        echo ""
+        echo "==============================================================="
+
+    - name: ▶️ Aciona deploy da infraestrutura base (se solicitado)
+      if: ${{ github.event.inputs.acionar_infra_base == 'true' }}
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: "git-actions-infra-base.yaml"
+        token: ${{ secrets.GITHUB_TOKEN }}

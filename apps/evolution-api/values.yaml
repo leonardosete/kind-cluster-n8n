@@ -1,0 +1,67 @@
+evolutionApi:
+  name: evolution-api
+  namespace: n8n-vps
+  image: atendai/evolution-api:v2.1.2
+  env:
+    SERVER_URL: "https://evolution-api-test.devops-master.shop"
+    AUTHENTICATION_TYPE: "apikey"
+    AUTHENTICATION_API_KEY: "N2YyZTFjOGE5MGQ1NDNiMmE2ZTRiZDg5ZjdjM2ExMmVYWFgvN2YyZTFjOGE5MGQ1NDNiMmE2ZTRiZDg5ZjdjM2ElNA=="
+    AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "true"
+    LANGUAGE: "en"
+    CONFIG_SESSION_PHONE_CLIENT: "Evolution API"
+    CONFIG_SESSION_PHONE_NAME: "Chrome"
+    TELEMETRY: "false"
+    TELEMETRY_URL: ""
+    DATABASE_ENABLED: "true"
+    DATABASE_PROVIDER: "postgresql"
+    DATABASE_CONNECTION_URI: "postgres://postgresql:y5fnjg21gjgvim3k@evolution-postgres:5432/evolution"
+    DATABASE_SAVE_DATA_INSTANCE: "true"
+    DATABASE_SAVE_DATA_NEW_MESSAGE: "true"
+    DATABASE_SAVE_MESSAGE_UPDATE: "true"
+    DATABASE_SAVE_DATA_CONTACTS: "true"
+    DATABASE_SAVE_DATA_CHATS: "true"
+    DATABASE_SAVE_DATA_LABELS: "true"
+    DATABASE_SAVE_DATA_HISTORIC: "true"
+    CACHE_REDIS_ENABLED: "true"
+    CACHE_REDIS_URI: "redis://evolution-redis:6379"
+    CACHE_REDIS_PREFIX_KEY: "evolution"
+    CACHE_REDIS_SAVE_INSTANCES: "true"
+  service:
+    port: 8080
+  ingress:
+    enabled: true
+    className: nginx
+    host: "evolution-api-test.devops-master.shop"
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: "/"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    tls:
+      enabled: true
+      secretName: evolution-api-tls
+
+postgresql:
+  image: "postgres:16-alpine"
+  name: evolution-postgres
+  env:
+    POSTGRES_DB: "evolution"
+    POSTGRES_USER: "postgresql"
+    POSTGRES_PASSWORD: "y5fnjg21gjgvim3k"
+  persistence:
+    enabled: true
+    size: 1Gi
+  port: 5432
+  pvcName: evolution-postgres-pvc
+  accessModes: ReadWriteOnce
+  storage: 1Gi
+
+redis:
+  image: "redis:alpine"
+  name: evolution-redis
+  persistence:
+    enabled: true
+    size: 1Gi
+  port: 6379
+  pvcName: evolution-redis-pvc
+  accessModes: ReadWriteOnce
+  storage: 1Gi

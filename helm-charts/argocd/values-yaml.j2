@@ -1,0 +1,45 @@
+nameOverride: argocd
+
+global:
+  domain: {{ argocd_hostname }}
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: {{ ingress_className }}
+    annotations:
+{% for key, value in ingress_annotations.items() %}
+      {{ key }}: {{ value | to_json }}
+{% endfor %}
+    hosts:
+      - {{ argocd_hostname }}
+    paths:
+      - /
+    tls:
+      - hosts:
+          - {{ argocd_hostname }}
+        secretName: {{ ingress_tls_secretname }}
+  service:
+    type: ClusterIP
+
+applicationSet:
+  enabled: true
+
+controller:
+  replicas: 1
+
+repoServer:
+  replicas: 1
+
+dex:
+  enabled: false
+
+notifications:
+  enabled: true
+
+configs:
+  params:
+    server.insecure: false
+
+rbacConfig:
+  policy.default: role:readonly

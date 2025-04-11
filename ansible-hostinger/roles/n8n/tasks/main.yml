@@ -1,0 +1,33 @@
+    - name: Copia chart n8n para o servidor
+      tags: [n8n]
+      synchronize:
+        src: "{{ helm_charts_dir }}/n8n/"
+        dest: /root/helm-charts/n8n/
+        recursive: yes
+      register: sync_n8n_chart
+
+    - name: Verifica se existe o template do values do n8n
+      stat:
+        path: "{{ helm_charts_dir }}/n8n/values-yaml.j2"
+      register: n8n_template
+
+    - name: Renderiza values.yaml a partir do template Jinja2
+      template:
+        src: "{{ helm_charts_dir }}/n8n/values-yaml.j2"
+        dest: /root/helm-charts/n8n/values.yaml
+      tags: [n8n]
+
+    - name: Instala n8n via Helm
+      tags: [n8n]
+      shell: |
+        helm upgrade --install n8n /root/helm-charts/n8n -n n8n-vps
+      register: helm_n8n_install
+
+    - name: Aguarda n8n entrar em Ready
+      tags: [n8n]
+      shell: |
+        kubectl rollout status deployment/n8n -n n8n-vps --timeout=90s
+      register: rollout_n8n
+      until: rollout_n8n.rc == 0
+      retries: 3
+      delay: 10

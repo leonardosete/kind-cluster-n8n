@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: n8n-postgres
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/leonardosete/kind-cluster-n8n.git
+    targetRevision: HEAD
+    path: apps/n8n-postgres
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: n8n-vps
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - group: ""
+      kind: Namespace
+      name: n8n-vps
+      jsonPointers:
+        - /metadata/labels

@@ -1,0 +1,33 @@
+    - name: Copia chart n8n-postgres do local para o servidor
+      tags: [n8n_postgres]
+      synchronize:
+        src: "{{ helm_charts_dir }}/n8n-postgres/"
+        dest: /root/helm-charts/n8n-postgres/
+        recursive: yes
+      register: sync_postgres_chart
+
+    - name: Verifica se existe o template do values do n8n-postgres
+      stat:
+        path: "{{ helm_charts_dir }}/n8n-postgres/values-yaml.j2"
+      register: n8n_postgres_template
+
+    - name: Renderiza values.yaml a partir do template Jinja2
+      template:
+        src: "{{ helm_charts_dir }}/n8n-postgres/values-yaml.j2"
+        dest: /root/helm-charts/n8n-postgres/values.yaml
+      tags: [n8n_postgres]
+
+    - name: Instala n8n-postgres via Helm
+      tags: [n8n_postgres]
+      shell: |
+        helm upgrade --install n8n-postgres /root/helm-charts/n8n-postgres -n n8n-vps
+      register: helm_pg_install
+
+    - name: Aguarda Postgres entrar em Ready
+      tags: [n8n_postgres]
+      shell: |
+        kubectl rollout status deployment/postgres -n n8n-vps --timeout=90s
+      register: rollout_pg
+      until: rollout_pg.rc == 0
+      retries: 3
+      delay: 10

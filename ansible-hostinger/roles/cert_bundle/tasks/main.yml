@@ -1,0 +1,47 @@
+- name: Instala o cert-manager no cluster (CRDs + namespace)
+  tags: [cert_bundle]
+  shell: kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+  register: install_cert_manager
+
+- name: Copia chart cert-bundle para o servidor
+  tags: [cert_bundle]
+  synchronize:
+    src: "{{ helm_charts_dir }}/cert-bundle/"
+    dest: /root/helm-charts/cert-bundle/
+    recursive: yes
+  register: sync_cert_bundle
+
+- name: Verifica se existe o template do values do cert_bundle
+  stat:
+    path: "{{ helm_charts_dir }}/n8n/values-yaml.j2"
+  register: cert_bundle_template
+
+- name: Renderiza values.yaml a partir do template Jinja2
+  template:
+    src: "{{ helm_charts_dir }}/cert-bundle/values-yaml.j2"
+    dest: /root/helm-charts/cert-bundle/values.yaml
+  tags: [cert_bundle]
+
+- name: Aguarda pods do cert-manager (controller, cainjector, webhook)
+  tags: [cert_bundle]
+  shell: |
+    kubectl rollout status deployment/cert-manager -n cert-manager --timeout=90s
+    kubectl rollout status deployment/cert-manager-cainjector -n cert-manager --timeout=90s
+    kubectl rollout status deployment/cert-manager-webhook -n cert-manager --timeout=90s
+  register: certmanager_status
+  until: certmanager_status.rc == 0
+  retries: 3
+  delay: 10
+
+- name: Aguarda CRD ClusterIssuer estar disponível
+  tags: [cert_bundle]
+  shell: kubectl get crd clusterissuers.cert-manager.io
+  register: cert_crd_check
+  until: cert_crd_check.rc == 0
+  retries: 10
+  delay: 6
+
+- name: Instala clusterissuer letsencrypt-staging via Helm
+  tags: [cert_bundle]
+  shell: helm upgrade --install cert-bundle -n cert-manager /root/helm-charts/cert-bundle 
+  register: install_cert_bundle

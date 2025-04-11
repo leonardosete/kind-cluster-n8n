@@ -1,0 +1,41 @@
+- name: Copia chart argocd para o servidor
+  synchronize:
+    src: "{{ helm_charts_dir }}/argocd/"
+    dest: /root/helm-charts/argocd/
+    recursive: yes
+  register: sync_argocd_chart
+  tags: [argocd]
+
+- name: Verifica se existe o template do values do ArgoCD
+  stat:
+    path: "{{ helm_charts_dir }}/argocd/values-yaml.j2"
+  register: argocd_template
+
+- name: Renderiza values.yaml a partir do template Jinja2 do ArgoCD
+  template:
+    src: "{{ helm_charts_dir }}/argocd/values-yaml.j2"
+    dest: /root/helm-charts/argocd/values.yaml
+  tags: [argocd]
+
+- name: Instala o ArgoCD via Helm (CRDs incluídos)
+  tags: [argocd]
+  shell: |
+    helm repo add argo https://argoproj.github.io/argo-helm
+    helm repo update
+    helm upgrade --install argocd argo/argo-cd \
+      -n argocd \
+      --create-namespace \
+      -f /root/helm-charts/argocd/values.yaml
+  register: install_argocd_helm
+
+- name: Aguarda rollout dos componentes principais do ArgoCD
+  tags: [argocd]
+  shell: |
+    kubectl rollout status deployment/argocd-server -n argocd --timeout=90s
+    kubectl rollout status deployment/argocd-repo-server -n argocd --timeout=90s
+    kubectl rollout status deployment/argocd-dex-server -n argocd --timeout=90s
+    kubectl rollout status deployment/argocd-redis -n argocd --timeout=90s
+  register: argocd_rollout_status
+  until: argocd_rollout_status.rc == 0
+  retries: 5
+  delay: 10

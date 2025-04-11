@@ -1,0 +1,5 @@
+apiVersion: v2
+name: evolution-api
+version: 0.1.0
+description: Helm chart para a aplicação Evolution API com PostgreSQL e Redis
+type: application

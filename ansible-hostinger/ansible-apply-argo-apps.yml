@@ -1,0 +1,44 @@
+- name: Aplica Applications do ArgoCD se ainda não existirem
+  hosts: all
+  become: true
+  tasks:
+    - name: Verifica se o Secret gt-dash-secret já existe
+      shell: |
+        kubectl get secret gt-dash-secret -n gt-dash-helm --ignore-not-found
+      register: gt_dash_secret_check
+      changed_when: false
+
+    - name: Gera Secret do gt-dash com token seguro (se não existir)
+      template:
+        src: ../secrets/gt-dash-secret.yaml.j2
+        dest: /tmp/gt-dash-secret.yaml
+      when: gt_dash_secret_check.stdout == ""
+
+    - name: Aplica Secret no cluster (se não existir)
+      shell: kubectl apply -f /tmp/gt-dash-secret.yaml
+      when: gt_dash_secret_check.stdout == ""
+
+    - name: Verifica se os Applications já existem no cluster
+      shell: |
+        kubectl get application {{ item }} -n argocd --ignore-not-found
+      register: resultado
+      changed_when: false
+      loop:
+        - n8n
+        - n8n-postgres
+        - evolution-api
+        - gt-dash-helm
+
+    - name: Aplica Application do ArgoCD se ainda não existir
+      shell: kubectl apply -f /root/argo-apps/{{ item }}.yaml -n argocd
+      when: resultado.results[item_index].stdout == ""
+      loop:
+        - n8n
+        - n8n-postgres
+        - evolution-api
+        - gt-dash-helm
+      loop_control:
+        index_var: item_index
+
+    - name: Aguarda sincronização completa do gt-dash-helm no ArgoCD
+      shell: argocd app wait gt-dash-helm --timeout 300 --health --sync

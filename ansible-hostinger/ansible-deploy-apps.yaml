@@ -1,0 +1,32 @@
+---
+- name: Deploy de Apps no cluster KIND
+  hosts: vps_hostinger
+  become: yes
+  gather_facts: false
+
+  vars:
+    helm_charts_dir: "{{ playbook_dir }}/../helm-charts"
+
+  pre_tasks:
+    - name: Confirma acesso ao cluster
+      command: kubectl get nodes
+      register: cluster_check
+      failed_when: cluster_check.rc != 0
+
+    - name: Cria namespace n8n-vps
+      command: kubectl create namespace n8n-vps
+      register: ns_n8n
+      failed_when: ns_n8n.rc not in [0,1]  # se já existir, ignora
+
+  roles:
+    - role: n8n_postgres
+    - role: n8n
+
+  post_tasks:
+    - name: Salva a URL final do n8n em um arquivo na VPS
+      copy:
+        content: "https://{{ n8n_domain_name }}"
+        dest: /tmp/n8n-final-url.txt
+        owner: root
+        group: root
+        mode: '0644'

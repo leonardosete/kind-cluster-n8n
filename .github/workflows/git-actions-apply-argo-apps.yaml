@@ -1,0 +1,56 @@
+name: Aplicar Applications no ArgoCD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  aplicar-apps:
+    runs-on: ubuntu-latest
+
+    env:
+      GH_DASH_TOKEN: ${{ secrets.GH_DASH_TOKEN }}
+
+    steps:
+    - name: 📦 Checkout do repositório
+      uses: actions/checkout@v3
+
+    - name: 🔐 Prepara chave SSH da VPS
+      run: |
+        echo "::group::🔐 Preparando chave SSH"
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
+        echo "::endgroup::"
+
+    - name: 📁 Cria diretório /root/argo-apps e envia manifests para VPS
+      run: |
+        echo "::group::📁 Copiando arquivos argo-apps para a VPS"
+        ssh -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }} "mkdir -p /root/argo-apps"
+        scp -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} argo-apps/*.yaml ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }}:/root/argo-apps/
+        echo "::endgroup::"
+
+    - name: 📁 Cria diretório /root/secrets e envia secret template para VPS
+      run: |
+        echo "::group::📁 Copiando template de Secret para a VPS"
+        ssh -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }} "mkdir -p /root/secrets"
+        scp -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} secrets/gt-dash-secret.yaml.j2 ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }}:/root/secrets/
+        echo "::endgroup::"
+
+    - name: 🚀 Executa Ansible para aplicar Applications no ArgoCD
+      working-directory: ./ansible-hostinger
+      run: |
+        echo "::group::🚀 Executando playbook"
+        ansible-playbook -i inventory.ini ansible-apply-argo-apps.yml
+        echo "::endgroup::"
+
+    - name: ✅ Resultado final
+      run: |
+        echo ""
+        echo "====================== ✅ FINALIZADO ======================"
+        echo "✔️ Applications foram aplicados se ainda não existiam."
+        echo "🌐 Acesse o painel do ArgoCD: https://argocd-test.devops-master.shop"
+        echo "=========================================================="
