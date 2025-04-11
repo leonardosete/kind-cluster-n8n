@@ -27,6 +27,8 @@ spec:
               value: "{{ .Values.ttsTranslator.env.LT_PORT }}"
             - name: API_PORT
               value: "{{ .Values.ttsTranslator.env.API_PORT }}"
+            - name: LT_HOST
+              value: "{{ .Values.ttsTranslator.env.LT_HOST }}"
           volumeMounts:
             - name: {{ .Values.ttsTranslator.persistence.volume }}
               mountPath: {{ .Values.ttsTranslator.persistence.mountPath }}
