@@ -7,6 +7,7 @@ ttsTranslator:
     ENABLE_CORS: true
     LT_LOAD_ONLY: pt,en
     API_PORT: "8080"
+    LT_PORT: "8089"
   service:
     port: 8080
     targetPort: 8080
