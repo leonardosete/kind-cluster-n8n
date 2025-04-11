@@ -16,7 +16,15 @@ spec:
       containers:
         - name: node-app
           image: {{ .Values.ttsTranslator.image }}
-          command: ["node", "dist"]
+          command: ["/bin/sh", "-c"]
+          args:
+            - ENABLE_CORS={{ .Values.ttsTranslator.env.ENABLE_CORS }}
+              LT_LOAD_ONLY={{ .Values.ttsTranslator.env.LT_LOAD_ONLY }}
+              LT_PORT={{ .Values.ttsTranslator.env.LT_PORT }}
+              LT_HOST={{ .Values.ttsTranslator.env.LT_HOST }}
+              API_PORT={{ .Values.ttsTranslator.env.API_PORT }}
+              node dist --skip-libre
+
           ports:
             - containerPort: {{ .Values.ttsTranslator.service.targetPort }}
           env:
