@@ -5,7 +5,7 @@ ttsTranslator:
   domain_name: tts-translator-test.devops-master.shop
   env:
     ENABLE_CORS: true
-    LT_LOAD_ONLY: "pt,en"
+    LT_LOAD_ONLY: "pt"
     API_PORT: "8080"
     LT_PORT: "8089"
     LT_HOST: "0.0.0.0"
