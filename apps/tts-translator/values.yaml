@@ -1,12 +1,12 @@
 ttsTranslator:
   name: tts-translator
   namespace: n8n-vps
-  image: sevenleo/tts-translate:v1
-#  image: tmcx/tts-translator:latest
+  image: tmcx/tts-translator:latest
   domain_name: tts-translator-test.devops-master.shop
   env:
     ENABLE_CORS: true
     LT_LOAD_ONLY: pt,en
+    API_PORT: "8080"
   service:
     port: 8080
     targetPort: 8080
