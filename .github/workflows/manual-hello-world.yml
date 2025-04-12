@@ -1,0 +1,12 @@
+# .github/workflows/manual-hello-world.yml
+name: Hello World Manual
+
+on:
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  say-hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Hello World
+        run: echo "Hello, world!"
