@@ -1,7 +1,7 @@
 name: Aplicar Applications no ArgoCD
 
 on:
-  push:
+#  push:
 #    branches:
 #      - main
   workflow_dispatch:

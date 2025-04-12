@@ -9,4 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print Hello World
-        run: echo "Hello, world!"
+        run: |
+          echo "rodando..."
+          sleep 30
+          echo "Hello, world!"
