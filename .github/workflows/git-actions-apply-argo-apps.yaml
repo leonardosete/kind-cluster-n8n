@@ -10,9 +10,6 @@ jobs:
   aplicar-apps:
     runs-on: ubuntu-latest
 
-    env:
-      GH_DASH_TOKEN: ${{ secrets.GH_DASH_TOKEN }}
-
     steps:
     - name: 📦 Checkout do repositório
       uses: actions/checkout@v3
@@ -42,6 +39,8 @@ jobs:
 
     - name: 🚀 Executa Ansible para aplicar Applications no ArgoCD
       working-directory: ./ansible-hostinger
+      env:
+        GH_DASH_TOKEN: ${{ secrets.GH_DASH_TOKEN }}
       run: |
         echo "::group::🚀 Executando playbook"
         ansible-playbook -i inventory.ini ansible-apply-argo-apps.yml

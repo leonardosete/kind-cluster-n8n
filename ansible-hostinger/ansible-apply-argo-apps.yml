@@ -12,6 +12,8 @@
       template:
         src: ../secrets/gt-dash-secret.yaml.j2
         dest: /tmp/gt-dash-secret.yaml
+      vars:
+        github_token: "{{ lookup('env', 'GH_DASH_TOKEN') }}"
       when: gt_dash_secret_check.stdout == ""
 
     - name: Aplica Secret no cluster (se não existir)

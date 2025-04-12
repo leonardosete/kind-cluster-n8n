@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: gt-dash-helm
-  namespace: argocd
+  namespace: gt-dash
 spec:
   project: default
   source:
@@ -14,7 +14,7 @@ spec:
         - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: gt-dash-helm
+    namespace: gt-dash
   syncPolicy:
     automated:
       prune: true
@@ -25,6 +25,6 @@ spec:
   ignoreDifferences:
     - group: ""
       kind: Namespace
-      name: gt-dash-helm
+      name: gt-dash
       jsonPointers:
         - /metadata/labels
