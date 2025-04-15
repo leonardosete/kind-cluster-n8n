@@ -3,7 +3,7 @@ name: Deploy de Infraestrutura Base no Cluster KIND
 on:
   workflow_dispatch:
     inputs:
-      descricao:
+      criar_infra_base:
         description: "⚠️ Deseja executar o deploy da infraestrutura base?"
         required: true
         default: false

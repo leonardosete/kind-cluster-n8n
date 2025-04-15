@@ -128,4 +128,6 @@ jobs:
         workflow: "git-actions-infra-base.yaml"
         token: ${{ secrets.GITHUB_TOKEN }}
         inputs: |
-          descricao: true
+          {
+            "criar_infra_base": true
+          }
