@@ -1,4 +1,4 @@
-name: Aplicar Applications no ArgoCD
+name: Deploy n8n + n8n_postgres + evolution_api => ArgoCD
 
 on:
 #  push:
@@ -30,20 +30,11 @@ jobs:
         scp -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} argo-apps/*.yaml ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }}:/root/argo-apps/
         echo "::endgroup::"
 
-    - name: 📁 Cria diretório /root/secrets e envia secret template para VPS
-      run: |
-        echo "::group::📁 Copiando template de Secret para a VPS"
-        ssh -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }} "mkdir -p /root/secrets"
-        scp -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} secrets/gt-dash-secret.yaml.j2 ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }}:/root/secrets/
-        echo "::endgroup::"
-
-    - name: 🚀 Executa Ansible para aplicar Applications no ArgoCD
+    - name: 🚀 Executa Ansible para aplicar Applications n8n no ArgoCD
       working-directory: ./ansible-hostinger
-      env:
-        GH_DASH_TOKEN: ${{ secrets.GH_DASH_TOKEN }}
       run: |
         echo "::group::🚀 Executando playbook"
-        ansible-playbook -i inventory.ini ansible-apply-argo-apps.yml
+        ansible-playbook -i inventory.ini ansible-deploy-n8n.yml
         echo "::endgroup::"
 
     - name: ✅ Resultado final
