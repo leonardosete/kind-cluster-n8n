@@ -1,10 +1,10 @@
-name: Deploy de Infraestrutura Base no Cluster KIND
+name: Deploy => Cert-Manager+Lets_Encrypt+ArgoCD => Cluster KIND
 
 on:
   workflow_dispatch:
     inputs:
       criar_infra_base:
-        description: "⚠️ Deseja executar o deploy da infraestrutura base?"
+        description: "⚠️ Executar o deploy da infraestrutura base?⚠️"
         required: true
         default: false
         type: boolean
