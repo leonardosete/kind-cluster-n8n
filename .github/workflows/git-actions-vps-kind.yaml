@@ -6,7 +6,8 @@ on:
       acionar_infra_base:
         description: "Deseja executar o deploy da infraestrutura base (cert-manager, ArgoCD)?"
         required: true
-        default: "false"
+        default: false
+        type: boolean
 
 jobs:
   configure-vps-kind-cluster:
@@ -121,8 +122,10 @@ jobs:
         echo "==============================================================="
 
     - name: ▶️ Aciona deploy da infraestrutura base (se solicitado)
-      if: ${{ github.event.inputs.acionar_infra_base == 'true' }}
+      if: ${{ github.event.inputs.acionar_infra_base }}
       uses: benc-uk/workflow-dispatch@v1
       with:
         workflow: "git-actions-infra-base.yaml"
         token: ${{ secrets.GITHUB_TOKEN }}
+        inputs: |
+          descricao: true

@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       descricao:
-        description: "⚠️ Este workflow instala cert-manager e ArgoCD. Confirma a execução?"
+        description: "⚠️ Deseja executar o deploy da infraestrutura base?"
         required: true
-        default: "false"
+        default: false
+        type: boolean
 
 jobs:
   deploy-infra:
-    if: ${{ github.event.inputs.descricao == 'sim' }}
+    if: ${{ github.event.inputs.descricao }}
     runs-on: ubuntu-latest
 
     steps:
