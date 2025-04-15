@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       acionar_infra_base:
-        description: "⚠️ Executar o deploy da infra base (cert-manager, ArgoCD)?⚠️"
+        description: "⚠️ Também fazer deploy da infra base (cert-manager, ArgoCD)?⚠️"
         required: true
         default: false
         type: boolean
