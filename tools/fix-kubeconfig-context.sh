@@ -1,34 +1,62 @@
 #!/bin/bash
 
-# Caminho do kubeconfig exportado da VPS
-KUBECONFIG_PATH="${1:-$HOME/.kube/config-vps}"
+# Verifica se o script está sendo executado com 'source'
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  echo "⚠️  Esse script deve ser executado com 'source':"
+  echo "    source $0"
+  exit 1
+fi
 
-echo "🔧 Corrigindo kubeconfig: $KUBECONFIG_PATH"
+echo "🔍 Procurando arquivo kubeconfig-vps.zip (busca rápida)..."
 
-# Define variável de ambiente KUBECONFIG
+# Busca em locais comuns e com profundidade limitada
+ZIP_FILE=$(find "$HOME/Downloads" "$HOME" -maxdepth 2 -type f -name "kubeconfig-vps.zip" 2>/dev/null | head -n 1)
+
+if [ -z "$ZIP_FILE" ]; then
+  echo "❌ Arquivo kubeconfig-vps.zip não encontrado nos diretórios comuns."
+  echo "🔎 Você pode mover o arquivo para ~/Downloads e tentar novamente."
+  return 1
+fi
+
+echo "📦 Encontrado: $ZIP_FILE"
+TMP_DIR=$(mktemp -d)
+
+# Descompacta e move para ~/.kube
+unzip -o "$ZIP_FILE" -d "$TMP_DIR" > /dev/null
+rm -f "$ZIP_FILE"
+
+mkdir -p "$HOME/.kube"
+mv "$TMP_DIR/config-vps" "$HOME/.kube/config-vps"
+rm -rf "$TMP_DIR"
+
+echo "✅ kubeconfig extraído e movido para ~/.kube/config-vps"
+
+# Corrige contexto como antes
+KUBECONFIG_PATH="$HOME/.kube/config-vps"
 export KUBECONFIG="$KUBECONFIG_PATH"
 
-# Verifica se o arquivo existe
 if [ ! -f "$KUBECONFIG_PATH" ]; then
   echo "❌ Arquivo kubeconfig não encontrado em: $KUBECONFIG_PATH"
-  exit 1
+  return 1
 fi
 
-# Extrai o nome do usuário existente
 EXISTING_USER=$(kubectl config view --kubeconfig="$KUBECONFIG_PATH" -o jsonpath='{.users[0].name}')
-
 if [ -z "$EXISTING_USER" ]; then
   echo "❌ Não foi possível encontrar um usuário no kubeconfig."
-  exit 1
+  return 1
 fi
 
-# Define contexto corretamente
 kubectl config set-context kind-kind \
   --cluster=kind-kind \
   --user="$EXISTING_USER" \
-  --kubeconfig="$KUBECONFIG_PATH"
+  --kubeconfig="$KUBECONFIG_PATH" > /dev/null
 
-# Define o current-context para que ferramentas como OpenLens funcionem
-kubectl config use-context kind-kind --kubeconfig="$KUBECONFIG_PATH"
+kubectl config use-context kind-kind --kubeconfig="$KUBECONFIG_PATH" > /dev/null
 
-echo "✅ Contexto 'kind-kind' corrigido e ativado com usuário: $EXISTING_USER"
+# Log final
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ Contexto 'kind-kind' corrigido com sucesso!"
+echo "👤 Usuário:     $EXISTING_USER"
+echo "📄 KUBECONFIG:  $KUBECONFIG"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

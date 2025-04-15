@@ -64,32 +64,18 @@ kind-cluster-n8n/
 - Executa o `deploy-apps.yml`
 - Exibe a URL final do n8n no terminal do GitHub Actions
 
+
 ---
 
 ## 🧠 Como usar localmente (após o provisionamento)
 
-1. Acesse a aba **Actions** no GitHub
-2. Baixe o arquivo `kubeconfig-vps.zip` gerado no workflow
-3. Extraia e mova para:
+1. Acesse a aba **Actions** no GitHub;
+2. Baixe o arquivo `kubeconfig-vps.zip` gerado pelo workflow;
+3. Acesse no mínimo a raíz do repositório "kind-cluster-n8n";
+4. Execute o script de correção de contexto (ele localizará e aplicará o kubeconfig automaticamente);
 
-```bash
-mv ~/Downloads/kubeconfig-vps ~/.kube/config-vps
-```
-
-4. Execute o script de correção de contexto:
-
-```bash
-cd tools
-bash fix-kubeconfig-context.sh
-```
-
-5. Teste a conexão com:
-
-```bash
-kubectl get nodes --kubeconfig ~/.kube/config-vps
-```
-
----
+cd kind-cluster-n8n
+source /tools/fix-kubeconfig-context.sh
 
 ## 🌐 Acesso ao n8n
 

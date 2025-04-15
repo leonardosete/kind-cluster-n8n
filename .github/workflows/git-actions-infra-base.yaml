@@ -5,8 +5,8 @@ on:
     inputs:
       descricao:
         description: "⚠️ Este workflow instala cert-manager e ArgoCD. Confirma a execução?"
-        required: false
-        default: "true"
+        required: true
+        default: "false"
 
 jobs:
   deploy-infra:

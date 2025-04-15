@@ -5,7 +5,7 @@ on:
     inputs:
       acionar_infra_base:
         description: "Deseja executar o deploy da infraestrutura base (cert-manager, ArgoCD)?"
-        required: false
+        required: true
         default: "false"
 
 jobs:
