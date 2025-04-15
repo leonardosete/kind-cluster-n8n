@@ -11,7 +11,7 @@ on:
 
 jobs:
   deploy-infra:
-    if: ${{ github.event.inputs.descricao }}
+    if: ${{ github.event.inputs.criar_infra_base }}
     runs-on: ubuntu-latest
 
     steps:
