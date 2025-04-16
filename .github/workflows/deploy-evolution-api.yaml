@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'apps/evolution-api/**'
+      - 'argo-apps/evolution-api.yaml'
 
 jobs:
   deploy:
@@ -13,3 +14,11 @@ jobs:
     steps:
       - name: 📦 Checkout do repositório
         uses: actions/checkout@v3
+
+      - name: 🔐 Cria ~/.kube/config
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+
+      - name: 🧩 Aplica o Application do ArgoCD
+        run: kubectl apply -f argo-apps/evolution-api.yaml -n argocd
