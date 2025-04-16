@@ -34,6 +34,6 @@ spec:
             - name: WH_PHONE
               value: {{ .Values.gt_dash.env.webhook_phone | quote }}
             - name: REDIS_HOST
-              value: {{ .Values.gt_dash.env.redis_host | quote }}
+              value: {{ .Values.gt_dash.gt_redis.name | quote }}
             - name: REDIS_PORT
-              value: {{ .Values.gt_dash.env.redis_port | quote }}
+              value: {{ .Values.gt_dash.gt_redis.port | quote }}
