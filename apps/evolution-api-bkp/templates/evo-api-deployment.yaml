@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.evolutionApi.name }}
+  namespace: {{ .Values.evolutionApi.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.evolutionApi.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.evolutionApi.name }}
+    spec:
+      containers:
+        - name: {{ .Values.evolutionApi.name }}
+          image: {{ .Values.evolutionApi.image }}
+          ports:
+            - containerPort: {{ .Values.evolutionApi.service.port }}
+          env:
+{{- range .Values.evolutionApi.env }}
+            - name: {{ .name }}
+{{- if .value }}
+              value: "{{ .value }}"
+{{- else if .valueFrom }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .valueFrom.secretKeyRef.name }}
+                  key: {{ .valueFrom.secretKeyRef.key }}
+{{- end }}
+{{- end }}
