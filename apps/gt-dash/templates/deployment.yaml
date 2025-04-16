@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gt-dash
+  namespace: gt-dash
+  labels:
+    app: gt-dash
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: gt-dash
+  template:
+    metadata:
+      labels:
+        app: gt-dash
+    spec:
+      containers:
+        - name: gt-dash
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: GITHUB_TOKEN
+            - name: REPOS
+              value: {{ .Values.env.repos | quote }}
+            - name: WH_URL
+              value: {{ .Values.env.webhook_url | quote }}
+            - name: WH_PHONE
+              value: {{ .Values.env.webhook_phone | quote }}
+            - name: REDIS_HOST
+              value: {{ .Values.env.redis_host | quote }}
+            - name: REDIS_PORT
+              value: {{ .Values.env.redis_port | quote }}
