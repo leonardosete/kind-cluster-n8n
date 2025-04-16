@@ -43,14 +43,14 @@ spec:
           valueFrom:
             secretKeyRef:
               name: "{{ .Values.n8n.secretName }}"
-              key: POSTGRES_DB
+              key: DB_POSTGRESDB_DATABASE
         - name: DB_POSTGRESDB_USER
           valueFrom:
             secretKeyRef:
               name: "{{ .Values.n8n.secretName }}"
-              key: POSTGRES_USER
+              key: DB_POSTGRESDB_USER
         - name: DB_POSTGRESDB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: "{{ .Values.n8n.secretName }}"
-              key: POSTGRES_PASSWORD
+              key: DB_POSTGRESDB_PASSWORD
