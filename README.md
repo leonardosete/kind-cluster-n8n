@@ -14,7 +14,7 @@ kind-cluster-n8n/
 │   ├── inventory.ini               # Definição do host da VPS para Ansible
 │   ├── ansible.cfg                 # Configuração geral do Ansible
 │   └── vps-templates-base/         # Templates como bashrc, motd, kind-config.yaml
-├── tools/
+├── scripts/
 │   └── fix-kubeconfig-context.sh   # Corrige o contexto do kubeconfig para uso local
 ├── .github/
 │   └── workflows/
@@ -75,7 +75,7 @@ kind-cluster-n8n/
 4. Execute o script de correção de contexto (ele localizará e aplicará o kubeconfig automaticamente);
 
 cd kind-cluster-n8n
-source /tools/fix-kubeconfig-context.sh
+source /scripts/fix-kubeconfig-context.sh
 
 ## 🌐 Acesso ao n8n
 

@@ -111,7 +111,7 @@ jobs:
         echo "🔧 Depois execute no terminal local (macOS):"
         echo ""
         echo "   cd ~/kind-cluster-n8n"
-        echo "   bash tools/fix-kubeconfig-context.sh"
+        echo "   bash scripts/fix-kubeconfig-context.sh"
         echo ""
         echo "☸️  Após isso, o cluster estará pronto para uso com:"
         echo "   → kubectl get nodes"

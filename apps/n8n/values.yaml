@@ -3,8 +3,6 @@ n8n:
   namespace: n8n-vps
   secretName: n8n-secret
   image: n8nio/n8n:1.88.0
-  username: admin
-  password: superadmin123
   protocol: https
   port: 5678
   domain_name: n8n-test.devops-master.shop
