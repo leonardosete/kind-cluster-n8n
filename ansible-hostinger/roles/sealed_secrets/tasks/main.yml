@@ -1,0 +1,35 @@
+- name: Adiciona o repositório do Helm do Sealed Secrets
+  tags: [sealed_secrets]
+  shell: helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+  register: sealed_repo_add
+  changed_when: "'has been added' in sealed_repo_add.stdout or 'already exists' in sealed_repo_add.stdout"
+
+- name: Atualiza os repositórios do Helm
+  tags: [sealed_secrets]
+  shell: helm repo update
+  register: sealed_repo_update
+
+- name: Aguarda o CRD SealedSecret estar disponível (caso já exista)
+  tags: [sealed_secrets]
+  shell: kubectl get crd sealedsecrets.bitnami.com
+  register: sealed_crd_check
+  until: sealed_crd_check.rc == 0
+  retries: 5
+  delay: 6
+  ignore_errors: true
+
+- name: Instala o Sealed Secrets via Helm
+  tags: [sealed_secrets]
+  shell: |
+    helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
+      --namespace kube-system \
+      --create-namespace
+  register: install_sealed_secrets
+
+- name: Aguarda o controller do Sealed Secrets estar pronto
+  tags: [sealed_secrets]
+  shell: kubectl rollout status deployment/sealed-secrets -n kube-system --timeout=60s
+  register: sealed_rollout
+  until: sealed_rollout.rc == 0
+  retries: 3
+  delay: 10
