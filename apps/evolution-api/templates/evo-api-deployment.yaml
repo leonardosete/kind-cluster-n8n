@@ -19,14 +19,15 @@ spec:
           ports:
             - containerPort: {{ .Values.evolutionApi.service.port }}
           env:
-            {{- range .Values.evolutionApi.env }}
+{{- range .Values.evolutionApi.env }}
             - name: {{ .name }}
-              {{- if .value }}
-                value: "{{ .value }}"
-              {{- else if .valueFrom }}
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ .valueFrom.secretKeyRef.name }}
-                    key: {{ .valueFrom.secretKeyRef.key }}
-              {{- end }}
-            {{- end }}
+{{- if .value }}
+              value: "{{ .value }}"
+{{- else if .valueFrom }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .valueFrom.secretKeyRef.name }}
+                  key: {{ .valueFrom.secretKeyRef.key }}
+{{- end }}
+{{- end }}
+
