@@ -18,7 +18,7 @@ gt_dash:
       cert-manager.io/cluster-issuer: "letsencrypt-staging"
     tls:
       enabled: true
-      secretName: n8n-tls
+      secretName: gt-dash-tls
   env:
     repos: "leonardosete/kind-cluster-n8n,leonardosete/teste-ricardinho-origem,leonardosete/teste-ricardinho-destino,leonardosete/my-idp"
     webhook_url: "https://n8n-test.devops-master.shop/webhook/messages-upsert"
