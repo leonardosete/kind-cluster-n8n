@@ -23,7 +23,7 @@ gt_dash:
     repos: "leonardosete/kind-cluster-n8n,leonardosete/teste-ricardinho-origem,leonardosete/teste-ricardinho-destino,leonardosete/my-idp"
     webhook_url: "https://n8n-test.devops-master.shop/webhook/messages-upsert"
     webhook_phone: "5511952520474"
-    redis_host: "redis"
+    redis_host: "gt-dash-redis"
     redis_port: "6379"
 
   secretName: gt-dash-secret
