@@ -54,3 +54,8 @@ spec:
             secretKeyRef:
               name: "{{ .Values.n8n.secretName }}"
               key: DB_POSTGRESDB_PASSWORD
+        - name: N8N_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.n8n.secretName }}"
+              key: N8N_ENCRYPTION_KEY
