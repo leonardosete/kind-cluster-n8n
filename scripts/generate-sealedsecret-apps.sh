@@ -2,16 +2,16 @@
 set -e
 
 APP_NAME=$1
+NAMESPACE=${2:-n8n-vps}  # valor padrão: n8n-vps
 
 if [[ -z "$APP_NAME" ]]; then
-  echo "❌ Uso: $0 <nome-do-app>"
-  echo "Exemplo: $0 evolution-api"
+  echo "❌ Uso: $0 <nome-do-app> [namespace]"
+  echo "Exemplo: $0 gt-dash gt-dash"
   exit 1
 fi
 
 ENV_FILE=".chaves/.env-$APP_NAME"
-SECRET_NAME="${APP_NAME}-secrets"
-NAMESPACE="n8n-vps"
+SECRET_NAME="${APP_NAME}-secret"
 PUB_CERT=".chaves/pub-cert.pem"
 
 # 🧠 Calcula caminho correto do OUT_FILE
@@ -54,12 +54,9 @@ SECRET_ARGS=""
 
 while IFS='=' read -r key value; do
   [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
-
-  # Lê o restante da linha após o primeiro "=" (valor pode conter "=")
   rest=$(echo "$line" | cut -d= -f2-)
   value="${rest%\"}"
   value="${value#\"}"
-
   SECRET_ARGS+=" --from-literal=$key=$value"
 done < <(grep -v '^\s*$' "$ENV_FILE")
 
@@ -67,7 +64,7 @@ done < <(grep -v '^\s*$' "$ENV_FILE")
 echo "🔐 Gerando Secret Kubernetes em JSON..."
 eval kubectl create secret generic "$SECRET_NAME" \
   $SECRET_ARGS \
-  --namespace=$NAMESPACE \
+  --namespace="$NAMESPACE" \
   --dry-run=client -o json > temp-secret.json
 
 echo "🔐 Criptografando com kubeseal..."
@@ -79,4 +76,4 @@ kubeseal \
 
 rm temp-secret.json
 
-echo "✅ SealedSecret seguro gerado em $OUT_FILE"
+echo "✅ SealedSecret seguro gerado em $OUT_FILE (namespace: $NAMESPACE)"
