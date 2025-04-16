@@ -14,17 +14,28 @@ spec:
         app: {{ .Values.postgres.name }}
     spec:
       containers:
-      - name: {{ .Values.postgres.name }}
-        image: {{ .Values.postgres.image }}
-        ports:
-        - containerPort: {{ .Values.postgres.servicePort }}
-        envFrom:
-        - secretRef:
-            name: "{{ .Values.postgres.secretName }}"
-        volumeMounts:
-        - mountPath: {{ .Values.postgres.mountPath }}
-          name: {{ .Values.postgres.volume }}
+        - name: postgres
+          image: {{ .Values.postgres.image }}
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.secretName }}
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.secretName }}
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.secretName }}
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - mountPath: {{ .Values.postgres.mountPath }}
+              name: postgres-data
       volumes:
-      - name: {{ .Values.postgres.volume }}
-        persistentVolumeClaim:
-          claimName: {{ .Values.postgres.pvcName }}
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.postgres.pvcName }}

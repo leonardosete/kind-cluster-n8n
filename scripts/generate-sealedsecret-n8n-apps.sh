@@ -14,15 +14,15 @@ SECRET_NAME="${APP_NAME}-secrets"
 NAMESPACE="n8n-vps"
 PUB_CERT=".chaves/pub-cert.pem"
 
-# 🧠 Caminho de saída do SealedSecret
+# 🧠 Calcula caminho correto do OUT_FILE
 case "$APP_NAME" in
-  evolution-* | n8n-* )
+  evolution-api)
     OUT_FILE="apps/evolution-api/templates/sealedsecret-$APP_NAME.yaml"
     ;;
-  n8n )
+  n8n)
     OUT_FILE="apps/n8n/templates/sealedsecret-$APP_NAME.yaml"
     ;;
-  * )
+  *)
     OUT_FILE="apps/$APP_NAME/templates/sealedsecret-$APP_NAME.yaml"
     ;;
 esac

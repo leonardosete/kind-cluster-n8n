@@ -2,14 +2,11 @@ postgres:
   name: postgres
   namespace: n8n-vps
   image: postgres:15
-  username: n8n
-  password: supersecreto
-  database: n8n
+  secretName: n8n-postgres-secrets  # 👉 nome usado no SealedSecret
   storage: 1Gi
   servicePort: 5432
   volume: pgdata
   replicas: 1
   pvcName: postgres-pvc
-  secretName: postgres-secret
   mountPath: /var/lib/postgresql/data
   accessModes: ReadWriteOnce
