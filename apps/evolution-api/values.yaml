@@ -1,1 +1,111 @@
-# Conteúdo corrigido de values.yaml
+evolutionApi:
+  name: evolution-api
+  namespace: n8n-vps
+  image: atendai/evolution-api:v2.1.2
+  env:
+    - name: SERVER_URL
+      value: "https://evolution-api-test.devops-master.shop"
+    - name: AUTHENTICATION_TYPE
+      value: "apikey"
+    - name: AUTHENTICATION_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: evolution-api-secrets
+          key: AUTHENTICATION_API_KEY
+    - name: AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES
+      value: "true"
+    - name: LANGUAGE
+      value: "en"
+    - name: CONFIG_SESSION_PHONE_CLIENT
+      value: "Evolution API"
+    - name: CONFIG_SESSION_PHONE_NAME
+      value: "Chrome"
+    - name: TELEMETRY
+      value: "false"
+    - name: TELEMETRY_URL
+      value: ""
+    - name: DATABASE_ENABLED
+      value: "true"
+    - name: DATABASE_PROVIDER
+      value: "postgresql"
+    - name: DATABASE_CONNECTION_URI
+      valueFrom:
+        secretKeyRef:
+          name: evolution-api-secrets
+          key: DATABASE_CONNECTION_URI
+    - name: DATABASE_SAVE_DATA_INSTANCE
+      value: "true"
+    - name: DATABASE_SAVE_DATA_NEW_MESSAGE
+      value: "true"
+    - name: DATABASE_SAVE_MESSAGE_UPDATE
+      value: "true"
+    - name: DATABASE_SAVE_DATA_CONTACTS
+      value: "true"
+    - name: DATABASE_SAVE_DATA_CHATS
+      value: "true"
+    - name: DATABASE_SAVE_DATA_LABELS
+      value: "true"
+    - name: DATABASE_SAVE_DATA_HISTORIC
+      value: "true"
+    - name: CACHE_REDIS_ENABLED
+      value: "true"
+    - name: CACHE_REDIS_URI
+      valueFrom:
+        secretKeyRef:
+          name: evolution-api-secrets
+          key: CACHE_REDIS_URI
+    - name: CACHE_REDIS_PREFIX_KEY
+      value: "evolution"
+    - name: CACHE_REDIS_SAVE_INSTANCES
+      value: "true"
+  service:
+    port: 8080
+  ingress:
+    enabled: true
+    className: nginx
+    host: "evolution-api-test.devops-master.shop"
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: "/"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    tls:
+      enabled: true
+      secretName: evolution-api-tls
+
+postgresql:
+  image: "postgres:16-alpine"
+  name: evolution-postgres
+  env:
+    POSTGRES_DB:
+      valueFrom:
+        secretKeyRef:
+          name: evolution-postgres-secrets
+          key: POSTGRES_DB
+    POSTGRES_USER:
+      valueFrom:
+        secretKeyRef:
+          name: evolution-postgres-secrets
+          key: POSTGRES_USER
+    POSTGRES_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: evolution-postgres-secrets
+          key: POSTGRES_PASSWORD
+  persistence:
+    enabled: true
+    size: 1Gi
+  port: 5432
+  pvcName: evolution-postgres-pvc
+  accessModes: ReadWriteOnce
+  storage: 1Gi
+
+redis:
+  image: "redis:alpine"
+  name: evolution-redis
+  persistence:
+    enabled: true
+    size: 1Gi
+  port: 6379
+  pvcName: evolution-redis-pvc
+  accessModes: ReadWriteOnce
+  storage: 1Gi

@@ -1,1 +1,12 @@
-# Conteúdo corrigido de evo-api-service-redis.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.redis.name }}
+  namespace: {{ .Values.evolutionApi.namespace }}
+spec:
+  selector:
+    app: {{ .Values.redis.name }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.redis.port }}
+      targetPort: {{ .Values.redis.port }}

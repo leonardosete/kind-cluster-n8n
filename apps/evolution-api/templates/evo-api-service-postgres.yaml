@@ -1,1 +1,12 @@
-# Conteúdo corrigido de evo-api-service-postgres.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.postgresql.name }}
+  namespace: {{ .Values.evolutionApi.namespace }}
+spec:
+  selector:
+    app: {{ .Values.postgresql.name }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.postgresql.port }}
+      targetPort: {{ .Values.postgresql.port }}

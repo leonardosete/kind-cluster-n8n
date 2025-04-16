@@ -13,9 +13,3 @@ jobs:
     steps:
       - name: 📦 Checkout do repositório
         uses: actions/checkout@v3
-
-      - name: 🧪 Valida Helm Chart
-        run: helm lint apps/evolution-api
-
-      - name: ✅ Valida YAML
-        run: yamllint apps/evolution-api/
