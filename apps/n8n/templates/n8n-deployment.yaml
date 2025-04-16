@@ -39,17 +39,17 @@ spec:
           value: {{ .Values.n8n.postgres.host }}
         - name: DB_POSTGRESDB_PORT
           value: {{ .Values.n8n.postgres.port | quote }}
-        - name: POSTGRES_DB
+        - name: DB_POSTGRESDB_DATABASE
           valueFrom:
             secretKeyRef:
               name: "{{ .Values.n8n.secretName }}"
               key: POSTGRES_DB
-        - name: POSTGRES_USER
+        - name: DB_POSTGRESDB_USER
           valueFrom:
             secretKeyRef:
               name: "{{ .Values.n8n.secretName }}"
               key: POSTGRES_USER
-        - name: POSTGRES_PASSWORD
+        - name: DB_POSTGRESDB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: "{{ .Values.n8n.secretName }}"
