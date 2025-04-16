@@ -20,7 +20,7 @@ spec:
         - containerPort: {{ .Values.n8n.port }}
         env:
         - name: N8N_BASIC_AUTH_ACTIVE
-          value: {{ .Values.n8n.basic.auth_active }}
+          value: {{ .Values.n8n.basic.auth_active | quote }}
         - name: N8N_HOST
           value: {{ .Values.n8n.domain_name }}
         - name: N8N_PORT
@@ -32,7 +32,7 @@ spec:
         - name: GENERIC_TIMEZONE
           value: {{ .Values.n8n.timezone }}
         - name: N8N_SECURE_COOKIE
-          value: {{ .Values.n8n.secure_cookie }}
+          value: {{ .Values.n8n.secure_cookie | quote }}
         - name: DB_TYPE
           value: {{ .Values.n8n.postgres.db_type }}
         - name: DB_POSTGRESDB_HOST
