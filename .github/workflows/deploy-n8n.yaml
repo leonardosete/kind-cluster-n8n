@@ -1,0 +1,24 @@
+name: Deploy n8n no ArgoCD
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'apps/n8n/**'
+      - 'argo-apps/n8n.yaml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Checkout do repositório
+        uses: actions/checkout@v3
+
+      - name: 🔐 Cria ~/.kube/config
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+
+      - name: 🧩 Aplica o Application do ArgoCD
+        run: kubectl apply -f argo-apps/n8n.yaml -n argocd
