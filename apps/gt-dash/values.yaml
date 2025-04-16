@@ -27,3 +27,8 @@ gt_dash:
     redis_port: "6379"
 
   secretName: gt-dash-secret
+  gt_redis: 
+    name: gt-dash-redis
+    port: 6379
+    image: redis:7
+    replicas: 1
