@@ -1,4 +1,4 @@
-name: Deploy => Cert-Manager+Lets_Encrypt+ArgoCD => Cluster KIND
+name: Deploy => Cert-Manager+Lets_Encrypt+ArgoCD+Sealed_Secrets => Cluster KIND
 
 on:
   workflow_dispatch:
