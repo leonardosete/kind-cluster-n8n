@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: {{ .Values.gt_dash.gt_redis.name }}
-          image: {{ .Values.gt_dash.gt_redis.iname }}
+          image: {{ .Values.gt_dash.gt_redis.image }}
           ports:
             - containerPort: {{ .Values.gt_dash.gt_redis.port }}
           resources:
