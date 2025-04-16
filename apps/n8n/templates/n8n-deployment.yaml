@@ -20,17 +20,7 @@ spec:
         - containerPort: {{ .Values.n8n.port }}
         env:
         - name: N8N_BASIC_AUTH_ACTIVE
-          value: "true"
-        - name: N8N_BASIC_AUTH_USER
-          valueFrom:
-            secretKeyRef:
-              name: "{{ .Values.n8n.secretName }}"
-              key: N8N_BASIC_AUTH_USER
-        - name: N8N_BASIC_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: "{{ .Values.n8n.secretName }}"
-              key: N8N_BASIC_AUTH_PASSWORD
+          value: {{ .Values.n8n.basic.auth_active }}
         - name: N8N_HOST
           value: {{ .Values.n8n.domain_name }}
         - name: N8N_PORT
@@ -42,19 +32,26 @@ spec:
         - name: GENERIC_TIMEZONE
           value: {{ .Values.n8n.timezone }}
         - name: N8N_SECURE_COOKIE
-          value: "true"
+          value: {{ .Values.n8n.secure_cookie }}
         - name: DB_TYPE
           value: {{ .Values.n8n.postgres.db_type }}
         - name: DB_POSTGRESDB_HOST
           value: {{ .Values.n8n.postgres.host }}
         - name: DB_POSTGRESDB_PORT
           value: {{ .Values.n8n.postgres.port | quote }}
-        - name: DB_POSTGRESDB_DATABASE
-          value: {{ .Values.n8n.postgres.database }}
-        - name: DB_POSTGRESDB_USER
-          value: {{ .Values.n8n.postgres.user }}
-        - name: DB_POSTGRESDB_PASSWORD
+
+        - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:
               name: "{{ .Values.n8n.secretName }}"
-              key: DB_POSTGRESDB_PASSWORD
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.n8n.secretName }}"
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.n8n.secretName }}"
+              key: POSTGRES_PASSWORD

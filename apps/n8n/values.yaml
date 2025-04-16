@@ -1,20 +1,20 @@
 n8n:
   name: n8n
   namespace: n8n-vps
-  secretName: n8n-secret
-  image: n8nio/n8n:1.88.0
+  secretName: n8n-secrets
+  image: n8nio/n8n:1.89.2
   protocol: https
   port: 5678
   domain_name: n8n-test.devops-master.shop
   webhookUrl: "https://n8n-test.devops-master.shop"
   timezone: America/Sao_Paulo
+  basic:
+    auth_active: true
+  secure_cookie: true
   postgres:
     db_type: postgresdb
     host: postgres
     port: "5432"
-    database: n8n
-    user: n8n
-    password: supersecreto
   ingress:
     enabled: true
     className: nginx
