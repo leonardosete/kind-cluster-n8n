@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: gt-dash
-  namespace: gt-dash
+  name: {{ .Values.gt_dash.name }}
+  namespace: {{ .Values.gt_dash.namespace }}
 spec:
   selector:
-    app: gt-dash
+    app: {{ .Values.gt_dash.namespace }}
   ports:
     - protocol: TCP
       port: {{ .Values.gt_dash.service.port }}

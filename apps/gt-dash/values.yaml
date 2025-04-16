@@ -1,4 +1,6 @@
 gt_dash:
+  name: gt-dash
+  namespace: gt-dash
   domain_name: gt-dash-sete.devops-master.shop
   replicaCount: 1
   image:

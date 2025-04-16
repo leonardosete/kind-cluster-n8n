@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gt-dash
-  namespace: gt-dash
+  name: {{ .Values.gt_dash.name }}
+  namespace: {{ .Values.gt_dash.namespace }}
   labels:
-    app: gt-dash
+    app: {{ .Values.gt_dash.name }}
 spec:
   replicas: {{ .Values.gt_dash.replicaCount }}
   selector:
     matchLabels:
-      app: gt-dash
+      app: {{ .Values.gt_dash.name }}
   template:
     metadata:
       labels:
-        app: gt-dash
+        app: {{ .Values.gt_dash.name }}
     spec:
       containers:
-        - name: gt-dash
+        - name: {{ .Values.gt_dash.name }}
           image: {{ .Values.gt_dash.image.repository }}:{{ .Values.gt_dash.image.tag }}
           imagePullPolicy: {{ .Values.gt_dash.image.pullPolicy }}
           ports:
