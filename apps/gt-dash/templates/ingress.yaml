@@ -20,7 +20,7 @@ spec:
           service:
             name: {{ .Values.gt_dash.name }}
             port:
-              number: {{ .Values.gt_dash.port }}
+              number: {{ .Values.gt_dash.service.port }}
   {{- if .Values.gt_dash.ingress.tls.enabled }}
   tls:
   - hosts:

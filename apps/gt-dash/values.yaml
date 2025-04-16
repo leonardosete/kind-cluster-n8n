@@ -8,7 +8,6 @@ gt_dash:
     tag: latest
     pullPolicy: IfNotPresent
   service:
-    type: ClusterIP
     port: 8000
   ingress:
     enabled: true
