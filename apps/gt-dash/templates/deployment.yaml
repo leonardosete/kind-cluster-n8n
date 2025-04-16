@@ -6,7 +6,7 @@ metadata:
   labels:
     app: gt-dash
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.gt_dash.replicaCount }}
   selector:
     matchLabels:
       app: gt-dash
@@ -17,23 +17,23 @@ spec:
     spec:
       containers:
         - name: gt-dash
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: {{ .Values.gt_dash.image.repository }}:{{ .Values.gt_dash.image.tag }}
+          imagePullPolicy: {{ .Values.gt_dash.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - containerPort: {{ .Values.gt_dash.service.port }}
           env:
             - name: GITHUB_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secretName }}
+                  name: {{ .Values.gt_dash.secretName }}
                   key: GITHUB_TOKEN
             - name: REPOS
-              value: {{ .Values.env.repos | quote }}
+              value: {{ .Values.gt_dash.env.repos | quote }}
             - name: WH_URL
-              value: {{ .Values.env.webhook_url | quote }}
+              value: {{ .Values.gt_dash.env.webhook_url | quote }}
             - name: WH_PHONE
-              value: {{ .Values.env.webhook_phone | quote }}
+              value: {{ .Values.gt_dash.env.webhook_phone | quote }}
             - name: REDIS_HOST
-              value: {{ .Values.env.redis_host | quote }}
+              value: {{ .Values.gt_dash.env.redis_host | quote }}
             - name: REDIS_PORT
-              value: {{ .Values.env.redis_port | quote }}
+              value: {{ .Values.gt_dash.env.redis_port | quote }}
