@@ -51,12 +51,6 @@ set +o allexport
 
 # 🔧 Monta os argumentos do Secret
 SECRET_ARGS=""
-# while read -r line; do
-#   [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
-#   key=$(echo "$line" | cut -d= -f1)
-#   value=$(echo "$line" | cut -d= -f2-)
-#   SECRET_ARGS+=" --from-literal=$key=\"$value\""
-# done < "$ENV_FILE"
 
 while IFS='=' read -r key value; do
   [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
@@ -68,8 +62,6 @@ while IFS='=' read -r key value; do
 
   SECRET_ARGS+=" --from-literal=$key=$value"
 done < <(grep -v '^\s*$' "$ENV_FILE")
-
-
 
 # 🛠️ Gera e criptografa
 echo "🔐 Gerando Secret Kubernetes em JSON..."
