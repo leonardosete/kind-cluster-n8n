@@ -5,7 +5,11 @@ config:
   updateStrategy: {{ image_updater_update_strategy }}
   interval: {{ image_updater_interval }}
   registries: |
-{{ image_updater_registry_config | indent(4) }}
+{% for reg in image_updater_registries %}
+    - name: {{ reg.name }}
+      prefix: {{ reg.prefix }}
+      default: {{ reg.default }}
+{% endfor %}
 
 argocd:
   applicationsSync:

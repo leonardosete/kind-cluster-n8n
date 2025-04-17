@@ -3,7 +3,8 @@ image_updater_log_level: "info"
 image_updater_update_strategy: "latest"
 image_updater_interval: "2m"
 
-image_updater_registry_config: |
-- name: Docker Hub
-  prefix: index.docker.io
-  default: true
+# Definição das registries como lista, para renderização limpa no template
+image_updater_registries:
+  - name: "Docker Hub"
+    prefix: "index.docker.io"
+    default: true
