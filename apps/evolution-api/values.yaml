@@ -25,17 +25,17 @@ evolutionApi:
     - name: POSTGRES_DATABASE
       valueFrom:
         secretKeyRef:
-          name: evolution-postgres-secrets
+          name: evolution-api-secrets
           key: POSTGRES_DATABASE
     - name: POSTGRES_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: evolution-postgres-secrets
+          name: evolution-api-secrets
           key: POSTGRES_PASSWORD
     - name: POSTGRES_USERNAME
       valueFrom:
         secretKeyRef:
-          name: evolution-postgres-secrets
+          name: evolution-api-secrets
           key: POSTGRES_USERNAME
     - name: AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES
       value: "true"
