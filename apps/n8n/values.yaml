@@ -11,6 +11,7 @@ n8n:
   basic:
     auth_active: true
   secure_cookie: true
+  enforce_settings_file: true
   postgres:
     db_type: postgresdb
     host: postgres
