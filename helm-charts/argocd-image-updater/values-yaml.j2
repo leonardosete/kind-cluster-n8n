@@ -1,0 +1,16 @@
+nameOverride: argocd-image-updater
+
+config:
+  logLevel: {{ image_updater_log_level }}
+  updateStrategy: {{ image_updater_update_strategy }}
+  interval: {{ image_updater_interval }}
+
+  registries:
+    - name: Docker Hub
+      prefix: index.docker.io
+      default: true
+      credentials: {}
+
+argocd:
+  applicationsSync:
+    enabled: true

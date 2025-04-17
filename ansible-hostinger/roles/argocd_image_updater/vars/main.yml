@@ -1,0 +1,4 @@
+## [argocd-image-updater]
+image_updater_log_level: "info"
+image_updater_update_strategy: "latest"
+image_updater_interval: "2m"

@@ -16,6 +16,7 @@
   roles:
     - role: cert_bundle
     - role: argocd
+    - role: argocd_image_updater
     - role: sealed_secrets
 
   post_tasks:
