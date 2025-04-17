@@ -16,7 +16,7 @@ PUB_CERT=".chaves/pub-cert.pem"
 
 # 🧠 Calcula caminho correto do OUT_FILE
 case "$APP_NAME" in
-  evolution-api)
+  evolution-*)
     OUT_FILE="apps/evolution-api/templates/sealedsecret-$APP_NAME.yaml"
     ;;
   n8n)
@@ -51,7 +51,6 @@ set +o allexport
 
 # 🔧 Monta os argumentos do Secret
 SECRET_ARGS=""
-
 while IFS='=' read -r key value; do
   [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
   rest=$(echo "$line" | cut -d= -f2-)
@@ -66,6 +65,9 @@ eval kubectl create secret generic "$SECRET_NAME" \
   $SECRET_ARGS \
   --namespace="$NAMESPACE" \
   --dry-run=client -o json > temp-secret.json
+
+# 🔧 Garante que o diretório de destino exista
+mkdir -p "$(dirname "$OUT_FILE")"
 
 echo "🔐 Criptografando com kubeseal..."
 kubeseal \
