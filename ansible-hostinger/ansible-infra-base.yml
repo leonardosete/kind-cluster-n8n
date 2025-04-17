@@ -14,10 +14,10 @@
       failed_when: cluster_check.rc != 0
 
   roles:
-#    - role: cert_bundle
-#    - role: argocd
+    - role: cert_bundle
+    - role: argocd
     - role: argocd_image_updater
-#    - role: sealed_secrets
+    - role: sealed_secrets
 
   post_tasks:
     - name: Exibe status final da configuração
