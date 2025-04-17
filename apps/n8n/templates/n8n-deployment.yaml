@@ -4,7 +4,7 @@ metadata:
   name: {{ .Values.n8n.name }}
   namespace: {{ .Values.n8n.namespace }}
 spec:
-  replicas: 3
+  replicas: {{ .Values.n8n.replicas }}
   selector:
     matchLabels:
       app: {{ .Values.n8n.name }}
@@ -19,8 +19,6 @@ spec:
           ports:
             - containerPort: {{ .Values.n8n.port }}
           env:
-            - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
-              value: {{ .Values.n8n.enforce_settings_file | quote }}
             - name: N8N_BASIC_AUTH_ACTIVE
               value: {{ .Values.n8n.basic.auth_active | quote }}
             - name: N8N_HOST
@@ -72,9 +70,4 @@ spec:
               value: {{ .Values.n8n.redis.password }}
             {{- end }}
           resources:
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "1Gi"
-              cpu: "1000m"
+            {{- toYaml .Values.n8n.resources | nindent 12 }}

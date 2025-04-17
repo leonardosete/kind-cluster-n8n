@@ -36,9 +36,7 @@ spec:
             - mountPath: /data
               name: redis-storage
           resources:
-            limits:
-              memory: "256Mi"
-              cpu: "200m"
+            {{- toYaml .Values.n8n.redis.resources | nindent 12 }}
       volumes:
         - name: redis-storage
           persistentVolumeClaim:

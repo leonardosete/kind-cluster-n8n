@@ -11,11 +11,17 @@ n8n:
   basic:
     auth_active: true
   secure_cookie: true
-  enforce_settings_file: true
   postgres:
     db_type: postgresdb
     host: postgres
     port: "5432"
+    resources:
+      requests:
+        cpu: "300m"
+        memory: "512Mi"
+      limits:
+        cpu: "750m"
+        memory: "1Gi"
   ingress:
     enabled: true
     className: nginx
@@ -39,3 +45,18 @@ n8n:
       pvcName: redis-pvc
       accessModes: ReadWriteOnce
       size: 1Gi
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "200m"
+        memory: "512Mi"
+  replicas: 3
+  resources:
+    requests:
+      cpu: "300m"
+      memory: "512Mi"
+    limits:
+      cpu: "750m"
+      memory: "1Gi"
