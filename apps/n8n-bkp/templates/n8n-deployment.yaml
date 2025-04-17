@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.n8n.name }}
+  namespace: {{ .Values.n8n.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.n8n.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.n8n.name }}
+    spec:
+      containers:
+      - name: {{ .Values.n8n.name }}
+        image: {{ .Values.n8n.image }}
+        ports:
+        - containerPort: {{ .Values.n8n.port }}
+        env:
+        - name: N8N_BASIC_AUTH_ACTIVE
+          value: {{ .Values.n8n.basic.auth_active | quote }}
+        - name: N8N_HOST
+          value: {{ .Values.n8n.domain_name }}
+        - name: N8N_PORT
+          value: {{ .Values.n8n.port | quote }}
+        - name: N8N_PROTOCOL
+          value: {{ .Values.n8n.protocol }}
+        - name: WEBHOOK_URL
+          value: "{{ .Values.n8n.webhookUrl }}"
+        - name: GENERIC_TIMEZONE
+          value: {{ .Values.n8n.timezone }}
+        - name: N8N_SECURE_COOKIE
+          value: {{ .Values.n8n.secure_cookie | quote }}
+        - name: DB_TYPE
+          value: {{ .Values.n8n.postgres.db_type }}
+        - name: DB_POSTGRESDB_HOST
+          value: {{ .Values.n8n.postgres.host }}
+        - name: DB_POSTGRESDB_PORT
+          value: {{ .Values.n8n.postgres.port | quote }}
+        - name: DB_POSTGRESDB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.n8n.secretName }}"
+              key: DB_POSTGRESDB_DATABASE
+        - name: DB_POSTGRESDB_USER
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.n8n.secretName }}"
+              key: DB_POSTGRESDB_USER
+        - name: DB_POSTGRESDB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.n8n.secretName }}"
+              key: DB_POSTGRESDB_PASSWORD
+        - name: N8N_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.n8n.secretName }}"
+              key: N8N_ENCRYPTION_KEY

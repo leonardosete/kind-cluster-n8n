@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.n8n.redis.host }}
+  namespace: {{ .Values.n8n.namespace }}
+spec:
+  ports:
+    - port: {{ .Values.n8n.redis.port }}
+      targetPort: {{ .Values.n8n.redis.port }}
+  selector:
+    app: {{ .Values.n8n.redis.host }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.n8n.redis.host }}
+  namespace: {{ .Values.n8n.namespace }}
+  labels:
+    app: {{ .Values.n8n.redis.host }}
+spec:
+  replicas: {{ .Values.n8n.redis.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.n8n.redis.host }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.n8n.redis.host }}
+    spec:
+      containers:
+        - name: {{ .Values.n8n.redis.host }}
+          image: {{ .Values.n8n.redis.image }}
+          ports:
+            - containerPort: {{ .Values.n8n.redis.port }}
+          volumeMounts:
+            - mountPath: /data
+              name: redis-storage
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+      volumes:
+        - name: redis-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.n8n.redis.persistence.pvcName }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.n8n.redis.persistence.pvcName }}
+  namespace: {{ .Values.n8n.namespace }}
+spec:
+  accessModes:
+    - {{ .Values.n8n.redis.persistence.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.n8n.redis.persistence.size }}
