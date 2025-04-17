@@ -12,7 +12,7 @@
   register: image_updater_template
 
 - name: Renderiza values.yaml a partir do template Jinja2 do ArgoCD Image Updater
-  when: image_updater_template.stat.exists
+  when: image_updater_template.stat.exists == true
   template:
     src: "{{ helm_charts_dir }}/argocd-image-updater/values-yaml.j2"
     dest: /root/helm-charts/argocd-image-updater/values.yaml
