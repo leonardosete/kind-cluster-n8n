@@ -10,7 +10,7 @@ evolutionApi:
     - name: AUTHENTICATION_API_KEY
       valueFrom:
         secretKeyRef:
-          name: evolution-api-secrets
+          name: evolution-api-secret
           key: AUTHENTICATION_API_KEY
     - name: AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES
       value: "true"
@@ -31,7 +31,7 @@ evolutionApi:
     - name: DATABASE_CONNECTION_URI
       valueFrom:
         secretKeyRef:
-          name: evolution-api-secrets
+          name: evolution-api-secret
           key: DATABASE_CONNECTION_URI
     - name: DATABASE_SAVE_DATA_INSTANCE
       value: "true"
@@ -52,7 +52,7 @@ evolutionApi:
     - name: CACHE_REDIS_URI
       valueFrom:
         secretKeyRef:
-          name: evolution-api-secrets
+          name: evolution-api-secret
           key: CACHE_REDIS_URI
     - name: CACHE_REDIS_PREFIX_KEY
       value: "evolution"
@@ -79,17 +79,17 @@ postgresql:
     POSTGRES_DATABASE:
       valueFrom:
         secretKeyRef:
-          name: evolution-postgres-secrets
+          name: evolution-postgres-secret
           key: POSTGRES_DATABASE
     POSTGRES_USERNAME:
       valueFrom:
         secretKeyRef:
-          name: evolution-postgres-secrets
+          name: evolution-postgres-secret
           key: POSTGRES_USERNAME
     POSTGRES_PASSWORD:
       valueFrom:
         secretKeyRef:
-          name: evolution-postgres-secrets
+          name: evolution-postgres-secret
           key: POSTGRES_PASSWORD
   persistence:
     enabled: true
