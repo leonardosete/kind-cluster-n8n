@@ -10,8 +10,33 @@ evolutionApi:
     - name: AUTHENTICATION_API_KEY
       valueFrom:
         secretKeyRef:
-          name: evolution-api-secret
+          name: evolution-api-secrets
           key: AUTHENTICATION_API_KEY
+    - name: CACHE_REDIS_URI
+      valueFrom:
+        secretKeyRef:
+          name: evolution-api-secrets
+          key: CACHE_REDIS_URI
+    - name: DATABASE_CONNECTION_URI
+      valueFrom:
+        secretKeyRef:
+          name: evolution-api-secrets
+          key: DATABASE_CONNECTION_URI
+    - name: POSTGRES_DATABASE
+      valueFrom:
+        secretKeyRef:
+          name: evolution-postgres-secrets
+          key: POSTGRES_DATABASE
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: evolution-postgres-secrets
+          key: POSTGRES_PASSWORD
+    - name: POSTGRES_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: evolution-postgres-secrets
+          key: POSTGRES_USERNAME
     - name: AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES
       value: "true"
     - name: LANGUAGE
@@ -28,11 +53,6 @@ evolutionApi:
       value: "true"
     - name: DATABASE_PROVIDER
       value: "postgresql"
-    - name: DATABASE_CONNECTION_URI
-      valueFrom:
-        secretKeyRef:
-          name: evolution-api-secret
-          key: DATABASE_CONNECTION_URI
     - name: DATABASE_SAVE_DATA_INSTANCE
       value: "true"
     - name: DATABASE_SAVE_DATA_NEW_MESSAGE
@@ -49,11 +69,6 @@ evolutionApi:
       value: "true"
     - name: CACHE_REDIS_ENABLED
       value: "true"
-    - name: CACHE_REDIS_URI
-      valueFrom:
-        secretKeyRef:
-          name: evolution-api-secret
-          key: CACHE_REDIS_URI
     - name: CACHE_REDIS_PREFIX_KEY
       value: "evolution"
     - name: CACHE_REDIS_SAVE_INSTANCES
@@ -71,26 +86,25 @@ evolutionApi:
     tls:
       enabled: true
       secretName: evolution-api-tls
-
 postgresql:
   image: "postgres:16-alpine"
   name: evolution-postgres
   env:
-    POSTGRES_DATABASE:
+    - name: POSTGRES_DATABASE
       valueFrom:
         secretKeyRef:
-          name: evolution-postgres-secret
+          name: evolution-postgres-secrets
           key: POSTGRES_DATABASE
-    POSTGRES_USERNAME:
+    - name: POSTGRES_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: evolution-postgres-secret
-          key: POSTGRES_USERNAME
-    POSTGRES_PASSWORD:
-      valueFrom:
-        secretKeyRef:
-          name: evolution-postgres-secret
+          name: evolution-postgres-secrets
           key: POSTGRES_PASSWORD
+    - name: POSTGRES_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: evolution-postgres-secrets
+          key: POSTGRES_USERNAME
   persistence:
     enabled: true
     size: 1Gi
@@ -98,7 +112,6 @@ postgresql:
   pvcName: evolution-postgres-pvc
   accessModes: ReadWriteOnce
   storage: 1Gi
-
 redis:
   image: "redis:alpine"
   name: evolution-redis

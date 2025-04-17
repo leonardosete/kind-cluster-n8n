@@ -11,7 +11,7 @@ if [[ -z "$APP_NAME" ]]; then
 fi
 
 ENV_FILE=".chaves/.env-$APP_NAME"
-SECRET_NAME="${APP_NAME}-secret"
+SECRET_NAME="${APP_NAME}-secrets"
 PUB_CERT=".chaves/pub-cert.pem"
 
 # 🧠 Calcula caminho correto do OUT_FILE
@@ -64,7 +64,7 @@ echo "🔐 Gerando Secret Kubernetes em JSON..."
 eval kubectl create secret generic "$SECRET_NAME" \
   $SECRET_ARGS \
   --namespace="$NAMESPACE" \
-  --dry-run=client -o json > temp-secret.json
+  --dry-run=client -o json > temp-secrets.json
 
 # 🔧 Garante que o diretório de destino exista
 mkdir -p "$(dirname "$OUT_FILE")"
@@ -74,8 +74,8 @@ kubeseal \
   --cert "$PUB_CERT" \
   --controller-name=sealed-secrets \
   --controller-namespace=kube-system \
-  -o yaml < temp-secret.json > "$OUT_FILE"
+  -o yaml < temp-secrets.json > "$OUT_FILE"
 
-rm temp-secret.json
+rm temp-secrets.json
 
 echo "✅ SealedSecret seguro gerado em $OUT_FILE (namespace: $NAMESPACE)"
