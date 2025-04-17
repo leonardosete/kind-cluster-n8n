@@ -4,13 +4,6 @@ config:
   logLevel: {{ image_updater_log_level }}
   updateStrategy: {{ image_updater_update_strategy }}
   interval: {{ image_updater_interval }}
-  registries:
-{% for reg in image_updater_registries %}
-    - name: {{ reg.name }}
-      prefix: {{ reg.prefix }}
-      apiURL: {{ reg.apiURL }}
-      default: {{ reg.default }}
-{% endfor %}
 
 argocd:
   applicationsSync:
