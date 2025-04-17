@@ -90,17 +90,17 @@ postgresql:
   image: "postgres:16-alpine"
   name: evolution-postgres
   env:
-    - name: POSTGRES_DATABASE
+    POSTGRES_DATABASE:
       valueFrom:
         secretKeyRef:
           name: evolution-postgres-secrets
           key: POSTGRES_DATABASE
-    - name: POSTGRES_PASSWORD
+    POSTGRES_PASSWORD:
       valueFrom:
         secretKeyRef:
           name: evolution-postgres-secrets
           key: POSTGRES_PASSWORD
-    - name: POSTGRES_USERNAME
+    POSTGRES_USERNAME:
       valueFrom:
         secretKeyRef:
           name: evolution-postgres-secrets
