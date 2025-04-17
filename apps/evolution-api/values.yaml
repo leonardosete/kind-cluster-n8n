@@ -22,21 +22,21 @@ evolutionApi:
         secretKeyRef:
           name: evolution-api-secrets
           key: DATABASE_CONNECTION_URI
-    - name: POSTGRES_DATABASE
+    - name: POSTGRES_DB
       valueFrom:
         secretKeyRef:
           name: evolution-api-secrets
-          key: POSTGRES_DATABASE
+          key: POSTGRES_DB
     - name: POSTGRES_PASSWORD
       valueFrom:
         secretKeyRef:
           name: evolution-api-secrets
           key: POSTGRES_PASSWORD
-    - name: POSTGRES_USERNAME
+    - name: POSTGRES_USER
       valueFrom:
         secretKeyRef:
           name: evolution-api-secrets
-          key: POSTGRES_USERNAME
+          key: POSTGRES_USER
     - name: AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES
       value: "true"
     - name: LANGUAGE
@@ -90,21 +90,21 @@ postgresql:
   image: "postgres:16-alpine"
   name: evolution-postgres
   env:
-    POSTGRES_DATABASE:
+    POSTGRES_DB:
       valueFrom:
         secretKeyRef:
           name: evolution-postgres-secrets
-          key: POSTGRES_DATABASE
+          key: POSTGRES_DB
     POSTGRES_PASSWORD:
       valueFrom:
         secretKeyRef:
           name: evolution-postgres-secrets
           key: POSTGRES_PASSWORD
-    POSTGRES_USERNAME:
+    POSTGRES_USER:
       valueFrom:
         secretKeyRef:
           name: evolution-postgres-secrets
-          key: POSTGRES_USERNAME
+          key: POSTGRES_USER
   persistence:
     enabled: true
     size: 1Gi
