@@ -1,4 +1,4 @@
-- name: Copia chart do ArgoCD Image Updater para o servidor
+- name: 📦 Copia chart do ArgoCD Image Updater para o servidor
   synchronize:
     src: "{{ helm_charts_dir }}/argocd-image-updater/"
     dest: /root/helm-charts/argocd-image-updater/
@@ -6,20 +6,27 @@
   register: sync_image_updater_chart
   tags: [argocd_image_updater]
 
-- name: Verifica se existe o template do values do ArgoCD Image Updater
+- name: 🔍 Valida existência do template values-yaml.j2
   stat:
     path: "{{ helm_charts_dir }}/argocd-image-updater/values-yaml.j2"
   register: image_updater_template
   tags: [argocd_image_updater]
 
-- name: Renderiza values.yaml a partir do template Jinja2 do ArgoCD Image Updater
-  when: image_updater_template.stat.exists == true
+- name: ❌ Falha explicitamente se o template do values não existir
+  fail:
+    msg: >
+      O template '{{ helm_charts_dir }}/argocd-image-updater/values-yaml.j2'
+      não foi encontrado. Verifique se o arquivo está no caminho correto.
+  when: not image_updater_template.stat.exists
+  tags: [argocd_image_updater]
+
+- name: 📝 Renderiza values.yaml a partir do template Jinja2 do ArgoCD Image Updater
   template:
     src: "{{ helm_charts_dir }}/argocd-image-updater/values-yaml.j2"
     dest: /root/helm-charts/argocd-image-updater/values.yaml
   tags: [argocd_image_updater]
 
-- name: Instala o ArgoCD Image Updater via Helm
+- name: 🚀 Instala o ArgoCD Image Updater via Helm
   shell: |
     helm repo add argo https://argoproj.github.io/argo-helm
     helm repo update
