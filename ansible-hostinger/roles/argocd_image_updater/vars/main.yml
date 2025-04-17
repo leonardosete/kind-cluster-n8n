@@ -3,8 +3,9 @@ image_updater_log_level: "info"
 image_updater_update_strategy: "latest"
 image_updater_interval: "2m"
 
-# Lista de registries no formato esperado pelo Chart
+# Lista de registries no formato que o Chart espera
 image_updater_registries:
   - name: "Docker Hub"
     prefix: "index.docker.io"
+    apiURL: "https://index.docker.io/v2/"
     default: true

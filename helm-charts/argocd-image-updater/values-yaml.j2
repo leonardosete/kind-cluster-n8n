@@ -8,6 +8,7 @@ config:
 {% for reg in image_updater_registries %}
     - name: {{ reg.name }}
       prefix: {{ reg.prefix }}
+      apiURL: {{ reg.apiURL }}
       default: {{ reg.default }}
 {% endfor %}
 
