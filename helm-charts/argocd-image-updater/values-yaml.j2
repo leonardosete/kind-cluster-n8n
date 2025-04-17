@@ -4,7 +4,7 @@ config:
   logLevel: {{ image_updater_log_level }}
   updateStrategy: {{ image_updater_update_strategy }}
   interval: {{ image_updater_interval }}
-  registries: |
+  registries:
 {% for reg in image_updater_registries %}
     - name: {{ reg.name }}
       prefix: {{ reg.prefix }}

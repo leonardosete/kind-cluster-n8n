@@ -3,7 +3,7 @@ image_updater_log_level: "info"
 image_updater_update_strategy: "latest"
 image_updater_interval: "2m"
 
-# Definição das registries como lista, para renderização limpa no template
+# Lista de registries no formato esperado pelo Chart
 image_updater_registries:
   - name: "Docker Hub"
     prefix: "index.docker.io"
