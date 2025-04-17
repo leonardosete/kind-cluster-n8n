@@ -4,6 +4,6 @@ image_updater_update_strategy: "latest"
 image_updater_interval: "2m"
 
 image_updater_registry_config: |
-  - name: Docker Hub
-    prefix: index.docker.io
-    default: true
+- name: Docker Hub
+  prefix: index.docker.io
+  default: true

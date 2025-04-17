@@ -4,8 +4,8 @@ config:
   logLevel: {{ image_updater_log_level }}
   updateStrategy: {{ image_updater_update_strategy }}
   interval: {{ image_updater_interval }}
-    registries: |
-{{ image_updater_registry_config | indent(6) }}
+  registries: |
+{{ image_updater_registry_config | indent(4) }}
 
 argocd:
   applicationsSync:
