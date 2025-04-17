@@ -109,3 +109,4 @@ https://n8n-kind.seu-dominio.com
 ## 🛠️ Autor
 
 > Desenvolvido por [Leonardo Sete](https://github.com/leonardosete) • DevOps & SRE
+
