@@ -52,10 +52,10 @@ n8n:
       limits:
         cpu: "200m"
         memory: "512Mi"
-  replicas: 2
+  replicas: 1
   resources:
     requests:
-      cpu: "256m"
+      cpu: "300m"
       memory: "512Mi"
     limits:
       cpu: "512m"
