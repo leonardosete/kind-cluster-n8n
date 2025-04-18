@@ -21,6 +21,10 @@ spec:
           env:
             - name: N8N_BASIC_AUTH_ACTIVE
               value: {{ .Values.n8n.basic.auth_active | quote }}
+            - name: N8N_BASIC_AUTH_USER
+              value: {{ .Values.n8n.basic.auth_user }}
+            - name: N8N_BASIC_AUTH_PASSWORD
+              value: {{ .Values.n8n.basic.auth_password }}
             - name: N8N_HOST
               value: {{ .Values.n8n.domain_name }}
             - name: N8N_PORT
