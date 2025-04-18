@@ -22,3 +22,8 @@ jobs:
 
       - name: 🧩 Aplica o Application do ArgoCD
         run: kubectl apply -f argo-apps/evolution-api.yaml -n argocd
+
+      - name: 🔁 Força sync no ArgoCD
+        run: |
+          kubectl -n argocd patch application evolution-api \
+            --type merge -p '{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}'

@@ -22,3 +22,8 @@ jobs:
 
       - name: 🧩 Aplica o Application do ArgoCD
         run: kubectl apply -f argo-apps/n8n-postgres.yaml -n argocd
+
+      - name: 🔁 Força sync no ArgoCD
+        run: |
+          kubectl -n argocd patch application n8n-postgres \
+            --type merge -p '{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}'

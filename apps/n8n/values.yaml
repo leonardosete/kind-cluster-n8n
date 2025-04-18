@@ -10,7 +10,7 @@ n8n:
   webhookUrl: "https://n8n-test.devops-master.shop"
   timezone: America/Sao_Paulo
   basic:
-    auth_active: true
+    auth_active: false
   secure_cookie: true
   postgres:
     db_type: postgresdb
