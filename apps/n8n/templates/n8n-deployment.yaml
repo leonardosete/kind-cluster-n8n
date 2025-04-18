@@ -16,7 +16,7 @@ spec:
       containers:
         - name: {{ .Values.n8n.name }}
           image: {{ .Values.n8n.image }}
-          pullPolicy: {{ .Values.n8n.pullPolicy }}
+          pullPolicy: {{ .Values.n8n.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.n8n.port }}
           env:
