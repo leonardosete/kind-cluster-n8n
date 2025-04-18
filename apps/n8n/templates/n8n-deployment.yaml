@@ -16,9 +16,9 @@ spec:
       containers:
         - name: {{ .Values.n8n.name }}
           image: {{ .Values.n8n.image }}
-          pullPolicy: {{ .Values.n8n.image }}
+          pullPolicy: {{ .Values.n8n.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.n8n.pullPolicy }}
+            - containerPort: {{ .Values.n8n.port }}
           env:
             - name: N8N_BASIC_AUTH_ACTIVE
               value: {{ .Values.n8n.basic.auth_active | quote }}
