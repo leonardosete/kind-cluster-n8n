@@ -23,7 +23,7 @@ n8n:
         cpu: "128m"
         memory: "512Mi"
       limits:
-        cpu: "750m"
+        cpu: "256m"
         memory: "1Gi"
   ingress:
     enabled: true
@@ -58,7 +58,7 @@ n8n:
   replicas: 1
   resources:
     requests:
-      cpu: "300m"
+      cpu: "256m"
       memory: "512Mi"
     limits:
       cpu: "512m"
