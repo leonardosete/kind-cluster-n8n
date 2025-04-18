@@ -18,7 +18,7 @@ n8n:
     port: "5432"
     resources:
       requests:
-        cpu: "300m"
+        cpu: "128m"
         memory: "512Mi"
       limits:
         cpu: "750m"
