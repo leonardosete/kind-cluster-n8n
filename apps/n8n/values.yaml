@@ -3,7 +3,7 @@ n8n:
   namespace: n8n-vps
   secretName: n8n-secrets
 #  image: n8nio/n8n:1.89.2
-  image: sevenleo/n8n:1.89.2-python
+  image: sevenleo/n8n-python:1.89.2
   protocol: https
   port: 5678
   domain_name: n8n-test.devops-master.shop
