@@ -26,8 +26,6 @@ spec:
               value: "true"
             - name: N8N_TRUST_PROXY
               value: "true"
-            - name: N8N_CUSTOM_EXTENSIONS
-              value: /home/node/.n8n/custom
             - name: N8N_BASIC_AUTH_ACTIVE
               value: {{ .Values.n8n.basic.auth_active | quote }}
             - name: N8N_HOST
