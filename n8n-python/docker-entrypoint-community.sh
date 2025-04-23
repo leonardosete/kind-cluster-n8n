@@ -1,21 +1,20 @@
 #!/usr/bin/env sh
-# Bootstrap: instala os community-nodes na primeira vez
+# Instala os community-nodes no PVC apenas na 1ª execução
 
 set -e
 
 NODES_DIR="/home/node/.n8n/nodes"
 mkdir -p "$NODES_DIR"
 
-# garante pnpm disponível
+# garante pnpm
 corepack enable && corepack prepare pnpm@latest --activate
 
 if [ ! -d "$NODES_DIR/node_modules" ]; then
-  echo "[bootstrap] instalando n8n-nodes-evolution-api e n8n-nodes-python"
+  echo "[bootstrap] instalando n8n-nodes-evolution-api e n8n-nodes-python..."
   pnpm add --dir "$NODES_DIR" \
-    --config.allow-scripts=n8n-nodes-evolution-api,n8n-nodes-python \
+    --dangerously-allow-all-builds \
     n8n-nodes-evolution-api n8n-nodes-python
-
 fi
 
-# chama o entrypoint original da imagem
+# entrega para o entrypoint oficial do n8n
 exec /docker-entrypoint.sh "$@"
