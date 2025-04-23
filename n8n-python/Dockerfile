@@ -5,16 +5,15 @@ RUN apk update && apk add --no-cache python3 py3-pip \
  && ln -sf python3 /usr/bin/python \
  && mkdir -p /home/node/.n8n/custom
 
-# Instala aqui, não -g
+# ---- aqui mudamos ----
 RUN npm install \
       --prefix /home/node/.n8n/custom \
+      --ignore-scripts \
       n8n-nodes-evolution-api \
       n8n-nodes-python
 
-# Lib python necessária
 RUN pip install fire --break-system-packages
 
-# Permissões
 RUN chown -R node:node /home/node/.n8n
 
 ENV N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom
