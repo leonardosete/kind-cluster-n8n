@@ -23,13 +23,17 @@ spec:
           command: ["sh", "-c"]
           args:
             - |
+              mkdir -p /home/node/.n8n/nodes
+              # garante que pnpm esteja pronto
+              corepack enable && corepack prepare pnpm@latest --activate
               if [ ! -d /home/node/.n8n/nodes/node_modules ]; then
-                echo "[bootstrap] instalando n8n-nodes-evolution-api e n8n-nodes-python…"
+                echo "[bootstrap] instalando community-nodes…"
                 pnpm add --dir /home/node/.n8n/nodes \
                   n8n-nodes-evolution-api n8n-nodes-python
               else
-                echo "[bootstrap] community-nodes já presentes — pulando instalação."
+                echo "[bootstrap] nodes já presentes — pulando."
               fi
+
           volumeMounts:
             - name: n8n-data
               mountPath: /home/node/.n8n
