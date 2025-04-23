@@ -33,9 +33,7 @@ spec:
             - name: N8N_TRUST_PROXY
               value: "true"
             - name: N8N_CUSTOM_EXTENSIONS
-              value: /home/node/.n8n/nodes
-            - name: N8N_PACKAGES_ALLOWLIST
-              value: n8n-nodes-evolution-api,n8n-nodes-python
+              value: /home/node/.n8n/custom
             # ---------- variáveis que já existiam ----------
             - name: N8N_BASIC_AUTH_ACTIVE
               value: {{ .Values.n8n.basic.auth_active | quote }}

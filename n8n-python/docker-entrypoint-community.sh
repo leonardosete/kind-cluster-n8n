@@ -3,16 +3,15 @@
 
 set -e
 
-NODES_DIR="/home/node/.n8n/nodes"
+NODES_DIR="/home/node/.n8n/custom"
 mkdir -p "$NODES_DIR"
 
 # garante pnpm
 corepack enable && corepack prepare pnpm@latest --activate
 
 if [ ! -d "$NODES_DIR/node_modules" ]; then
-  echo "[bootstrap] instalando n8n-nodes-evolution-api e n8n-nodes-python..."
   pnpm add --dir "$NODES_DIR" \
-    --dangerously-allow-all-builds \
+    --dangerously-allow-all-builds --shamefully-hoist \
     n8n-nodes-evolution-api n8n-nodes-python
 fi
 
