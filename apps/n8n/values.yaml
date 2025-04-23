@@ -10,9 +10,9 @@ n8n:
   domain_name: n8n-test.devops-master.shop
   webhookUrl: "https://n8n-test.devops-master.shop"
   timezone: America/Sao_Paulo
-  pvcName: n8n-data            # nome que você pôs no PVC
-  accessModes: ReadWriteOnce   # deve bater com o espec do PVC
-  storage: 3Gi                 # tamanho desejado
+  pvcName: n8n-data
+  accessModes: ReadWriteOnce
+  storage: 3Gi
   volumeMounts:
     name: n8n-data
     mountPath: /home/node/.n8n
