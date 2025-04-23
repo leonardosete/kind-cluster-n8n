@@ -13,42 +13,18 @@ spec:
       labels:
         app: {{ .Values.n8n.name }}
     spec:
-      ############################################################
-      # 1 ▸ InitContainer: instala os community-nodes no PVC (apenas
-      #     se ainda não existirem) — executa antes do n8n subir.
-      ############################################################
-      initContainers:
-        - name: community-nodes-bootstrap
-          image: {{ .Values.n8n.image }}      # utiliza a própria imagem do n8n
-          command: ["sh", "-c"]
-          args:
-            - |
-              mkdir -p /home/node/.n8n/nodes
-              corepack enable && corepack prepare pnpm@latest --activate
-              if [ ! -d /home/node/.n8n/nodes/node_modules ]; then
-                echo "[bootstrap] instalando community-nodes com build scripts liberados"
-                pnpm add --dir /home/node/.n8n/nodes \
-                  --allow-build=n8n-nodes-evolution-api,n8n-nodes-python \
-                  n8n-nodes-evolution-api n8n-nodes-python
-              else
-                echo "[bootstrap] já instalados — pulando"
-              fi
-          volumeMounts:
-            - name: n8n-data
-              mountPath: /home/node/.n8n
-
-      ############################################################
-      # 2 ▸ Contêiner principal do n8n
-      ############################################################
+      ############################################
+      # Contêiner principal do n8n
+      ############################################
       containers:
         - name: {{ .Values.n8n.name }}
-          image: {{ .Values.n8n.image }}
+          image: {{ .Values.n8n.image }}        # ← nova imagem
           imagePullPolicy: {{ .Values.n8n.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.n8n.port }}
           volumeMounts:
-            - name: n8n-data
-              mountPath: /home/node/.n8n
+            - name: {{ .Values.n8n.volumeMounts.name }}
+              mountPath: {{ .Values.n8n.volumeMounts.mountPath }}
           env:
             - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
               value: "true"
@@ -56,7 +32,7 @@ spec:
               value: "true"
             - name: N8N_TRUST_PROXY
               value: "true"
-            # ------------- configurações gerais -------------
+            # ---------- variáveis que já existiam ----------
             - name: N8N_BASIC_AUTH_ACTIVE
               value: {{ .Values.n8n.basic.auth_active | quote }}
             - name: N8N_HOST
@@ -71,7 +47,7 @@ spec:
               value: {{ .Values.n8n.timezone }}
             - name: N8N_SECURE_COOKIE
               value: {{ .Values.n8n.secure_cookie | quote }}
-            # ------------- banco Postgres -------------------
+            # ---------- Postgres ----------
             - name: DB_TYPE
               value: {{ .Values.n8n.postgres.db_type }}
             - name: DB_POSTGRESDB_HOST
@@ -93,13 +69,13 @@ spec:
                 secretKeyRef:
                   name: "{{ .Values.n8n.secretName }}"
                   key: DB_POSTGRESDB_PASSWORD
-            # ------------- encryption key -------------------
+            # ---------- Encryption Key ----------
             - name: N8N_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:
                   name: "{{ .Values.n8n.secretName }}"
                   key: N8N_ENCRYPTION_KEY
-            # ------------- fila Redis -----------------------
+            # ---------- Redis ----------
             - name: QUEUE_MODE
               value: {{ .Values.n8n.queue.mode }}
             - name: QUEUE_REDIS_HOST
@@ -113,9 +89,9 @@ spec:
           resources:
             {{- toYaml .Values.n8n.resources | nindent 12 }}
 
-      ############################################################
-      # 3 ▸ Volume que monta o PVC em /home/node/.n8n
-      ############################################################
+      ############################################
+      # PVC montado em /home/node/.n8n
+      ############################################
       volumes:
         - name: n8n-data
           persistentVolumeClaim:

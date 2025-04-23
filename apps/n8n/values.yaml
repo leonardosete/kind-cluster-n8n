@@ -13,6 +13,9 @@ n8n:
   pvcName: n8n-data            # nome que você pôs no PVC
   accessModes: ReadWriteOnce   # deve bater com o espec do PVC
   storage: 3Gi                 # tamanho desejado
+  volumeMounts:
+    name: n8n-data
+    mountPath: /home/node/.n8n
   basic:
     auth_active: false
   secure_cookie: true
