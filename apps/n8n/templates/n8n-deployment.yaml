@@ -20,6 +20,12 @@ spec:
           ports:
             - containerPort: {{ .Values.n8n.port }}
           env:
+            - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+              value: "true"
+            - name: N8N_RUNNERS_ENABLED
+              value: "true"
+            - name: N8N_TRUST_PROXY
+              value: "true"
             - name: N8N_BASIC_AUTH_ACTIVE
               value: {{ .Values.n8n.basic.auth_active | quote }}
             - name: N8N_HOST
