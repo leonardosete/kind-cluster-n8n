@@ -2,7 +2,7 @@ n8n:
   name: n8n
   namespace: n8n-vps
   secretName: n8n-secrets
-#  image: n8nio/n8n:1.89.2
+##  image: n8nio/n8n:1.89.2
   image: sevenleo/n8n-python:1.89.2
   imagePullPolicy: Always
   protocol: https
