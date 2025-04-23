@@ -13,12 +13,39 @@ spec:
       labels:
         app: {{ .Values.n8n.name }}
     spec:
+      ############################################################
+      # 1 ▸ InitContainer: instala os community-nodes no PVC (apenas
+      #     se ainda não existirem) — executa antes do n8n subir.
+      ############################################################
+      initContainers:
+        - name: community-nodes-bootstrap
+          image: {{ .Values.n8n.image }}      # utiliza a própria imagem do n8n
+          command: ["sh", "-c"]
+          args:
+            - |
+              if [ ! -d /home/node/.n8n/nodes/node_modules ]; then
+                echo "[bootstrap] instalando n8n-nodes-evolution-api e n8n-nodes-python…"
+                pnpm add --dir /home/node/.n8n/nodes \
+                  n8n-nodes-evolution-api n8n-nodes-python
+              else
+                echo "[bootstrap] community-nodes já presentes — pulando instalação."
+              fi
+          volumeMounts:
+            - name: n8n-data
+              mountPath: /home/node/.n8n
+
+      ############################################################
+      # 2 ▸ Contêiner principal do n8n
+      ############################################################
       containers:
         - name: {{ .Values.n8n.name }}
           image: {{ .Values.n8n.image }}
-          pullPolicy: {{ .Values.n8n.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.n8n.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.n8n.port }}
+          volumeMounts:
+            - name: n8n-data
+              mountPath: /home/node/.n8n
           env:
             - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
               value: "true"
@@ -26,6 +53,7 @@ spec:
               value: "true"
             - name: N8N_TRUST_PROXY
               value: "true"
+            # ------------- configurações gerais -------------
             - name: N8N_BASIC_AUTH_ACTIVE
               value: {{ .Values.n8n.basic.auth_active | quote }}
             - name: N8N_HOST
@@ -40,6 +68,7 @@ spec:
               value: {{ .Values.n8n.timezone }}
             - name: N8N_SECURE_COOKIE
               value: {{ .Values.n8n.secure_cookie | quote }}
+            # ------------- banco Postgres -------------------
             - name: DB_TYPE
               value: {{ .Values.n8n.postgres.db_type }}
             - name: DB_POSTGRESDB_HOST
@@ -61,11 +90,13 @@ spec:
                 secretKeyRef:
                   name: "{{ .Values.n8n.secretName }}"
                   key: DB_POSTGRESDB_PASSWORD
+            # ------------- encryption key -------------------
             - name: N8N_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:
                   name: "{{ .Values.n8n.secretName }}"
                   key: N8N_ENCRYPTION_KEY
+            # ------------- fila Redis -----------------------
             - name: QUEUE_MODE
               value: {{ .Values.n8n.queue.mode }}
             - name: QUEUE_REDIS_HOST
@@ -78,3 +109,11 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.n8n.resources | nindent 12 }}
+
+      ############################################################
+      # 3 ▸ Volume que monta o PVC em /home/node/.n8n
+      ############################################################
+      volumes:
+        - name: n8n-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.n8n.pvcName }}
