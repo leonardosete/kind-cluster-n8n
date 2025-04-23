@@ -20,5 +20,5 @@
     
     # 5 ▸ Esse passa a ser o entrypoint do contêiner
     ENTRYPOINT ["/usr/local/bin/docker-entrypoint-community.sh"]
-    CMD ["n8n", "start"]
+    CMD ["start"]
     
