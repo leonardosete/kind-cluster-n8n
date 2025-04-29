@@ -36,6 +36,13 @@ jobs:
         echo "✅ Chave SSH configurada"
         echo "::endgroup::"
 
+    - name: 🔍 Debug chave SSH salva
+      run: |
+        echo "🔑 Listando conteúdo de ~/.ssh/"
+        ls -l ~/.ssh
+        echo "📄 Início do conteúdo da chave:"
+        head -n 5 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+
     - name: ⚙️ Executa o playbook Ansible na VPS
       working-directory: ./ansible-hostinger
       run: |
