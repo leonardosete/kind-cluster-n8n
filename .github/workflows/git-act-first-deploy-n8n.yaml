@@ -1,9 +1,6 @@
-name: Deploy n8n + n8n_postgres + evolution_api => ArgoCD
+name: Primeiro Deploy n8n + n8n_postgres + evolution_api => ArgoCD
 
 on:
-#  push:
-#    branches:
-#      - main
   workflow_dispatch:
 
 jobs:

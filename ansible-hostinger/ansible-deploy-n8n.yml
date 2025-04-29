@@ -1,4 +1,4 @@
-- name: Aplica Applications do ArgoCD se ainda não existirem
+- name: Cria Applications do ArgoCD - n8n
   hosts: all
   become: true
   tasks:

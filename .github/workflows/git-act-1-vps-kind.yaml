@@ -132,7 +132,7 @@ jobs:
       if: ${{ github.event.inputs.acionar_infra_base }}
       uses: benc-uk/workflow-dispatch@v1
       with:
-        workflow: "git-actions-infra-base.yaml"
+        workflow: "git-act-2-infra-base.yaml"
         token: ${{ secrets.GITHUB_TOKEN }}
         inputs: |
           {
