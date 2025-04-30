@@ -1,70 +1,85 @@
-name: 2-Deploy => Cert-Manager+Lets_Encrypt+ArgoCD+Sealed_Secrets => Cluster KIND
+name: 02-Deploy-Infra-Base (cert-manager + ArgoCD + Sealed-Secrets)
 
+###############################################################################
+# DISPARO MANUAL (ex.: GitHub UI)                                             #
+###############################################################################
 on:
   workflow_dispatch:
     inputs:
       criar_infra_base:
-        description: "⚠️ Executar o deploy da infraestrutura base?⚠️"
+        description: "⚠️  Executar o deploy da infraestrutura base? ⚠️"
         required: true
         default: false
         type: boolean
 
+###############################################################################
+# 1 ▸ JOB: instala cert-manager, ArgoCD, Sealed-Secrets                       #
+###############################################################################
 jobs:
   deploy-infra:
     if: ${{ github.event.inputs.criar_infra_base }}
     runs-on: ubuntu-latest
 
     steps:
-    - name: 📦 Checkout do repositório
-      uses: actions/checkout@v3
+    - name: 📦 Checkout
+      uses: actions/checkout@v4                # v4 mais recente
 
-    - name: 🔧 Instala dependências (Ansible + kubectl)
+    - name: 🛠️  Instala dependências (Ansible + kubectl + ssh)
       run: |
-        echo "::group::🛠️ Instalando dependências"
-        sudo apt-get update
+        sudo apt-get update -y
         sudo apt-get install -y ansible sshpass openssh-client curl
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        curl -sLO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-        echo "::endgroup::"
 
     - name: 🔐 Configura chave SSH da VPS
       run: |
-        echo "::group::🔐 Adicionando chave SSH"
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
         chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
         ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
-        echo "✅ Chave SSH configurada"
-        echo "::endgroup::"
 
-    - name: ⚙️ Executa o playbook de infraestrutura base
+    - name: 🚀 Executa playbook de infraestrutura base
       working-directory: ./ansible-hostinger
-      run: |
-        echo "::group::🚀 Deploy da infraestrutura base no cluster KIND"
-        ansible-playbook -i inventory.ini ansible-infra-base.yml
-        echo "::endgroup::"
+      run: ansible-playbook -i inventory.ini ansible-infra-base.yml
 
-    - name: ✅ ⚠️ IMPORTANTE ⚠️ ✅
+    # ─────────────────────────────────────────────────────────────────────────
+    # Cópia do kubeconfig para compartilhar com workflows subsequentes
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: 📥 Copia kubeconfig da VPS
       run: |
-        echo ""
-        echo "====================== ✅ INFRA BASE PRONTA ======================"
-        echo ""
-        echo "Cert-manager e ArgoCD instalados com sucesso!"
-        echo ""
-        echo "🌐 URL: https://argocd-test.devops-master.shop"
-        echo "👤 Usuário: admin"
-        echo "🔐 Para descobrir a senha do usuário admin, execute no servidor:"
-        echo ""
-        echo "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=\"{.data.password}\" | base64 -d && echo"
-        echo ""
-        echo "✅ Você pode acessar o ArgoCD agora e fazer o login"
-        echo ""
-        echo "==============================================================="
+        scp -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} \
+            ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }}:/root/.kube/config kubeconfig
 
-    - name: ▶️ Gera SealedSecrets
-      uses: benc-uk/workflow-dispatch@v1
+    - name: 📤 Publica kubeconfig como artifact
+      uses: actions/upload-artifact@v3
       with:
-        workflow: "git-act-3-sealedsecrets.yaml"
-        token: ${{ secrets.GITHUB_TOKEN }}
-        inputs: |
-          { "app_name": "n8n" }
+        name: kubeconfig-vps
+        path: kubeconfig
+        retention-days: 1
+
+    - name: ℹ️  Resumo pós-deploy
+      run: |
+        echo "====================== ✅ INFRA BASE PRONTA ======================"
+        echo "Cert-manager, ArgoCD e Sealed-Secrets instalados!"
+        echo "Acesse: https://argocd-test.devops-master.shop (usuário: admin)"
+        echo "Para a senha: kubectl -n argocd get secret argocd-initial-admin-secret \
+               -o jsonpath='{.data.password}' | base64 -d && echo"
+
+###############################################################################
+# 2 ▸ JOB: gera & aplica TODOS os SealedSecrets via workflow reutilizável     #
+###############################################################################
+  generate-secrets:
+    needs: deploy-infra
+    strategy:
+      matrix:
+        app: [evolution-api, evolution-postgres, n8n-postgres, n8n]   # ↩️  apps
+    uses: ./.github/workflows/03-sealedsecrets.yaml
+    with:
+      app_name: ${{ matrix.app }}
+
+###############################################################################
+# 3 ▸ JOB: faz o primeiro deploy de aplicações (n8n-stack, etc.)              #
+###############################################################################
+  deploy-apps:
+    needs: generate-secrets
+    uses: ./.github/workflows/04-deploy-n8n.yaml
