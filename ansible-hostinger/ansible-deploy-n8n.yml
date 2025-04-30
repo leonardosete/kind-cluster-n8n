@@ -8,17 +8,17 @@
       register: resultado
       changed_when: false
       loop:
-#        - n8n-postgres
+        - n8n-postgres
         - evolution-api
-#        - n8n
+        - n8n
 
     - name: Aplica Application do ArgoCD se ainda não existir
       shell: kubectl apply -f /root/argo-apps/{{ item }}.yaml -n argocd
       when: resultado.results[item_index].stdout == ""
       loop:
-#        - n8n-postgres
+        - n8n-postgres
         - evolution-api
-#        - n8n
+        - n8n
       loop_control:
         index_var: item_index
 
