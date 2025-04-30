@@ -27,6 +27,12 @@ case "$APP_NAME" in
     ;;
 esac
 
+# 🗑️ Remover arquivo antigo, se existir
+if [[ -f "$OUT_FILE" ]]; then
+  echo "🗑️  Removendo SealedSecret antigo em $OUT_FILE..."
+  rm -f "$OUT_FILE"
+fi
+
 # ✅ Verificação do .env
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "❌ Arquivo $ENV_FILE não encontrado!"
@@ -50,14 +56,6 @@ source "$ENV_FILE"
 set +o allexport
 
 # 🔧 Monta os argumentos do Secret
-# SECRET_ARGS=""
-# while IFS='=' read -r key value; do
-#   [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
-#   rest=$(echo "$line" | cut -d= -f2-)
-#   value="${rest%\"}"
-#   value="${value#\"}"
-#   SECRET_ARGS+=" --from-literal=$key=$value"
-# done < <(grep -v '^\s*$' "$ENV_FILE")
 SECRET_ARGS=""
 while IFS= read -r line; do
   [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue

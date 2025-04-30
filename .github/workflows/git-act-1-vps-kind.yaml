@@ -1,4 +1,4 @@
-name: Configs VPS + Instalar Cluster KIND
+name: 1-Configs VPS + Instalar Cluster KIND
 
 on:
   workflow_dispatch:

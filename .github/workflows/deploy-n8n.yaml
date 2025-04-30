@@ -2,10 +2,10 @@ name: Deploy n8n no ArgoCD
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'apps/n8n/**'
-      - 'argo-apps/n8n.yaml'
+  # push:
+  #   paths:
+  #     - 'apps/n8n/**'
+  #     - 'argo-apps/n8n.yaml'
 
 jobs:
   deploy:

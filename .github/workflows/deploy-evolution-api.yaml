@@ -2,10 +2,10 @@ name: Deploy Evolution API no ArgoCD
 
 on:
   workflow_dispatch:
-#  push:
-#    paths:
-#      - 'apps/evolution-api/**'
-#      - 'argo-apps/evolution-api.yaml'
+  # push:
+  #   paths:
+  #     - 'apps/evolution-api/**'
+  #     - 'argo-apps/evolution-api.yaml'
 
 jobs:
   deploy:

@@ -1,4 +1,4 @@
-name: Primeiro Deploy n8n + n8n_postgres + evolution_api => ArgoCD
+name: 3-Deploy n8n + n8n_postgres + evolution_api => ArgoCD
 
 on:
   workflow_dispatch:

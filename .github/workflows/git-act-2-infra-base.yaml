@@ -1,4 +1,4 @@
-name: Deploy => Cert-Manager+Lets_Encrypt+ArgoCD+Sealed_Secrets => Cluster KIND
+name: 2-Deploy => Cert-Manager+Lets_Encrypt+ArgoCD+Sealed_Secrets => Cluster KIND
 
 on:
   workflow_dispatch:
@@ -61,4 +61,10 @@ jobs:
         echo ""
         echo "==============================================================="
 
-
+    - name: ▶️ Gera SealedSecrets
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: "git-act-3-sealedsecrets.yaml"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        inputs: |
+          { "app_name": "n8n" }
