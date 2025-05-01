@@ -1,55 +1,67 @@
+################################################################################
+# 04 – Deploy da stack n8n via ArgoCD                                          #
+#                                                                              #
+# ▸ Pode rodar manualmente (workflow_dispatch)                                 #
+# ▸ Também é chamado pelo workflow 02 via workflow_call                        #
+################################################################################
 name: 04-Deploy-n8n-stack-via-ArgoCD
 
-################################################################################
-# Disparo manual (ou encadeado a partir do workflow-02)                        #
-################################################################################
 on:
   workflow_dispatch:
+  workflow_call:
 
-################################################################################
-# Job único — aplica os manifests na VPS                                       #
-################################################################################
 jobs:
   aplicar-apps:
     runs-on: ubuntu-latest
 
-    # Se quiser executar automaticamente depois do SealedSecrets,
-    # basta chamar ESTE workflow no passo final do “02-infra-base”
-    # ou adicionar um `workflow_call` e disparar em sequência.
     steps:
-    - name: 📦 Checkout do repositório
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
     # ──────────────────────────────────────────────────────────────────────────
-    # 1 ▸ Prepara SSH
+    # 1 ▸ Prepara SSH para copiar manifests                                    
     # ──────────────────────────────────────────────────────────────────────────
-    - name: 🔐 Prepara chave SSH da VPS
+    - name: 🔐 Configura SSH
       run: |
+        echo "::group::Configurando chave SSH"
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        printf '%s' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
         chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
         ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
+        echo "::endgroup::"
 
     # ──────────────────────────────────────────────────────────────────────────
-    # 2 ▸ Copia manifests para a VPS
+    # 2 ▸ Copia manifests para o diretório /root/argo-apps na VPS              
     # ──────────────────────────────────────────────────────────────────────────
-    - name: 📁 Copia /root/argo-apps
+    - name: 📁 Copia manifests para a VPS
       run: |
-        ssh -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }} "mkdir -p /root/argo-apps"
+        echo "::group::Copiando manifests"
+        ssh -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }} \
+          "mkdir -p /root/argo-apps"
         scp -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} argo-apps/*.yaml \
-            ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }}:/root/argo-apps/
+          ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }}:/root/argo-apps/
+        echo "::endgroup::"
 
     # ──────────────────────────────────────────────────────────────────────────
-    # 3 ▸ Executa playbook Ansible (ou kubectl, se preferir)
+    # 3 ▸ Executa playbook Ansible que cria/atualiza Applications no ArgoCD    
     # ──────────────────────────────────────────────────────────────────────────
     - name: 🚀 Aplica Applications no ArgoCD
       working-directory: ./ansible-hostinger
-      run: ansible-playbook -i inventory.ini ansible-deploy-n8n.yml
+      run: |
+        echo "::group::Executando playbook deploy n8n"
+        ansible-playbook -i inventory.ini ansible-deploy-n8n.yml
+        echo "::endgroup::"
 
     # ──────────────────────────────────────────────────────────────────────────
-    # 4 ▸ Resultado
+    # 4 ▸ Mensagem final                                                       #
     # ──────────────────────────────────────────────────────────────────────────
     - name: ✅ Resultado final
       run: |
-        echo "====================== ✅ DEPLOY FINALIZADO ======================"
+        echo "========================== ✅ DEPLOY CONCLUÍDO =========================="
         echo "🌐 Acesse o ArgoCD: https://argocd-test.devops-master.shop"
+        echo "🔑 Login: admin"
+        echo "🔑 Senha: $(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 --decode)"
+        echo "============================================================================"
+        echo "🌐 Acesse o n8n: https://n8n.devops-master.shop"
+        echo "============================================================================"
+        echo "🌐 Acesse o Evolution API: https://evolution-api.devops-master.shop/manager"
+        echo "============================================================================"

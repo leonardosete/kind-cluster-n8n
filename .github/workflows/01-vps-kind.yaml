@@ -1,0 +1,97 @@
+################################################################################
+# 01 – Prepara a VPS, instala Docker + KIND e publica o kubeconfig             #
+#                                                                              #
+# ▸ Disparo manual via workflow_dispatch                                       #
+# ▸ Chama o workflow 02-infra-base via uses: (workflow_call)                   #
+################################################################################
+name: 01-Configs VPS + Instalar Cluster KIND
+
+on:
+  workflow_dispatch:
+    inputs:
+      acionar_infra_base:
+        description: "⚠️  Executar também o deploy da INFRA BASE? (cert-manager, ArgoCD…) "
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  ##############################################################################
+  # 1 ▸ Cria cluster KIND na VPS                                               #
+  ##############################################################################
+  configure-vps-kind-cluster:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📦 Checkout repositório
+      uses: actions/checkout@v4
+
+    - name: 🔧 Instala dependências (Ansible, SSH, kubectl)
+      run: |
+        echo "::group::Instalando dependências"
+        sudo apt-get update -y
+        sudo apt-get install -y ansible sshpass openssh-client curl
+        curl -sLO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+        echo "::endgroup::"
+
+    - name: 🔐 Configura chave SSH
+      run: |
+        echo "::group::Configurando SSH"
+        mkdir -p ~/.ssh
+        printf '%s' '${{ secrets.SSH_PRIVATE_KEY }}' > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+        ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
+        echo "::endgroup::"
+
+    - name: ⚙️ Playbook Ansible – KIND
+      working-directory: ./ansible-hostinger
+      run: |
+        echo "::group::Executando playbook KIND"
+        ansible-playbook -i inventory.ini ansible-vps-kind.yaml
+        echo "::endgroup::"
+
+    - name: 📥 Copia kubeconfig da VPS
+      run: |
+        echo "::group::Copiando kubeconfig"
+        mkdir -p ~/.kube
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} \
+          root@${{ vars.VPS_HOSTNAME }}:/root/.kube/config ~/.kube/config-vps
+        chmod 600 ~/.kube/config-vps
+        echo "::endgroup::"
+
+    - name: 🧩 Ajusta kubeconfig com IP público e TLS desabilitado
+      env:
+        VPS_IP:           ${{ vars.VPS_IP }}
+        VPS_CLUSTER_PORT: ${{ vars.VPS_CLUSTER_PORT }}
+      run: |
+        echo "::group::Ajustando kubeconfig (endpoint + TLS)"
+        export KUBECONFIG=~/.kube/config-vps
+        kubectl config set-cluster kind-kind \
+          --server="https://$VPS_IP:$VPS_CLUSTER_PORT" \
+          --insecure-skip-tls-verify=true \
+          --kubeconfig=$KUBECONFIG
+        EXISTING_USER=$(kubectl config view --kubeconfig=$KUBECONFIG -o jsonpath='{.users[0].name}')
+        kubectl config set-context kind-kind \
+          --cluster=kind-kind --user="$EXISTING_USER" --kubeconfig=$KUBECONFIG
+        echo "::endgroup::"
+
+    - name: 📤 Publica kubeconfig como artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: kubeconfig-vps
+        path: ~/.kube/config-vps
+        retention-days: 1
+
+    - name: ✅ Resumo
+      run: echo "✅ KIND instalado e kubeconfig publicado."
+
+  ##############################################################################
+  # 2 ▸ Chama workflow 02 (reusable)                                           #
+  ##############################################################################
+  deploy-infra-base:
+    if: ${{ github.event.inputs.acionar_infra_base == 'true' }}
+    needs: configure-vps-kind-cluster
+    uses: ./.github/workflows/02-infra-base.yaml
+    with:
+      criar_infra_base: true
