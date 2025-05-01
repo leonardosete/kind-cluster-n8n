@@ -23,7 +23,7 @@ jobs:
     - name: 🔐 Configura SSH
       run: |
         echo "::group::Configurando chave SSH"
-        mkdir -p ~/.ssh
+        install -d -m 0700 ~/.ssh
         printf '%s' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
         chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
         ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
