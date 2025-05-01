@@ -226,3 +226,20 @@
       debug:
         msg: "✅ VPS provisionada e cluster KIND inicializado com sucesso."
 
+    ###################################################################
+    # Passo 8: Instalação do kubeseal (v0.29.0 via binário oficial)
+    ###################################################################
+    - name: Baixa kubeseal v0.29.0
+      get_url:
+        url: https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-linux-amd64
+        dest: /usr/local/bin/kubeseal
+        mode: '0755'
+
+    - name: Verifica versão do kubeseal
+      command: kubeseal --version
+      register: kubeseal_version_out
+      ignore_errors: true
+
+    - name: Debug - Versão do kubeseal
+      debug:
+        msg: "kubeseal instalado: {{ kubeseal_version_out.stdout | default('Não foi possível obter a versão') }}"
