@@ -22,12 +22,10 @@ on:
         required: true
 
 jobs:
-  ##############################################################################
-  # 1 ▸ Instala infra base                                                     #
-  ##############################################################################
+  # 1 ▸ Instala infra base
   deploy-infra:
     if: ${{ inputs.criar_infra_base }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v4
 
@@ -50,8 +48,7 @@ jobs:
         echo "::endgroup::"
 
     - name: 🔍 Valida chave no runner
-      run: |
-        ssh-keygen -y -f ~/.ssh/${{ vars.SSH_KEY_FILENAME }} >/dev/null
+      run: ssh-keygen -y -f ~/.ssh/${{ vars.SSH_KEY_FILENAME }} >/dev/null
 
     - name: 🚀 Playbook infra-base
       working-directory: ./ansible-hostinger
@@ -60,9 +57,7 @@ jobs:
         ansible-playbook -i inventory.ini ansible-infra-base.yml
         echo "::endgroup::"
 
-  ##############################################################################
-  # 2 ▸ Gera & aplica SealedSecrets (workflow 03)                              #
-  ##############################################################################
+  # 2 ▸ Gera & aplica SealedSecrets (workflow 03)
   generate-secrets:
     needs: deploy-infra
     strategy:
@@ -73,9 +68,7 @@ jobs:
       app_name: ${{ matrix.app }}
     secrets: inherit
 
-  ##############################################################################
-  # 3 ▸ Primeiro deploy de aplicações (workflow 04)                            #
-  ##############################################################################
+  # 3 ▸ Primeiro deploy de aplicações (workflow 04)
   deploy-apps:
     needs: generate-secrets
     uses: ./.github/workflows/04-deploy-n8n.yaml

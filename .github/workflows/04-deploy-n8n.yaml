@@ -12,60 +12,27 @@ on:
 
 jobs:
   aplicar-apps:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
 
     steps:
     - uses: actions/checkout@v4
 
-    # ──────────────────────────────────────────────────────────────────────────
-    # 1 ▸ Prepara SSH para copiar manifests                                    
-    # ──────────────────────────────────────────────────────────────────────────
-    - name: 🔐 Configura SSH
-      run: |
-        echo "::group::Configurando chave SSH"
-        install -d -m 0700 ~/.ssh
-        printf '%s' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
-        chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
-        ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
-        echo "::endgroup::"
-
-    - name: 🔍 Valida chave no runner
-      run: |
-        ssh-keygen -y -f ~/.ssh/${{ vars.SSH_KEY_FILENAME }} >/dev/null
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # 2 ▸ Copia manifests para o diretório /root/argo-apps na VPS              
-    # ──────────────────────────────────────────────────────────────────────────
-    - name: 📁 Copia manifests para a VPS
-      run: |
-        echo "::group::Copiando manifests"
-        ssh -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }} \
-          "mkdir -p /root/argo-apps"
-        scp -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} argo-apps/*.yaml \
-          ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }}:/root/argo-apps/
-        echo "::endgroup::"
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # 3 ▸ Executa playbook Ansible que cria/atualiza Applications no ArgoCD    
-    # ──────────────────────────────────────────────────────────────────────────
-    - name: 🚀 Aplica Applications no ArgoCD
+    # 1 ▸ Executa playbook localmente no runner (VPS)
+    - name: 🚀 Aplica Applications no ArgoCD (direto no host)
       working-directory: ./ansible-hostinger
       run: |
-        echo "::group::Executando playbook deploy n8n"
+        echo "::group::Executando playbook deploy n8n localmente"
         ansible-playbook -i inventory.ini ansible-deploy-n8n.yml
         echo "::endgroup::"
 
-    # ──────────────────────────────────────────────────────────────────────────
-    # 4 ▸ Mensagem final                                                       #
-    # ──────────────────────────────────────────────────────────────────────────
+    # 2 ▸ Mensagem final com URLs de acesso
     - name: ✅ Resultado final
       run: |
         echo "========================== ✅ DEPLOY CONCLUÍDO =========================="
         echo "🌐 Acesse o ArgoCD: https://argocd-test.devops-master.shop"
         echo "🔑 Login: admin"
         echo "🔑 Senha: $(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 --decode)"
-        echo "============================================================================"
         echo "🌐 Acesse o n8n: https://n8n.devops-master.shop"
-        echo "============================================================================"
         echo "🌐 Acesse o Evolution API: https://evolution-api.devops-master.shop/manager"
-        echo "============================================================================"
+        echo "==========================================================================="
+  

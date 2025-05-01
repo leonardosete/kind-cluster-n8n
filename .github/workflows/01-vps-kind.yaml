@@ -1,8 +1,8 @@
 ################################################################################
-# 01 – Prepara a VPS, instala Docker + KIND e publica o kubeconfig             #
+# 01 – Configs VPS + Instalar Cluster KIND                                     #
 #                                                                              #
 # ▸ Disparo manual via workflow_dispatch                                       #
-# ▸ Chama o workflow 02-infra-base via uses: (workflow_call)                   #
+# ▸ Chama o workflow 02-infra-base via workflow_call                           #
 ################################################################################
 name: 01-Configs VPS + Instalar Cluster KIND
 
@@ -16,16 +16,14 @@ on:
         type: boolean
 
 jobs:
-  ##############################################################################
-  # 1 ▸ Cria cluster KIND na VPS                                               #
-  ##############################################################################
   configure-vps-kind-cluster:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: 📦 Checkout repositório
       uses: actions/checkout@v4
 
+    # 1 ▸ Instala pacotes necessários no runner
     - name: 🔧 Instala dependências (Ansible, SSH, kubectl)
       run: |
         echo "::group::Instalando dependências"
@@ -35,6 +33,7 @@ jobs:
         chmod +x kubectl && sudo mv kubectl /usr/local/bin/
         echo "::endgroup::"
 
+    # 2 ▸ Prepara SSH
     - name: 🔐 Configura chave SSH
       run: |
         echo "::group::Configurando SSH"
@@ -45,9 +44,9 @@ jobs:
         echo "::endgroup::"
 
     - name: 🔍 Valida chave no runner
-      run: |
-        ssh-keygen -y -f ~/.ssh/${{ vars.SSH_KEY_FILENAME }} >/dev/null
+      run: ssh-keygen -y -f ~/.ssh/${{ vars.SSH_KEY_FILENAME }} >/dev/null
 
+    # 3 ▸ Executa playbook KIND
     - name: ⚙️ Playbook Ansible – KIND
       working-directory: ./ansible-hostinger
       run: |
@@ -55,44 +54,15 @@ jobs:
         ansible-playbook -i inventory.ini ansible-vps-kind.yaml
         echo "::endgroup::"
 
-    - name: 📥 Copia kubeconfig da VPS
+    # 4 ▸ Exporta kubeconfig original e ajustado para consulta local
+    - name: 📥 (Opcional) Copia kubeconfig original da VPS para consulta local
       run: |
-        echo "::group::Copiando kubeconfig"
-        mkdir -p ~/.kube
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} \
-          root@${{ vars.VPS_HOSTNAME }}:/root/.kube/config ~/.kube/config-vps
-        chmod 600 ~/.kube/config-vps
+        echo "::group::Copiando kubeconfig bruto para acesso local"
+        mkdir -p ./kubeconfig-backup
+        cp /root/.kube/config ./kubeconfig-backup/config-original
         echo "::endgroup::"
 
-    - name: 🧩 Ajusta kubeconfig com IP público e TLS desabilitado
-      env:
-        VPS_IP:           ${{ vars.VPS_IP }}
-        VPS_CLUSTER_PORT: ${{ vars.VPS_CLUSTER_PORT }}
-      run: |
-        echo "::group::Ajustando kubeconfig (endpoint + TLS)"
-        export KUBECONFIG=~/.kube/config-vps
-        kubectl config set-cluster kind-kind \
-          --server="https://$VPS_IP:$VPS_CLUSTER_PORT" \
-          --insecure-skip-tls-verify=true \
-          --kubeconfig=$KUBECONFIG
-        EXISTING_USER=$(kubectl config view --kubeconfig=$KUBECONFIG -o jsonpath='{.users[0].name}')
-        kubectl config set-context kind-kind \
-          --cluster=kind-kind --user="$EXISTING_USER" --kubeconfig=$KUBECONFIG
-        echo "::endgroup::"
-
-    - name: 📤 Publica kubeconfig como artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: kubeconfig-vps
-        path: ~/.kube/config-vps
-        retention-days: 1
-
-    - name: ✅ Resumo
-      run: echo "✅ KIND instalado e kubeconfig publicado."
-
-  ##############################################################################
-  # 2 ▸ Chama workflow 02 (reusable)                                           #
-  ##############################################################################
+  # 5 ▸ Aciona workflow 02 (infra base) se habilitado
   deploy-infra-base:
     if: ${{ github.event.inputs.acionar_infra_base == 'true' }}
     needs: configure-vps-kind-cluster
