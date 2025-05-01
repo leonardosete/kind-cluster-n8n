@@ -60,20 +60,6 @@ jobs:
         ansible-playbook -i inventory.ini ansible-infra-base.yml
         echo "::endgroup::"
 
-    - name: 📥 Copia kubeconfig
-      run: |
-        echo "::group::Copiando kubeconfig"
-        scp -i ~/.ssh/${{ vars.SSH_KEY_FILENAME }} \
-          ${{ vars.VPS_USER }}@${{ vars.VPS_HOSTNAME }}:/root/.kube/config kubeconfig
-        echo "::endgroup::"
-
-    - name: 📤 Publica kubeconfig artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: kubeconfig-vps
-        path: kubeconfig
-        retention-days: 1
-
   ##############################################################################
   # 2 ▸ Gera & aplica SealedSecrets (workflow 03)                              #
   ##############################################################################
@@ -86,6 +72,7 @@ jobs:
     with:
       app_name: ${{ matrix.app }}
     secrets: inherit
+
   ##############################################################################
   # 3 ▸ Primeiro deploy de aplicações (workflow 04)                            #
   ##############################################################################
