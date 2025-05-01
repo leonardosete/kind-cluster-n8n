@@ -10,30 +10,20 @@ if [[ -z "$APP_NAME" ]]; then
   exit 1
 fi
 
-ENV_FILE=".chaves/.env-${APP_NAME}"
 SECRET_NAME="${APP_NAME}-secrets"
-PUB_CERT=".chaves/pub-cert.pem"
 OUT_DIR="apps/${APP_NAME}/templates"
 OUT_FILE="${OUT_DIR}/sealedsecret-${APP_NAME}.yaml"
+PUB_CERT="/tmp/pub-cert.pem"
 
-# 📂 Verifica se arquivo .env existe
-if [[ ! -f "$ENV_FILE" ]]; then
-  echo "❌ Arquivo de variáveis não encontrado: $ENV_FILE"
-  exit 1
-fi
-
-# 🔄 Carrega variáveis
-set -o allexport
-source "$ENV_FILE"
-set +o allexport
-
-# 🧹 Remove arquivo anterior se existir
 mkdir -p "$OUT_DIR"
+
+# 🧼 Remove arquivo anterior
 [[ -f "$OUT_FILE" ]] && rm -f "$OUT_FILE"
 
-# 🛑 Verifica se variáveis necessárias estão definidas
+# 🔑 Garante que SECRET_KEYS esteja definida
 IFS=',' read -ra KEYS <<< "${SECRET_KEYS:?SECRET_KEYS não definida}"
 
+# 🔧 Monta os argumentos do Secret
 missing_vars=()
 SECRET_ARGS=""
 
@@ -47,20 +37,18 @@ for KEY in "${KEYS[@]}"; do
 done
 
 if (( ${#missing_vars[@]} > 0 )); then
-  echo "❌ As seguintes variáveis estão ausentes ou vazias no arquivo $ENV_FILE:"
-  for var in "${missing_vars[@]}"; do
-    echo "   - $var"
-  done
+  echo "❌ As seguintes variáveis de ambiente estão vazias ou não definidas:"
+  for var in "${missing_vars[@]}"; do echo "   - $var"; done
   exit 1
 fi
 
-# 🔐 Garante chave pública do Sealed Secrets
+# 🔐 Busca chave pública do sealed-secrets se necessário
 if [[ ! -f "$PUB_CERT" ]]; then
   echo "📥 Obtendo chave pública do cluster..."
   kubeseal --fetch-cert --controller-namespace sealed-secrets > "$PUB_CERT"
 fi
 
-# 🧱 Gera Secret temporário
+# 🧱 Cria Secret temporário
 kubectl create secret generic "$SECRET_NAME" $SECRET_ARGS \
   --namespace="$NAMESPACE" \
   --dry-run=client -o json > /tmp/secret-${APP_NAME}.json
