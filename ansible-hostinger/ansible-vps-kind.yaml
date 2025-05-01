@@ -229,11 +229,24 @@
     ###################################################################
     # Passo 8: Instalação do kubeseal (v0.29.0 via binário oficial)
     ###################################################################
-    - name: Baixa kubeseal v0.29.0
+    - name: Baixa kubeseal v0.29.0 tar.gz
       get_url:
-        url: https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-linux-amd64
+        url: https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-0.29.0-linux-amd64.tar.gz
+        dest: /tmp/kubeseal.tar.gz
+
+    - name: Extrai binário kubeseal do tar.gz
+      shell: |
+        tar -xvzf /tmp/kubeseal.tar.gz kubeseal
+      args:
+        chdir: /tmp
+        creates: /tmp/kubeseal
+
+    - name: Move kubeseal para /usr/local/bin
+      copy:
+        src: /tmp/kubeseal
         dest: /usr/local/bin/kubeseal
         mode: '0755'
+        remote_src: yes
 
     - name: Verifica versão do kubeseal
       command: kubeseal --version
