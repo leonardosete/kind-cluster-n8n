@@ -5,7 +5,7 @@ APP_NAME=${1:-}; NAMESPACE=${2:-n8n-vps}
 [[ -z "$APP_NAME" ]] && { echo "uso: $0 <app>"; exit 1; }
 
 SECRET_NAME="${APP_NAME}-secrets"
-PUB_CERT=".chaves/pub-cert.pem"   # baixa se não existir
+PUB_CERT=".chaves/pub-cert.pem"
 OUT_DIR="apps/${APP_NAME}/templates"
 [ "$APP_NAME" = "evolution-api" ] && OUT_DIR="apps/evolution-api/templates"
 [ "$APP_NAME" = "n8n" ]           && OUT_DIR="apps/n8n/templates"
@@ -21,7 +21,10 @@ for k in "${KEYS[@]}"; do
   v="${!k:?variável $k vazia}"; SECRET_ARGS+=" --from-literal=$k=$v"
 done
 
-# garante pub-cert
+# 🆕 ▸ garante que a pasta .chaves exista
+mkdir -p "$(dirname "$PUB_CERT")"
+
+# 🆕 ▸ busca o cert se ainda não existir
 [ ! -f "$PUB_CERT" ] && kubeseal --fetch-cert > "$PUB_CERT"
 
 # cria, sela, grava
