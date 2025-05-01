@@ -85,10 +85,11 @@ jobs:
     uses: ./.github/workflows/03-sealedsecrets.yaml
     with:
       app_name: ${{ matrix.app }}
-
+    secrets: inherit
   ##############################################################################
   # 3 ▸ Primeiro deploy de aplicações (workflow 04)                            #
   ##############################################################################
   deploy-apps:
     needs: generate-secrets
     uses: ./.github/workflows/04-deploy-n8n.yaml
+    secrets: inherit

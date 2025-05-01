@@ -99,3 +99,4 @@ jobs:
     uses: ./.github/workflows/02-infra-base.yaml
     with:
       criar_infra_base: true
+    secrets: inherit
