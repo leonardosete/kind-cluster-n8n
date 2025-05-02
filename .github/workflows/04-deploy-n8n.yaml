@@ -1,9 +1,3 @@
-################################################################################
-# 04 – Deploy da stack n8n via ArgoCD                                          #
-#                                                                              #
-# ▸ Pode rodar manualmente (workflow_dispatch)                                 #
-# ▸ Também é chamado pelo workflow 02 via workflow_call                        #
-################################################################################
 name: 04-Deploy-n8n-stack-via-ArgoCD
 
 on:
@@ -12,20 +6,26 @@ on:
 
 jobs:
   aplicar-apps:
-    runs-on: [self-hosted]
+    runs-on: [self-hosted]  # executado diretamente na VPS
 
     steps:
-    - uses: actions/checkout@v4
+    - name: 📦 Checkout do repositório
+      uses: actions/checkout@v4
 
-    # 1 ▸ Executa playbook localmente no runner (VPS)
-    - name: 🚀 Aplica Applications no ArgoCD (direto no host)
+    - name: 📁 Cria diretório e move manifests para /root/argo-apps (local na VPS)
+      run: |
+        echo "::group::📁 Preparando manifests para ArgoCD"
+        mkdir -p /root/argo-apps
+        cp ./argo-apps/*.yaml /root/argo-apps/
+        echo "::endgroup::"
+
+    - name: 🚀 Executa Ansible para aplicar Applications no ArgoCD
       working-directory: ./ansible-hostinger
       run: |
-        echo "::group::Executando playbook deploy n8n localmente"
+        echo "::group::🚀 Executando playbook"
         ansible-playbook -i inventory.ini ansible-deploy-n8n.yml
         echo "::endgroup::"
 
-    # 2 ▸ Mensagem final com URLs de acesso
     - name: ✅ Resultado final
       run: |
         echo "========================== ✅ DEPLOY CONCLUÍDO =========================="
@@ -35,4 +35,3 @@ jobs:
         echo "🌐 Acesse o n8n: https://n8n.devops-master.shop"
         echo "🌐 Acesse o Evolution API: https://evolution-api.devops-master.shop/manager"
         echo "==========================================================================="
-  
