@@ -44,11 +44,13 @@ fi
 
 # 🔐 Busca chave pública do sealed-secrets se necessário
 if [[ ! -f "$PUB_CERT" ]]; then
-  echo "📥 Obtendo chave pública do cluster..."
+  echo "📥 Tentando obter certificado do sealed-secrets..."
   kubeseal \
     --controller-name=sealed-secrets \
     --controller-namespace=kube-system \
-    --fetch-cert > "$PUB_CERT"
+    --fetch-cert | tee "$PUB_CERT"
+
+  echo "🔑 Certificado salvo em: $PUB_CERT"
 fi
 
 # ✅ Valida o conteúdo do certificado
@@ -70,4 +72,3 @@ kubeseal \
   -o yaml < /tmp/secret-${APP_NAME}.json > "$OUT_FILE"
 
 echo "✅ SealedSecret gerado com sucesso em: $OUT_FILE"
-echo "🔑 Chave pública salva em: $PUB_CERT"
