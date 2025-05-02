@@ -10,6 +10,9 @@ VPS_USER=root
 VPS_HOST=srv809140.hstgr.cloud
 ENV_FILE="/Users/leonardosete/kind-cluster-n8n/.chaves/.env-GH_PAT_TOKEN"
 
+# === LIMPEZA KNOWN_HOSTS ===
+cp /Users/leonardosete/.ssh/known_hosts-bkp /Users/leonardosete/.ssh/known_hosts
+
 # === CARREGA TOKEN DO ARQUIVO .env ===
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "❌ Arquivo $ENV_FILE não encontrado!"
