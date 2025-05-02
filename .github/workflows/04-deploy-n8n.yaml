@@ -29,7 +29,7 @@ jobs:
     - name: ✅ Resultado final
       run: |
         echo "========================== ✅ DEPLOY CONCLUÍDO =========================="
-        echo "🌐 Acesse o ArgoCD: https://argocd-test.devops-master.shop"
+        echo "🌐 Acesse o ArgoCD: https://argocd.devops-master.shop"
         echo "👤 Login: admin"
         echo "🔑 Senha: $(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 --decode)"
         echo "🌐 Acesse o n8n: https://n8n.devops-master.shop"
