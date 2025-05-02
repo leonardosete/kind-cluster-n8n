@@ -1,5 +1,10 @@
-#!/bin/bash
-set -e
+# Esse script deve ser executado com 'source'
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  echo "⚠️  Esse script deve ser executado com 'source':"
+  echo "    source $0"
+  exit 1
+fi
 
 ## ATENÇÃO: Este script deve ser executado na máquina local, não na VPS.
 
