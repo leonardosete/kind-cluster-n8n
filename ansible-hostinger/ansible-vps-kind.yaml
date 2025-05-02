@@ -41,7 +41,6 @@
           - ca-certificates
           - curl
           - gnupg
-          - jq
         state: present
         update_cache: yes
 

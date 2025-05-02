@@ -1,6 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+# === 0. Pré-requisitos ======================================
+echo "📦 Instalando dependências: perl e jq..."
+apt-get update -y
+apt-get install -y perl jq
+
 # === CONFIGURAÇÕES =========================================
 GITHUB_USER="leonardosete"
 REPO_NAME="kind-cluster-n8n"
