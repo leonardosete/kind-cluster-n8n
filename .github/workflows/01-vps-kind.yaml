@@ -54,15 +54,7 @@ jobs:
         ansible-playbook -i inventory.ini ansible-vps-kind.yaml
         echo "::endgroup::"
 
-    # 4 ▸ Exporta kubeconfig original e ajustado para consulta local
-    - name: 📥 (Opcional) Copia kubeconfig original da VPS para consulta local
-      run: |
-        echo "::group::Copiando kubeconfig bruto para acesso local"
-        mkdir -p ./kubeconfig-backup
-        cp /root/.kube/config ./kubeconfig-backup/config-original
-        echo "::endgroup::"
-
-  # 5 ▸ Aciona workflow 02 (infra base) se habilitado
+  # 4 ▸ Aciona workflow 02 (infra base) se habilitado
   deploy-infra-base:
     if: ${{ github.event.inputs.acionar_infra_base == 'true' }}
     needs: configure-vps-kind-cluster
