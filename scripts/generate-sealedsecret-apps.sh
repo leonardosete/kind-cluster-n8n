@@ -45,7 +45,16 @@ fi
 # 🔐 Busca chave pública do sealed-secrets se necessário
 if [[ ! -f "$PUB_CERT" ]]; then
   echo "📥 Obtendo chave pública do cluster..."
-  kubeseal --fetch-cert --controller-namespace sealed-secrets > "$PUB_CERT"
+  kubeseal \
+    --controller-name=sealed-secrets \
+    --controller-namespace=kube-system \
+    --fetch-cert > "$PUB_CERT"
+fi
+
+# ✅ Valida o conteúdo do certificado
+if ! openssl x509 -in "$PUB_CERT" -noout >/dev/null 2>&1; then
+  echo "❌ Certificado inválido ou corrompido em $PUB_CERT"
+  exit 1
 fi
 
 # 🧱 Cria Secret temporário
@@ -54,6 +63,11 @@ kubectl create secret generic "$SECRET_NAME" $SECRET_ARGS \
   --dry-run=client -o json > /tmp/secret-${APP_NAME}.json
 
 # 🔐 Sela o Secret
-kubeseal --cert "$PUB_CERT" -o yaml < /tmp/secret-${APP_NAME}.json > "$OUT_FILE"
+kubeseal \
+  --cert "$PUB_CERT" \
+  --controller-name=sealed-secrets \
+  --controller-namespace=kube-system \
+  -o yaml < /tmp/secret-${APP_NAME}.json > "$OUT_FILE"
 
 echo "✅ SealedSecret gerado com sucesso em: $OUT_FILE"
+echo "🔑 Chave pública salva em: $PUB_CERT"
