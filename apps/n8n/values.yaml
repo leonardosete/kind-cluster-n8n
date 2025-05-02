@@ -7,8 +7,8 @@ n8n:
   imagePullPolicy: Always
   protocol: https
   port: 5678
-  domain_name: n8n-test.devops-master.shop
-  webhookUrl: "https://n8n-test.devops-master.shop"
+  domain_name: n8n.devops-master.shop
+  webhookUrl: "https://n8n.devops-master.shop"
   timezone: America/Sao_Paulo
   pvcName: n8n-data
   accessModes: ReadWriteOnce

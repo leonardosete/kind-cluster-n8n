@@ -26,13 +26,13 @@ ingress:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
-    - host: udemy-python-app-test.devops-master.shop
+    - host: udemy-python-app.devops-master.shop
       paths:
         - path: /
           pathType: Prefix
   tls:
     - hosts:
-        - udemy-python-app-test.devops-master.shop
+        - udemy-python-app.devops-master.shop
       secretName: udemy-python-app-tls
 resources:
   requests:
