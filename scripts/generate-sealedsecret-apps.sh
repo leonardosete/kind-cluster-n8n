@@ -36,7 +36,7 @@ CERT_TMP=$(mktemp)
 kubeseal --controller-namespace="$SEALED_NS" \
          --controller-name="$SEALED_SVC" \
          --fetch-cert > "$CERT_TMP"
-trap 'rm -f "$CERT_TMP"' EXIT   # limpa no fim do script
+trap 'rm -f "$CERT_TMP"' EXIT   # limpa ao sair
 
 ############################################
 # 4) FUNÇÃO PARA UMA ÚNICA APP
@@ -50,19 +50,20 @@ generate_for_app () {
   echo "🔧 Gerando SealedSecret para '${APP_NAME}' em '${NAMESPACE}'…"
   mkdir -p "$OUT_DIR"; rm -f "$OUT_FILE" 2>/dev/null || true
 
-  # 4.1) Define SECRET_KEYS por aplicação
+  # 4.1) Quais chaves entram no Secret?
   case "$APP_NAME" in
     evolution-api)
-      SECRET_KEYS="EVOLUTION_API_AUTHENTICATION_API_KEY,EVOLUTION_API_CACHE_REDIS_URI,EVOLUTION_API_DATABASE_CONNECTION_URI,EVOLUTION_API_POSTGRES_DB,EVOLUTION_API_POSTGRES_PASSWORD,EVOLUTION_API_POSTGRES_USER"
+      # nomes EXATOS que o container busca
+      SECRET_KEYS="AUTHENTICATION_API_KEY,CACHE_REDIS_URI,DATABASE_CONNECTION_URI,POSTGRES_DB,POSTGRES_PASSWORD,POSTGRES_USER"
       ;;
     evolution-postgres)
-      SECRET_KEYS="EVOLUTION_POSTGRES_POSTGRES_DB,EVOLUTION_POSTGRES_POSTGRES_PASSWORD,EVOLUTION_POSTGRES_POSTGRES_USER"
+      SECRET_KEYS="POSTGRES_DB,POSTGRES_PASSWORD,POSTGRES_USER"
       ;;
     n8n)
       SECRET_KEYS="N8N_DB_POSTGRESDB_DATABASE,N8N_DB_POSTGRESDB_PASSWORD,N8N_DB_POSTGRESDB_USER,N8N_ENCRYPTION_KEY"
       ;;
     n8n-postgres)
-      SECRET_KEYS="N8N_POSTGRES_POSTGRES_DB,N8N_POSTGRES_POSTGRES_PASSWORD,N8N_POSTGRES_POSTGRES_USER"
+      SECRET_KEYS="POSTGRES_DB,POSTGRES_PASSWORD,POSTGRES_USER"
       ;;
     *)
       echo "❌ Aplicação '${APP_NAME}' não suportada."; return 1 ;;
@@ -70,21 +71,21 @@ generate_for_app () {
 
   # 4.2) Monta argumentos --from-literal
   IFS=',' read -ra KEYS <<< "$SECRET_KEYS"
-  local missing=() secret_args=""
+  local missing=() args=""
   for KEY in "${KEYS[@]}"; do
     VALUE="${!KEY:-}"
-    [[ -z "$VALUE" ]] && missing+=("$KEY") || secret_args+=" --from-literal=$KEY=$VALUE"
+    [[ -z "$VALUE" ]] && missing+=("$KEY") || args+=" --from-literal=$KEY=$VALUE"
   done
   (( ${#missing[@]} )) && { echo "❌ Variáveis não definidas: ${missing[*]}"; return 1; }
 
-  # 4.3) Cria Secret em JSON e sela (usa o mesmo CERT_TMP)
-  kubectl create secret generic "$SECRET_NAME" $secret_args \
+  # 4.3) Cria Secret (JSON) e sela (usa CERT_TMP)
+  kubectl create secret generic "$SECRET_NAME" $args \
           --namespace="$NAMESPACE" --dry-run=client -o json > /tmp/secret-${APP_NAME}.json
 
-  kubeseal -o yaml --cert "$CERT_TMP" \
+  kubeseal --cert "$CERT_TMP" \
            --controller-namespace="$SEALED_NS" \
            --controller-name="$SEALED_SVC" \
-           < /tmp/secret-${APP_NAME}.json > "$OUT_FILE"
+           -o yaml < /tmp/secret-${APP_NAME}.json > "$OUT_FILE"
 
   rm -f /tmp/secret-${APP_NAME}.json
   echo "✅  $OUT_FILE gerado."
