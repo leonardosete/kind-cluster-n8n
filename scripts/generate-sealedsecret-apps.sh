@@ -58,7 +58,7 @@ generate_for_app () {
     evolution-postgres)
       SECRET_KEYS="POSTGRES_DB,POSTGRES_PASSWORD,POSTGRES_USER"
       ;;
-    n8n)                                # ⬅️ trocado
+    n8n)
       SECRET_KEYS="DB_POSTGRESDB_DATABASE,DB_POSTGRESDB_USER,DB_POSTGRESDB_PASSWORD,N8N_ENCRYPTION_KEY"
       ;;
     n8n-postgres)
