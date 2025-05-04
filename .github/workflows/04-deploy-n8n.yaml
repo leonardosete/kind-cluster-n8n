@@ -23,7 +23,7 @@ jobs:
       working-directory: ./ansible-hostinger
       run: |
         echo "::group::🚀 Executando playbook"
-        ansible-playbook -i inventory.ini ansible-deploy-n8n.yml
+        ansible-playbook -i inventory.ini 03-ansible-deploy-n8n.yml
         echo "::endgroup::"
 
     - name: ✅ Resultado final

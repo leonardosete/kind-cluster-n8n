@@ -51,7 +51,7 @@ jobs:
       working-directory: ./ansible-hostinger
       run: |
         echo "::group::Executando playbook KIND"
-        ansible-playbook -i inventory.ini ansible-vps-kind.yaml
+        ansible-playbook -i inventory.ini 01-ansible-vps-kind.yaml
         echo "::endgroup::"
 
   # 4 ▸ Aciona workflow 02 (infra base) se habilitado

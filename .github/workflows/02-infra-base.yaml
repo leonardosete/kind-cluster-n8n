@@ -51,7 +51,7 @@ jobs:
         working-directory: ./ansible-hostinger
         run: |
           echo "::group::Executando playbook infra-base"
-          ansible-playbook -i inventory.ini ansible-infra-base.yml
+          ansible-playbook -i inventory.ini 02-ansible-infra-base.yml
           echo "::endgroup::"
 
   # 2 ▸ Gera & aplica SealedSecrets (workflow-03) ------------------------------
