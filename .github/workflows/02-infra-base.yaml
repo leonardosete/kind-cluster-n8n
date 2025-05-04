@@ -1,8 +1,5 @@
 ################################################################################
 # 02 – Deploy Infra-Base: cert-manager + ArgoCD + Sealed-Secrets               #
-#                                                                              #
-# ▸ Pode rodar manualmente (workflow_dispatch)                                 #
-# ▸ Também é chamado via workflow_call pelo 01                                 #
 ################################################################################
 name: 02-Deploy-Infra-Base
 
@@ -22,42 +19,42 @@ on:
         required: true
 
 jobs:
-  # 1 ▸ Instala infra base
+  # 1 ▸ Instala infra base -----------------------------------------------------
   deploy-infra:
     if: ${{ inputs.criar_infra_base }}
     runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: 🛠️ Dependências (Ansible, kubectl, ssh)
-      run: |
-        echo "::group::Instalando dependências"
-        sudo apt-get update -y
-        sudo apt-get install -y ansible sshpass openssh-client curl
-        curl -sLO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-        echo "::endgroup::"
+      - name: 🛠️ Dependências (Ansible, kubectl, ssh)
+        run: |
+          echo "::group::Instalando dependências"
+          sudo apt-get update -y
+          sudo apt-get install -y ansible sshpass openssh-client curl
+          curl -sLO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+          echo "::endgroup::"
 
-    - name: 🔐 Chave SSH
-      run: |
-        echo "::group::Configurando SSH"
-        install -d -m 0700 ~/.ssh
-        printf '%s' '${{ secrets.SSH_PRIVATE_KEY }}' > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
-        chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
-        ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
-        echo "::endgroup::"
+      - name: 🔐 Chave SSH
+        run: |
+          echo "::group::Configurando SSH"
+          install -d -m 0700 ~/.ssh
+          printf '%s' '${{ secrets.SSH_PRIVATE_KEY }}' > ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+          chmod 600 ~/.ssh/${{ vars.SSH_KEY_FILENAME }}
+          ssh-keyscan -H ${{ vars.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
+          echo "::endgroup::"
 
-    - name: 🔍 Valida chave no runner
-      run: ssh-keygen -y -f ~/.ssh/${{ vars.SSH_KEY_FILENAME }} >/dev/null
+      - name: 🔍 Valida chave no runner
+        run: ssh-keygen -y -f ~/.ssh/${{ vars.SSH_KEY_FILENAME }} >/dev/null
 
-    - name: 🚀 Playbook infra-base
-      working-directory: ./ansible-hostinger
-      run: |
-        echo "::group::Executando playbook infra-base"
-        ansible-playbook -i inventory.ini ansible-infra-base.yml
-        echo "::endgroup::"
+      - name: 🚀 Playbook infra-base
+        working-directory: ./ansible-hostinger
+        run: |
+          echo "::group::Executando playbook infra-base"
+          ansible-playbook -i inventory.ini ansible-infra-base.yml
+          echo "::endgroup::"
 
-  # 2 ▸ Gera & aplica SealedSecrets (workflow 03)
+  # 2 ▸ Gera & aplica SealedSecrets (workflow-03) ------------------------------
   generate-secrets:
     needs: deploy-infra
     strategy:
@@ -65,10 +62,10 @@ jobs:
         app: [evolution-api, evolution-postgres, n8n-postgres, n8n]
     uses: ./.github/workflows/03-sealedsecrets.yaml
     with:
-      app_name: ${{ matrix.app }}
+      app_list: ${{ matrix.app }}   # envia apenas um app por job
     secrets: inherit
 
-  # 3 ▸ Primeiro deploy de aplicações (workflow 04)
+  # 3 ▸ Primeiro deploy de aplicações (workflow-04) ---------------------------
   deploy-apps:
     needs: generate-secrets
     uses: ./.github/workflows/04-deploy-n8n.yaml
