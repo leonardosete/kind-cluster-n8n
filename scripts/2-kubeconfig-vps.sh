@@ -30,10 +30,10 @@ echo "::group::🚀 Baixando kubeconfig da VPS"
 
 mkdir -p ~/.kube
 
-# Faz backup do kubeconfig antigo se existir
+# Remove kubeconfig antigo se existir
 if [[ -f "$LOCAL_KUBECONFIG" ]]; then
-  cp "$LOCAL_KUBECONFIG" "$LOCAL_KUBECONFIG.bak"
-  echo "📦 Backup antigo salvo em: $LOCAL_KUBECONFIG.bak"
+  rm "$LOCAL_KUBECONFIG"
+  echo "📦 Limpeza feita"
 fi
 
 # Realiza o SCP
