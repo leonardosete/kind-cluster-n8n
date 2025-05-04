@@ -57,19 +57,19 @@ jobs:
         ansible-playbook -i inventory.ini ansible-infra-base.yml
         echo "::endgroup::"
 
-  # # 2 ▸ Gera & aplica SealedSecrets (workflow 03)
-  # generate-secrets:
-  #   needs: deploy-infra
-  #   strategy:
-  #     matrix:
-  #       app: [evolution-api, evolution-postgres, n8n-postgres, n8n]
-  #   uses: ./.github/workflows/03-sealedsecrets.yaml
-  #   with:
-  #     app_name: ${{ matrix.app }}
-  #   secrets: inherit
+  # 2 ▸ Gera & aplica SealedSecrets (workflow 03)
+  generate-secrets:
+    needs: deploy-infra
+    strategy:
+      matrix:
+        app: [evolution-api, evolution-postgres, n8n-postgres, n8n]
+    uses: ./.github/workflows/03-sealedsecrets.yaml
+    with:
+      app_name: ${{ matrix.app }}
+    secrets: inherit
 
-  # # 3 ▸ Primeiro deploy de aplicações (workflow 04)
-  # deploy-apps:
-  #   needs: generate-secrets
-  #   uses: ./.github/workflows/04-deploy-n8n.yaml
-  #   secrets: inherit
+  # 3 ▸ Primeiro deploy de aplicações (workflow 04)
+  deploy-apps:
+    needs: generate-secrets
+    uses: ./.github/workflows/04-deploy-n8n.yaml
+    secrets: inherit
