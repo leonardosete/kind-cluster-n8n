@@ -20,20 +20,11 @@ NAMESPACE=${2:-n8n-vps}
 ############################################
 # 2) MONTA ARRAY "APPS" JÁ SANITIZADA
 ############################################
-# aceita vírgula OU espaço como separador
 IFS=', ' read -ra TMP <<< "$RAW_APPS"
-
-# caso o usuário tenha passado apps por espaço (./script app1 app2 ns)
 if [[ ${#TMP[@]} -eq 1 && "$RAW_APPS" == *" "* ]]; then
-  TMP=("$@")
-  TMP=("${TMP[@]:0:${#TMP[@]}-1}")  # remove último arg (namespace)
+  TMP=("$@"); TMP=("${TMP[@]:0:${#TMP[@]}-1}")
 fi
-
-# remove espaços extras em cada item
-APPS=()
-for raw in "${TMP[@]}"; do
-  APPS+=( "$(echo "$raw" | xargs)" )
-done
+APPS=(); for raw in "${TMP[@]}"; do APPS+=( "$(echo "$raw" | xargs)" ); done
 
 ############################################
 # 3) FUNÇÃO PARA UM ÚNICO APP
@@ -43,11 +34,9 @@ generate_for_app () {
   local SECRET_NAME="${APP_NAME}-secrets"
   local OUT_DIR="apps/${APP_NAME}/templates"
   local OUT_FILE="${OUT_DIR}/sealedsecret-${APP_NAME}.yaml"
-  local PUB_CERT="/tmp/pub-cert.pem"
 
-  echo "🔧 Gerando SealedSecret para '${APP_NAME}' no namespace '${NAMESPACE}' …"
-  mkdir -p "$OUT_DIR"
-  rm -f "$OUT_FILE" 2>/dev/null || true
+  echo "🔧 Gerando SealedSecret para '${APP_NAME}' no namespace '${NAMESPACE}'…"
+  mkdir -p "$OUT_DIR"; rm -f "$OUT_FILE" 2>/dev/null || true
 
   # 3.1) Define SECRET_KEYS
   case "$APP_NAME" in
@@ -74,29 +63,23 @@ generate_for_app () {
     VALUE="${!KEY:-}"
     [[ -z "$VALUE" ]] && missing+=("$KEY") || secret_args+=" --from-literal=$KEY=$VALUE"
   done
-  if (( ${#missing[@]} )); then
-    echo "❌ Variáveis não definidas: ${missing[*]}"; return 1
-  fi
+  (( ${#missing[@]} )) && { echo "❌ Variáveis não definidas: ${missing[*]}"; return 1; }
 
-  # 3.3) Pega (ou reutiliza) o certificado do controller
-  if [[ ! -f "$PUB_CERT" ]]; then
-    echo "📥 Baixando certificado do sealed-secrets…"
-    kubeseal --controller-name=sealed-secrets \
-             --controller-namespace=kube-system \
-             --fetch-cert > "$PUB_CERT"
-  fi
+  # 3.3) Sempre usa o certificado atual do controller
+  SEALED_NS=$(kubectl get pods -A -l app.kubernetes.io/name=sealed-secrets \
+               -o jsonpath='{.items[0].metadata.namespace}')
+  CERT_TMP=$(mktemp)
+  kubeseal --controller-namespace="$SEALED_NS" --fetch-cert > "$CERT_TMP"
 
   # 3.4) Cria, sela e grava
   kubectl create secret generic "$SECRET_NAME" $secret_args \
-          --namespace="$NAMESPACE" \
-          --dry-run=client -o json > /tmp/secret-${APP_NAME}.json
+          --namespace="$NAMESPACE" --dry-run=client -o json > /tmp/secret-${APP_NAME}.json
 
-  kubeseal -o yaml \
-           --cert "$PUB_CERT" \
-           --controller-name=sealed-secrets \
-           --controller-namespace=kube-system \
+  kubeseal -o yaml --cert "$CERT_TMP" \
+           --controller-namespace="$SEALED_NS" \
            < /tmp/secret-${APP_NAME}.json > "$OUT_FILE"
 
+  rm -f "$CERT_TMP" /tmp/secret-${APP_NAME}.json
   echo "✅ SealedSecret salvo em: $OUT_FILE"
 }
 
