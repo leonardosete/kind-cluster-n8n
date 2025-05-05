@@ -1,5 +1,5 @@
 ## [argocd]
-argocd_hostname: "argocd-1.devops-master.shop"
+argocd_hostname: "argocd-2.devops-master.shop"
 ingress_className: "nginx"
 ingress_tls_secretname: "tls-argocd-devops-master"
 
