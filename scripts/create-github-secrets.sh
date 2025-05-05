@@ -1,47 +1,63 @@
 #!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+# create-github-secrets.sh
+# -----------------------------------------------------------------------------
+# Lê todos os arquivos .env-* dentro do diretório .chaves e cria/atualiza
+# GitHub Secrets com as chaves exatamente como aparecem em cada arquivo,
+# **sem** adicionar prefixo algum.
+# -----------------------------------------------------------------------------
 set -euo pipefail
 
+# Repositório alvo ("owner/repo"). Se não for passado, usa o repo atual.
 REPO="${1:-$(gh repo view --json nameWithOwner -q .nameWithOwner)}"
 ENV_DIR=".chaves"
 
-ENV_FILES=()
-for f in "$ENV_DIR"/.env-*; do
-  [ -f "$f" ] && ENV_FILES+=("$f")
-done
-
-[ ${#ENV_FILES[@]} -eq 0 ] && {
-  echo "❌ Nenhum .env-* encontrado em $ENV_DIR"
-  exit 1
+# -----------------------------------------------------------------------------
+# Funções utilitárias
+# -----------------------------------------------------------------------------
+# Converte para UPPERCASE e troca '-' por '_'
+upper() {
+  echo "$1" | tr '[:lower:]' '[:upper:]' | tr '-' '_'
 }
 
-echo "📦 Criando secrets no repositório: $REPO"
-for f in "${ENV_FILES[@]}"; do echo "  • $f"; done
+# -----------------------------------------------------------------------------
+# Coleta arquivos .env-* (ignora se o glob não encontrar nada)
+# -----------------------------------------------------------------------------
+shopt -s nullglob
+ENV_FILES=("$ENV_DIR"/.env-*)
+shopt -u nullglob
 
-upper() { printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_'; }
+if (( ${#ENV_FILES[@]} == 0 )); then
+  echo "❌ Nenhum arquivo .env-* encontrado em $ENV_DIR" >&2
+  exit 1
+fi
 
+echo "📦 Criando/atualizando secrets no repositório: $REPO"
+printf '  • %s\n' "${ENV_FILES[@]}"
+
+# -----------------------------------------------------------------------------
+# Processa cada arquivo .env-*
+# -----------------------------------------------------------------------------
 for file in "${ENV_FILES[@]}"; do
-  APP_NAME=$(basename "$file" | sed 's/.env-//')
-  APP_PREFIX=$(upper "$APP_NAME")
+  echo -e "\n➡️  Processando $file"
 
-  echo -e "\n➡️  Processando $file (prefixo ${APP_PREFIX}_)"
+  # Lê linha por linha no formato KEY=VALUE (suporta espaços antes/depois do '=')
+  while IFS='=' read -r key value || [[ -n $key ]]; do
+    # Remove espaços e ignora comentários/linhas vazias
+    key="$(echo "$key" | xargs)"
+    value="$(echo "$value" | xargs)"
+    [[ -z $key || $key == \#* ]] && continue
 
-  while IFS= read -r line || [ -n "$line" ]; do
-    case "$line" in ""|\#*) continue ;; esac
-
-    key=$(echo "${line%%=*}" | xargs)
-    value=$(echo "${line#*=}" | xargs)
-
-    if [[ -z "$key" || -z "$value" ]]; then
-      echo "⚠️  Pulando linha inválida ou com valor vazio: $line"
+    if [[ -z $value ]]; then
+      echo "⚠️  Pulando linha sem valor: $key" >&2
       continue
     fi
 
-    SECRET_NAME=$(upper "${APP_PREFIX}_${key}")
+    secret_name="$(upper "$key")"
+    echo "   • Definindo secret $secret_name"
 
-    echo "   • gh secret set $SECRET_NAME"
-    printf '%s' "$value" | gh secret set "$SECRET_NAME" \
-      --repo "$REPO" \
-      --body -
+    # Envia o valor via stdin para evitar logs acidentais
+    echo -n "$value" | gh secret set "$secret_name" --repo "$REPO" --body -
   done < "$file"
 done
 
