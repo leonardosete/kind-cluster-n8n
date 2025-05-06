@@ -8,6 +8,7 @@ if ! command -v kind &> /dev/null; then
 fi
 
 kind delete cluster
+rm -rf /root/.kube
 
 if [ $? -eq 0 ]; then
   echo "✅ Cluster KIND deletado com sucesso!"
