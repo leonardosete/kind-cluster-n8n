@@ -18,9 +18,6 @@ on:
         type: boolean
         required: true
 
-permissions:
-  contents: write
-
 jobs:
   # 1 ▸ Instala infra base -----------------------------------------------------
   deploy-infra:
@@ -57,19 +54,19 @@ jobs:
           ansible-playbook -i inventory.ini 02-ansible-infra-base.yml
           echo "::endgroup::"
 
-  # 2 ▸ Gera & commita SealedSecrets via workflow-03 (um app por vez) ---------
+  # 2 ▸ Gera & aplica SealedSecrets (workflow-03) ------------------------------
   generate-secrets:
     needs: deploy-infra
     strategy:
-      max-parallel: 1  # Evita conflitos de git push simultâneo
+      max-parallel: 1   # <- força execução serial
       matrix:
         app: [evolution-api, evolution-postgres, n8n-postgres, n8n]
     uses: ./.github/workflows/03-sealedsecrets.yaml
     with:
-      app_list: ${{ matrix.app }}
+      app_list: ${{ matrix.app }}   # envia apenas um app por job
     secrets: inherit
 
-  # 3 ▸ Aplica aplicações no ArgoCD via workflow-04 ---------------------------
+  # 3 ▸ Primeiro deploy de aplicações (workflow-04) ---------------------------
   deploy-apps:
     needs: generate-secrets
     uses: ./.github/workflows/04-deploy-n8n.yaml
