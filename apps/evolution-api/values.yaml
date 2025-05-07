@@ -4,7 +4,7 @@ evolutionApi:
   image: atendai/evolution-api:v2.1.2
   env:
     - name: SERVER_URL
-      value: "https://evolution-api-3.devops-master.shop"
+      value: "https://evolution-api-4.devops-master.shop"
     - name: AUTHENTICATION_TYPE
       value: "apikey"
     - name: AUTHENTICATION_API_KEY
@@ -78,7 +78,7 @@ evolutionApi:
   ingress:
     enabled: true
     className: nginx
-    host: "evolution-api-3.devops-master.shop"
+    host: "evolution-api-4.devops-master.shop"
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: "/"
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
