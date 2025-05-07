@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: 📦 Checkout do repositório
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       ## Precisa copiar o kubeconfig com IP da VPS lá no secrets
       - name: 🔐 Cria ~/.kube/config
