@@ -21,6 +21,9 @@ jobs:
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+          echo "========================== ✅ KUBECONFIG =========================="
+          cat ~/.kube/config
+          echo "==================================================================="
           kubectl apply -f argo-apps/n8n.yaml -n argocd
           kubectl -n argocd patch application n8n \
             --type merge -p '{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}'
