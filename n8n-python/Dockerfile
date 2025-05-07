@@ -1,5 +1,5 @@
 # ---------- Base oficial do n8n ----------
-    FROM n8nio/n8n:1.89.2
+    FROM n8nio/n8n:1.91.2
 
     USER root
     
