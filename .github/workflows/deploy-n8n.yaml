@@ -16,25 +16,13 @@ jobs:
       - name: 📦 Checkout do repositório
         uses: actions/checkout@v4
 
-      ## Precisa copiar o kubeconfig com IP da VPS lá no secrets
-      - name: 🔐 Cria ~/.kube/config
+      - name: 🧩 Aplica o Application do ArgoCD
+        run: kubectl apply -f argo-apps/n8n.yaml -n argocd
+
+      - name: 🔁 Força sync no ArgoCD
         run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
-          echo "========================== ✅ KUBECONFIG =========================="
-          cat ~/.kube/config
-          echo "==================================================================="
-          kubectl apply -f argo-apps/n8n.yaml -n argocd
           kubectl -n argocd patch application n8n \
             --type merge -p '{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}'
-
-      # - name: 🧩 Aplica o Application do ArgoCD
-      #   run: kubectl apply -f argo-apps/n8n.yaml -n argocd
-
-      # - name: 🔁 Força sync no ArgoCD
-      #   run: |
-      #     kubectl -n argocd patch application n8n \
-      #       --type merge -p '{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}'
 
       - name: ✅ Resumo
         run: |
