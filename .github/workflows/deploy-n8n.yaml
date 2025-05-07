@@ -6,6 +6,7 @@ on:
     paths:
       - 'apps/n8n/**'
       - 'argo-apps/n8n.yaml'
+      - '.github/workflows/deploy-n8n.yaml'
 
 jobs:
   deploy:
@@ -28,3 +29,9 @@ jobs:
         run: |
           kubectl -n argocd patch application n8n \
             --type merge -p '{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}'
+
+      - name: ✅ Resumo
+        run: |
+          echo "========================== ✅ DEPLOY CONCLUÍDO =========================="
+          echo "🌐 Acesse o n8n: https://n8n-3.devops-master.shop"
+          echo "==========================================================================="
