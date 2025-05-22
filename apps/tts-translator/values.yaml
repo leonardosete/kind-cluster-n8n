@@ -1,0 +1,31 @@
+tts:
+  name: tts-translator
+  namespace: n8n-vps
+  image: tmcx/tts-translator:latest
+  imagePullPolicy: IfNotPresent
+  port: 8080
+  domain_name: tts-1.devops-master.shop
+  pvcName: tts-translator-data
+  accessModes: ReadWriteOnce
+  storage: 500Mi
+  volumeMounts:
+    name: tts-translator-data
+    mountPath: /usr/share/tts-translator
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: "/"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    tls:
+      enabled: true
+      secretName: tts-tls
+  replicas: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"

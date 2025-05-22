@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.tts.name }}
+  namespace: {{ .Values.tts.namespace }}
+spec:
+  replicas: {{ .Values.tts.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.tts.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.tts.name }}
+    spec:
+      containers:
+        - name: {{ .Values.tts.name }}
+          image: {{ .Values.tts.image }}
+          imagePullPolicy: {{ .Values.tts.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.tts.port }}
+          env:
+            - name: ENABLE_CORS
+              value: "true"
+            - name: LT_LOAD_ONLY
+              value: "pt,en"
+          volumeMounts:
+            - name: {{ .Values.tts.volumeMounts.name }}
+              mountPath: {{ .Values.tts.volumeMounts.mountPath }}
+          resources:
+            {{- toYaml .Values.tts.resources | nindent 12 }}
+      volumes:
+        - name: {{ .Values.tts.volumeMounts.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.tts.pvcName }}

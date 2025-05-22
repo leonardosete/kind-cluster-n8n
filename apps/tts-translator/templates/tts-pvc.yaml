@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.tts.pvcName }}
+  namespace: {{ .Values.tts.namespace }}
+spec:
+  accessModes:
+    - {{ .Values.tts.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.tts.storage }}
