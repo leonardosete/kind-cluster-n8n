@@ -24,6 +24,10 @@ spec:
               value: "true"
             - name: LT_LOAD_ONLY
               value: "pt,en"
+            - name: LT_PORT
+              value: "8089"
+            - name: HOST
+              value: "0.0.0.0"
           volumeMounts:
             - name: {{ .Values.tts.volumeMounts.name }}
               mountPath: {{ .Values.tts.volumeMounts.mountPath }}
