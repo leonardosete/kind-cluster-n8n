@@ -14,7 +14,7 @@ spec:
     - host: {{ .Values.tts.domain_name }}
       http:
         paths:
-          - path: /
+          - path: /tts
             pathType: Prefix
             backend:
               service:

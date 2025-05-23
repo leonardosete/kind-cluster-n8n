@@ -4,7 +4,6 @@ tts:
   image: tmcx/tts-translator:latest
   imagePullPolicy: IfNotPresent
   port: 8080
-  target_port: 8089
   domain_name: tts-1.devops-master.shop
   pvcName: tts-translator-data
   accessModes: ReadWriteOnce
@@ -16,7 +15,6 @@ tts:
     enabled: true
     className: nginx
     annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: "/"
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-staging"
     tls:
