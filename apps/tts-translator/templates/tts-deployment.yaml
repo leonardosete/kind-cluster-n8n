@@ -25,7 +25,7 @@ spec:
             - name: LT_LOAD_ONLY
               value: "pt,en"
             - name: API_PORT
-              value: "{{ .Values.tts.port | quote }}"
+              value: {{ .Values.tts.port | quote }}
           volumeMounts:
             - name: {{ .Values.tts.volumeMounts.name }}
               mountPath: {{ .Values.tts.volumeMounts.mountPath }}
