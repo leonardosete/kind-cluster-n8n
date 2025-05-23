@@ -4,7 +4,7 @@ tts:
   image: tmcx/tts-translator:latest
   imagePullPolicy: IfNotPresent
   port: 8080
-  domain_name: tts-1.devops-master.shop
+  domain_name: tts-2.devops-master.shop
   pvcName: tts-translator-data
   accessModes: ReadWriteOnce
   storage: 500Mi
