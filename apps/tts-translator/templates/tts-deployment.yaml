@@ -24,8 +24,8 @@ spec:
               value: "true"
             - name: LT_LOAD_ONLY
               value: "pt,en"
-            - name: PORT
-              value: "8080"
+            - name: API_PORT
+              value: "{{ .Values.tts.port }}"
           volumeMounts:
             - name: {{ .Values.tts.volumeMounts.name }}
               mountPath: {{ .Values.tts.volumeMounts.mountPath }}
