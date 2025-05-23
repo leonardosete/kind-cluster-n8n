@@ -1,39 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.tts.name }}
-  namespace: {{ .Values.tts.namespace }}
+  name: tts-translator
+  namespace: n8n-vps
 spec:
-  replicas: {{ .Values.tts.replicas }}
+  replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.tts.name }}
+      app: tts-translator
   template:
     metadata:
       labels:
-        app: {{ .Values.tts.name }}
+        app: tts-translator
     spec:
       containers:
-        - name: {{ .Values.tts.name }}
-          image: {{ .Values.tts.image }}
-          imagePullPolicy: {{ .Values.tts.imagePullPolicy }}
+        - name: tts-translator
+          image: tmcx/tts-translator:latest
           ports:
-            - containerPort: {{ .Values.tts.port }}
+            - containerPort: 8080              # igual ao compose
           env:
             - name: ENABLE_CORS
               value: "true"
             - name: LT_LOAD_ONLY
               value: "pt,en"
-            - name: API_PORT
-              value: {{ .Values.tts.port | quote }}
-            - name: LT_MANAGED
-              value: "false"
           volumeMounts:
-            - name: {{ .Values.tts.volumeMounts.name }}
-              mountPath: {{ .Values.tts.volumeMounts.mountPath }}
-          resources:
-            {{- toYaml .Values.tts.resources | nindent 12 }}
+            - name: tts-data
+              mountPath: /usr/share/tts-translator                   # equivalente ao volume anônimo
       volumes:
-        - name: {{ .Values.tts.volumeMounts.name }}
+        - name: tts-data
           persistentVolumeClaim:
-            claimName: {{ .Values.tts.pvcName }}
+            claimName: tts-translator-data

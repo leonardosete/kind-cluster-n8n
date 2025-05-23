@@ -1,30 +1,25 @@
-{{- if .Values.tts.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Values.tts.name }}
-  namespace: {{ .Values.tts.namespace }}
+  name: tts-translator
+  namespace: n8n-vps
   annotations:
-    {{- range $key, $value := .Values.tts.ingress.annotations }}
-    {{ $key }}: {{ $value | quote }}
-    {{- end }}
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"   # use o emissor que você já configurou
 spec:
-  ingressClassName: {{ .Values.tts.ingress.className }}
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - tts-3.devops-master.shop
+      secretName: tts-tls                              # seu Secret TLS existente
   rules:
-    - host: {{ .Values.tts.domain_name }}
+    - host: tts-3.devops-master.shop
       http:
         paths:
-          - path: /tts
+          - path: /                                    # encaminha tudo
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.tts.name }}
+                name: tts-translator
                 port:
-                  number: {{ .Values.tts.port }}
-  {{- if .Values.tts.ingress.tls.enabled }}
-  tls:
-    - hosts:
-        - {{ .Values.tts.domain_name }}
-      secretName: {{ .Values.tts.ingress.tls.secretName }}
-  {{- end }}
-{{- end }}
+                  number: 8080

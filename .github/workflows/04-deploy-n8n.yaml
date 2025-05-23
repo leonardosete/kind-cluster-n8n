@@ -34,5 +34,5 @@ jobs:
           echo "🔑 Senha-> execute: kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 --decode"
           echo "🌐 Acesse o n8n: https://n8n-4.devops-master.shop"
           echo "🌐 Acesse o Evolution API: https://evolution-api-4.devops-master.shop/manager"
-          echo "🌐 Acesse o TTS Translator: https://tts-2.devops-master.shop/tts/voices"
+          echo "🌐 Acesse o TTS Translator: https://tts-3.devops-master.shop/tts/voices"
           echo "==========================================================================="

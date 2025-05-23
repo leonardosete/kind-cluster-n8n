@@ -1,12 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.tts.name }}
-  namespace: {{ .Values.tts.namespace }}
+  name: tts-translator
+  namespace: n8n-vps
 spec:
   selector:
-    app: {{ .Values.tts.name }}
+    app: tts-translator
   ports:
-    - protocol: TCP
-      port: {{ .Values.tts.port }}
-      targetPort: {{ .Values.tts.port }}
+    - port: 8080
+      targetPort: 8080

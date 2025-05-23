@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.tts.pvcName }}
-  namespace: {{ .Values.tts.namespace }}
+  name: tts-translator-data          # nome do claim
+  namespace: n8n-vps                 # mesmo namespace do Deployment
 spec:
   accessModes:
-    - {{ .Values.tts.accessModes }}
+    - ReadWriteOnce                  # leitura/gravação por um único pod
   resources:
     requests:
-      storage: {{ .Values.tts.storage }}
+      storage: 500Mi                 # espaço reservado

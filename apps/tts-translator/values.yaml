@@ -1,30 +1,35 @@
-tts:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: tts-translator
   namespace: n8n-vps
-  image: tmcx/tts-translator:latest
-  imagePullPolicy: IfNotPresent
-  port: 8080
-  domain_name: tts-2.devops-master.shop
-  pvcName: tts-translator-data
-  accessModes: ReadWriteOnce
-  storage: 500Mi
-  volumeMounts:
-    name: tts-translator-data
-    mountPath: /usr/share/tts-translator
-  ingress:
-    enabled: true
-    className: nginx
-    annotations:
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      cert-manager.io/cluster-issuer: "letsencrypt-staging"
-    tls:
-      enabled: true
-      secretName: tts-tls
+spec:
   replicas: 1
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "256Mi"
-    limits:
-      cpu: "500m"
-      memory: "1Gi"
+  selector:
+    matchLabels:
+      app: tts-translator
+  template:
+    metadata:
+      labels:
+        app: tts-translator
+    spec:
+      containers:
+        - name: tts-translator
+          image: tmcx/tts-translator:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ENABLE_CORS
+              value: "true"
+            - name: LT_LOAD_ONLY
+              value: "pt,en"
+            - name: API_PORT          # ← porta que o Node usa
+              value: "8080"
+          volumeMounts:
+            - name: tts-data
+              mountPath: /usr/share/tts-translator
+      volumes:
+        - name: tts-data
+          persistentVolumeClaim:
+            claimName: tts-translator-data
