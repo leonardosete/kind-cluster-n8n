@@ -26,6 +26,8 @@ spec:
               value: "pt,en"
             - name: API_PORT
               value: {{ .Values.tts.port | quote }}
+            - name: LT_MANAGED
+              value: "false"
           volumeMounts:
             - name: {{ .Values.tts.volumeMounts.name }}
               mountPath: {{ .Values.tts.volumeMounts.mountPath }}
