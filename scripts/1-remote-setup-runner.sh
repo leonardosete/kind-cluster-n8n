@@ -5,7 +5,8 @@ REPO_USER="$1"
 GH_PAT_RUNNER="$2"
 RUNNER_VERSION="$3"
 
-REPOS=("kind-cluster-n8n" "git-wkf-dash" "garantia-digital")
+#REPOS=("kind-cluster-n8n" "git-wkf-dash" "garantia-digital")
+REPOS=("kind-cluster-n8n" "git-wkf-dash")
 
 RUNNER_USER="github"
 RUNNER_LABELS="self-hosted,linux,kind"
