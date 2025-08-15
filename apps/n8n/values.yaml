@@ -3,7 +3,7 @@ n8n:
   namespace: n8n-vps
   secretName: n8n-secrets
 #  image: n8nio/n8n:1.91.2 # (original)  
-  image: sevenleo/n8n-python:1.91.2 # (custom)
+  image: sevenleo/n8n-python:latest # (custom)
   imagePullPolicy: Always
   protocol: https
   port: 5678
