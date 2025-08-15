@@ -266,8 +266,14 @@
         msg: "kubeseal instalado: {{ kubeseal_version_out.stdout | default('Não foi possível obter a versão') }}"
 
     ###################################################################
-    # Passo 9: Instala metrics-server com --kubelet-insecure-tls
+    # Passo 9: Instala metrics-server com --kubelet-insecure-tls via yq
     ###################################################################
+    
+    - name: Instala yq (binário oficial Go)
+      get_url:
+        url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        dest: /usr/local/bin/yq
+        mode: '0755'
     
     - name: Baixa manifest oficial do metrics-server
       get_url:
@@ -275,11 +281,13 @@
         dest: /root/metrics-server.yaml
         mode: '0644'
     
-    - name: Insere flag --kubelet-insecure-tls após --cert-dir
-      lineinfile:
-        path: /root/metrics-server.yaml
-        insertafter: '^\s*- --cert-dir=/tmp'
-        line: '          - --kubelet-insecure-tls'
+    - name: Adiciona flag --kubelet-insecure-tls via yq
+      shell: |
+        yq -i '
+          (.spec.template.spec.containers[] | select(.name == "metrics-server") | .args) += "--kubelet-insecure-tls"
+        ' /root/metrics-server.yaml
+      args:
+        executable: /bin/bash
     
     - name: Aplica manifest do metrics-server modificado
       command: kubectl apply -f /root/metrics-server.yaml
@@ -291,5 +299,6 @@
       retries: 3
       delay: 10
       until: metrics_server_rollout.rc == 0
-    
+
+
 
