@@ -268,22 +268,25 @@
     ###################################################################
     # Passo 9: Instala metrics-server com --kubelet-insecure-tls
     ###################################################################
-    
+
     - name: Baixa manifest oficial do metrics-server
       get_url:
         url: https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
         dest: /root/metrics-server.yaml
         mode: '0644'
-    
-    - name: Insere flag --kubelet-insecure-tls após --cert-dir
-      lineinfile:
+
+    - name: Adiciona --kubelet-insecure-tls no container args do metrics-server
+      replace:
         path: /root/metrics-server.yaml
-        insertafter: '^\s*- --cert-dir=/tmp'
-        line: '          - --kubelet-insecure-tls'
-    
+        regexp: 'args:\s*\n\s*- --cert-dir=/tmp'
+        replace: |
+          args:
+            - --cert-dir=/tmp
+            - --kubelet-insecure-tls
+
     - name: Aplica manifest do metrics-server modificado
       command: kubectl apply -f /root/metrics-server.yaml
-    
+
     - name: Aguarda metrics-server ficar pronto
       shell: |
         kubectl rollout status deployment metrics-server -n kube-system --timeout=120s
@@ -291,5 +294,4 @@
       retries: 3
       delay: 10
       until: metrics_server_rollout.rc == 0
-    
 
