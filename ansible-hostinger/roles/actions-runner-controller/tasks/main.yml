@@ -1,0 +1,25 @@
+- name: Adiciona repositório do actions-runner-controller
+  shell: helm repo add actions-runner-controller https://actions-runner-controller.github.io/actions-runner-controller
+  tags: [actions-runner]
+
+- name: Atualiza os repositórios Helm
+  shell: helm repo update
+  tags: [actions-runner]
+
+- name: Instala o actions-runner-controller via Helm
+  shell: |
+    helm upgrade --install --namespace actions-runner-system --create-namespace \
+      --set=authSecret.create=true \
+      --set=authSecret.github_token="{{ github_token }}" \
+      --wait actions-runner-controller actions-runner-controller/actions-runner-controller
+  tags: [actions-runner]
+  register: install_actions_runner_controller
+
+- name: Aguarda rollout do actions-runner-controller
+  shell: |
+    kubectl rollout status deployment/actions-runner-controller -n actions-runner-system --timeout=90s
+  register: arc_rollout_status
+  until: arc_rollout_status.rc == 0
+  retries: 5
+  delay: 10
+  tags: [actions-runner]

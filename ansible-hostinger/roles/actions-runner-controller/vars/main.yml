@@ -1,0 +1,10 @@
+## [argocd]
+argocd_hostname: "argocd-4.devops-master.shop"
+ingress_className: "nginx"
+ingress_tls_secretname: "tls-argocd-devops-master"
+
+ingress_annotations:
+  kubernetes.io/ingress.class: "nginx"
+  cert-manager.io/cluster-issuer: "letsencrypt-staging"
+  nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"

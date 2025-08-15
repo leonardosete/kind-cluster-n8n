@@ -1,9 +1,9 @@
 ---
 - name: Setup completo do servidor Debian
   hosts: vps_hostinger
-  become: yes
-  gather_facts: true
-  collections:
+  become: yes # Necessário para executar tarefas como root
+  gather_facts: true # Coleta informações do sistema, como arquitetura e versão 
+  collections: 
     - community.general
 
   vars:
@@ -17,8 +17,8 @@
     # Passo 1: Setup inicial (apt upgrade, pacotes, Docker, etc.)
     ###################################################################
     - name: Atualiza cache e realiza upgrade de pacotes
-      apt:
-        update_cache: yes
+      apt: 
+        update_cache: yes 
         upgrade: dist
 
     - name: Instala pacotes essenciais

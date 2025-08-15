@@ -9,7 +9,7 @@ REPO_USER="leonardosete"
 RUNNER_VERSION="2.323.0"
 TEMPLATE_ID=1031
 MAX_RETRIES=30
-SLEEP_INTERVAL=10
+SLEEP_INTERVAL=15
 
 [[ -z "${VPS_API_TOKEN:-}" || -z "${VPS_ROOT_PASS:-}" ]] && {
   echo "❌ Variáveis VPS_API_TOKEN ou VPS_ROOT_PASS não definidas. Execute: source ~/.zshenv"
@@ -33,9 +33,17 @@ GH_PAT_RUNNER=$(grep '^GH_PAT_RUNNER=' "$ENV_FILE" | cut -d '=' -f2-)
 }
 
 echo "🔍 Buscando VPS disponíveis..."
-curl -s https://developers.hostinger.com/api/vps/v1/virtual-machines \
-  --header "Authorization: Bearer $VPS_API_TOKEN" \
-  | jq -r '.[] | "• ID: \(.id) | Host: \(.hostname) | Estado: \(.state)"'
+response=$(curl -s https://developers.hostinger.com/api/vps/v1/virtual-machines \
+  --header "Authorization: Bearer $VPS_API_TOKEN")
+
+# Verifica se o conteúdo é JSON válido
+if ! echo "$response" | jq -e 'type == "array"' >/dev/null 2>&1; then
+  echo "❌ Resposta inesperada da API. Verifique seu VPS_API_TOKEN ou se a API está online."
+  echo "Resposta recebida: $response"
+  exit 1
+fi
+
+echo "$response" | jq -r '.[] | "• ID: \(.id) | Host: \(.hostname) | Estado: \(.state)"'
 
 echo ""
 read -rp "🖊️  Digite o ID da VPS que deseja recriar: " VPS_ID
