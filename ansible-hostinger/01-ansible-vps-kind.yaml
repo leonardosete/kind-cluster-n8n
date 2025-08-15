@@ -266,7 +266,7 @@
         msg: "kubeseal instalado: {{ kubeseal_version_out.stdout | default('Não foi possível obter a versão') }}"
 
     ###################################################################
-    # Passo 9: Instala metrics-server com --kubelet-insecure-tls via yq
+    # Passo 9: Instala metrics-server com --kubelet-insecure-tls
     ###################################################################
     
     - name: Instala yq (binário oficial Go)
@@ -275,22 +275,28 @@
         dest: /usr/local/bin/yq
         mode: '0755'
     
-    - name: Baixa manifest oficial do metrics-server
+    - name: Baixa manifest oficial completo do metrics-server
       get_url:
         url: https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-        dest: /root/metrics-server.yaml
+        dest: /root/metrics-server-full.yaml
         mode: '0644'
     
-    - name: Adiciona flag --kubelet-insecure-tls via yq
+    - name: Extrai apenas o Deployment para arquivo editável
       shell: |
-        yq -i '
-          (.spec.template.spec.containers[] | select(.name == "metrics-server") | .args) += "--kubelet-insecure-tls"
-        ' /root/metrics-server.yaml
+        yq 'select(.kind == "Deployment" and .metadata.name == "metrics-server")' /root/metrics-server-full.yaml > /root/metrics-server-deployment.yaml
       args:
         executable: /bin/bash
     
-    - name: Aplica manifest do metrics-server modificado
-      command: kubectl apply -f /root/metrics-server.yaml
+    - name: Adiciona --kubelet-insecure-tls ao args do container
+      shell: |
+        yq -i '
+          .spec.template.spec.containers[0].args += "--kubelet-insecure-tls"
+        ' /root/metrics-server-deployment.yaml
+      args:
+        executable: /bin/bash
+    
+    - name: Aplica deployment do metrics-server com flag customizada
+      command: kubectl apply -f /root/metrics-server-deployment.yaml
     
     - name: Aguarda metrics-server ficar pronto
       shell: |
@@ -299,6 +305,3 @@
       retries: 3
       delay: 10
       until: metrics_server_rollout.rc == 0
-
-
-
