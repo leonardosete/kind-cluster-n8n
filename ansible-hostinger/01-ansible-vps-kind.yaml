@@ -268,17 +268,17 @@
     ###################################################################
     # Passo 9: Instala metrics-server e adiciona --kubelet-insecure-tls
     ###################################################################
-    
+
     - name: Baixa manifest oficial completo do metrics-server
       get_url:
         url: https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
         dest: /root/metrics-server-full.yaml
         mode: '0644'
-    
+
     # 1) Cria todos os recursos base (SA, RBAC, Service, APIService, Deployment)
     - name: Aplica manifest completo do metrics-server
       command: kubectl apply -f /root/metrics-server-full.yaml
-    
+
     # 2) Adiciona a flag no Deployment já existente, preservando os demais args
     #    - O patch abaixo APENDE a flag ao array .spec.template.spec.containers[0].args
     #    - Se a flag já existir, o comando retornará erro; por isso usamos ignore_errors + when
@@ -294,7 +294,7 @@
         fi
       args:
         executable: /bin/bash
-    
+
     # 3) Aguarda rollout
     - name: Aguarda metrics-server ficar pronto
       shell: |
@@ -303,15 +303,15 @@
       retries: 3
       delay: 10
       until: metrics_server_rollout.rc == 0
-    
-    # (Opcional, mas útil para diagnosticar se falhar de novo)
-    - name: Coleta eventos do namespace kube-system se o rollout falhar
-      shell: kubectl get events -n kube-system --sort-by=.lastTimestamp | tail -n 50
-      when: metrics_server_rollout is failed
-      register: kube_events
-      ignore_errors: true
-    
-    - name: Debug eventos kube-system (se coletados)
-      debug:
-        var: kube_events.stdout
-      when: kube_events is defined and kube_events.stdout != ""
+
+    # # (Opcional, mas útil para diagnosticar se falhar de novo)
+    # - name: Coleta eventos do namespace kube-system se o rollout falhar
+    #   shell: kubectl get events -n kube-system --sort-by=.lastTimestamp | tail -n 50
+    #   when: metrics_server_rollout is failed
+    #   register: kube_events
+    #   ignore_errors: true
+
+    # - name: Debug eventos kube-system (se coletados)
+    #   debug:
+    #     var: kube_events.stdout
+    #   when: kube_events is defined and kube_events.stdout != ""
