@@ -266,14 +266,8 @@
         msg: "kubeseal instalado: {{ kubeseal_version_out.stdout | default('Não foi possível obter a versão') }}"
 
     ###################################################################
-    # Passo 9: Instala metrics-server com --kubelet-insecure-tls
+    # Passo 9: Instala metrics-server e adiciona --kubelet-insecure-tls
     ###################################################################
-    
-    - name: Instala yq (binário oficial Go)
-      get_url:
-        url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-        dest: /usr/local/bin/yq
-        mode: '0755'
     
     - name: Baixa manifest oficial completo do metrics-server
       get_url:
@@ -281,27 +275,43 @@
         dest: /root/metrics-server-full.yaml
         mode: '0644'
     
-    - name: Extrai apenas o Deployment para arquivo editável
+    # 1) Cria todos os recursos base (SA, RBAC, Service, APIService, Deployment)
+    - name: Aplica manifest completo do metrics-server
+      command: kubectl apply -f /root/metrics-server-full.yaml
+    
+    # 2) Adiciona a flag no Deployment já existente, preservando os demais args
+    #    - O patch abaixo APENDE a flag ao array .spec.template.spec.containers[0].args
+    #    - Se a flag já existir, o comando retornará erro; por isso usamos ignore_errors + when
+    - name: Adiciona flag --kubelet-insecure-tls no Deployment (append)
       shell: |
-        yq 'select(.kind == "Deployment" and .metadata.name == "metrics-server")' /root/metrics-server-full.yaml > /root/metrics-server-deployment.yaml
+        set -e
+        # só aplica se ainda não tiver a flag
+        if ! kubectl -n kube-system get deploy metrics-server -o json \
+            | jq -e '.spec.template.spec.containers[0].args[]? | select(. == "--kubelet-insecure-tls")' >/dev/null; then
+          kubectl -n kube-system patch deploy metrics-server --type='json' -p='[
+            {"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}
+          ]'
+        fi
       args:
         executable: /bin/bash
     
-    - name: Adiciona --kubelet-insecure-tls ao args do container
-      shell: |
-        yq -i '
-          .spec.template.spec.containers[0].args += "--kubelet-insecure-tls"
-        ' /root/metrics-server-deployment.yaml
-      args:
-        executable: /bin/bash
-    
-    - name: Aplica deployment do metrics-server com flag customizada
-      command: kubectl apply -f /root/metrics-server-deployment.yaml
-    
+    # 3) Aguarda rollout
     - name: Aguarda metrics-server ficar pronto
       shell: |
-        kubectl rollout status deployment metrics-server -n kube-system --timeout=120s
+        kubectl rollout status deployment metrics-server -n kube-system --timeout=180s
       register: metrics_server_rollout
       retries: 3
       delay: 10
       until: metrics_server_rollout.rc == 0
+    
+    # (Opcional, mas útil para diagnosticar se falhar de novo)
+    - name: Coleta eventos do namespace kube-system se o rollout falhar
+      shell: kubectl get events -n kube-system --sort-by=.lastTimestamp | tail -n 50
+      when: metrics_server_rollout is failed
+      register: kube_events
+      ignore_errors: true
+    
+    - name: Debug eventos kube-system (se coletados)
+      debug:
+        var: kube_events.stdout
+      when: kube_events is defined and kube_events.stdout != ""
