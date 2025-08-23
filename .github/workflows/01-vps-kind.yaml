@@ -29,6 +29,7 @@ jobs:
         echo "::group::Instalando dependências"
         sudo apt-get update -y
         sudo apt-get install -y ansible sshpass openssh-client curl
+        ansible-galaxy collection install community.kubernetes
         curl -sLO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         chmod +x kubectl && sudo mv kubectl /usr/local/bin/
         echo "::endgroup::"
