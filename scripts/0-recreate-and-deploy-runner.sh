@@ -141,18 +141,24 @@ VPS_HOST=$(echo "$vps_list_json" | jq -r ".[] | select(.id == $VPS_ID) | .hostna
 echo "🧹 Limpando chave SSH antiga para $VPS_HOST (se existir)..."
 ssh-keygen -R "$VPS_HOST" &>/dev/null || true
 
-echo "⏳ Aguardando SSH responder em $VPS_HOST..."
+echo "⏳ Aguardando a VPS '$VPS_ID' ficar no estado 'running'..."
 for attempt in $(seq 1 $MAX_RETRIES); do
-  if ssh $SSH_OPTS "${SSH_USER}@${VPS_HOST}" 'exit' 2>/dev/null; then
-    echo "✅ SSH disponível!"
+  vps_status_json=$(api_call "GET" "https://developers.hostinger.com/api/vps/v1/virtual-machines/$VPS_ID")
+  vps_state=$(echo "$vps_status_json" | jq -r '.state')
+
+  if [[ "$vps_state" == "running" ]]; then
+    echo "✅ VPS está 'running'!"
+    # Pequena pausa para garantir que o serviço SSH subiu junto com o SO
+    echo "   Aguardando 10s para o serviço SSH estabilizar..."
+    sleep 10
     break
   fi
-  echo "🕐 Tentativa $attempt/$MAX_RETRIES... aguardando ${SLEEP_INTERVAL}s"
+  echo "🕐 Tentativa $attempt/$MAX_RETRIES: Estado atual é '$vps_state'. Aguardando ${SLEEP_INTERVAL}s..."
   sleep "$SLEEP_INTERVAL"
 done
 
-if ! ssh $SSH_OPTS "${SSH_USER}@${VPS_HOST}" 'exit' 2>/dev/null; then
-  echo "❌ Não foi possível conectar via SSH após tempo máximo."
+if [[ "$vps_state" != "running" ]]; then
+  echo "❌ A VPS não atingiu o estado 'running' após o tempo máximo. Último estado: '$vps_state'."
   exit 1
 fi
 
