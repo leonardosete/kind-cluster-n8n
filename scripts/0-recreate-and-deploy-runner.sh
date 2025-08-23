@@ -141,26 +141,53 @@ VPS_HOST=$(echo "$vps_list_json" | jq -r ".[] | select(.id == $VPS_ID) | .hostna
 echo "🧹 Limpando chave SSH antiga para $VPS_HOST (se existir)..."
 ssh-keygen -R "$VPS_HOST" &>/dev/null || true
 
-echo "⏳ Aguardando a VPS '$VPS_ID' ficar no estado 'running'..."
+# --- Lógica de Espera Robusta em 3 Estágios ---
+
+# 1. Espera o processo de recriação INICIAR (sair do estado 'running')
+echo "⏳ Estágio 1/3: Aguardando a VPS '$VPS_ID' iniciar o processo de recriação..."
+for attempt in $(seq 1 $MAX_RETRIES); do
+  vps_status_json=$(api_call "GET" "https://developers.hostinger.com/api/vps/v1/virtual-machines/$VPS_ID")
+  vps_state=$(echo "$vps_status_json" | jq -r '.state')
+
+  if [[ "$vps_state" != "running" ]]; then
+    echo "✅ Processo de recriação iniciado. Estado atual: '$vps_state'."
+    break
+  fi
+  echo "🕐 Tentativa $attempt/$MAX_RETRIES: VPS ainda no estado 'running'. Aguardando ${SLEEP_INTERVAL}s..."
+  sleep "$SLEEP_INTERVAL"
+done
+
+[[ "$vps_state" == "running" ]] && { echo "❌ A VPS não iniciou o processo de recriação após o tempo máximo." >&2; exit 1; }
+
+# 2. Espera o processo de recriação TERMINAR (voltar para o estado 'running')
+echo "⏳ Estágio 2/3: Aguardando a VPS '$VPS_ID' finalizar a instalação..."
 for attempt in $(seq 1 $MAX_RETRIES); do
   vps_status_json=$(api_call "GET" "https://developers.hostinger.com/api/vps/v1/virtual-machines/$VPS_ID")
   vps_state=$(echo "$vps_status_json" | jq -r '.state')
 
   if [[ "$vps_state" == "running" ]]; then
-    echo "✅ VPS está 'running'!"
-    # Pequena pausa para garantir que o serviço SSH subiu junto com o SO
-    echo "   Aguardando 10s para o serviço SSH estabilizar..."
-    sleep 10
+    echo "✅ Instalação da VPS concluída (estado: 'running')."
     break
   fi
   echo "🕐 Tentativa $attempt/$MAX_RETRIES: Estado atual é '$vps_state'. Aguardando ${SLEEP_INTERVAL}s..."
   sleep "$SLEEP_INTERVAL"
 done
 
-if [[ "$vps_state" != "running" ]]; then
-  echo "❌ A VPS não atingiu o estado 'running' após o tempo máximo. Último estado: '$vps_state'."
-  exit 1
-fi
+[[ "$vps_state" != "running" ]] && { echo "❌ A VPS não voltou ao estado 'running' após o tempo máximo. Último estado: '$vps_state'." >&2; exit 1; }
+
+# 3. Espera o serviço SSH ficar disponível
+echo "⏳ Estágio 3/3: Aguardando o serviço SSH responder em $VPS_HOST..."
+for attempt_ssh in $(seq 1 $MAX_RETRIES); do
+  if ssh $SSH_OPTS "${SSH_USER}@${VPS_HOST}" 'exit' 2>/dev/null; then
+    echo "✅ SSH disponível!"
+    ssh_ready=true
+    break
+  fi
+  echo "🕐 Tentativa SSH $attempt_ssh/$MAX_RETRIES... aguardando 5s"
+  sleep 5
+done
+
+[[ -z "${ssh_ready:-}" ]] && { echo "❌ Não foi possível conectar via SSH após o tempo máximo." >&2; exit 1; }
 
 echo "📤 Enviando script de setup para $VPS_HOST..."
 scp $SSH_OPTS "$REMOTE_SCRIPT_PATH" "${SSH_USER}@${VPS_HOST}":/tmp/
