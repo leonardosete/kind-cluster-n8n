@@ -44,9 +44,9 @@
         state: present
         update_cache: yes
 
-    - name: Instala a biblioteca Python do Kubernetes via pip
-      pip:
-        name: kubernetes
+    - name: Instala a biblioteca Python do Kubernetes via apt (para contornar PEP 668)
+      apt:
+        name: python3-kubernetes
         state: present
 
     - name: Habilita e inicia serviço Docker
