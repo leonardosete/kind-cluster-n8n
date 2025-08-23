@@ -98,14 +98,20 @@
     ###################################################################
     # Passo 3: Instala e configura kubectl
     ###################################################################
-    - name: Adiciona chave GPG do repositório K8s
-      apt_key:
+    - name: Garante que o diretório de chaves apt exista
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Baixa a chave GPG do repositório K8s
+      get_url:
         url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
-        state: present
+        dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc # Use .asc for binary keys
 
     - name: Configura repositório do Kubernetes
       apt_repository:
-        repo: "deb https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /"
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /"
         state: present
 
     - name: Instala kubectl
@@ -190,14 +196,15 @@
     ###################################################################
     # Passo 6: Instalação do Helm
     ###################################################################
-    - name: Adiciona chave GPG do Helm
-      apt_key:
+    - name: Baixa a chave GPG do repositório Helm
+      get_url:
         url: https://baltocdn.com/helm/signing.asc
-        state: present
+        dest: /etc/apt/keyrings/helm.asc
+        mode: '0644'
 
     - name: Adiciona repositório do Helm
       apt_repository:
-        repo: deb https://baltocdn.com/helm/stable/debian/ all main
+        repo: "deb [signed-by=/etc/apt/keyrings/helm.asc] https://baltocdn.com/helm/stable/debian/ all main"
         state: present
 
     - name: Atualiza cache de pacotes após adicionar Helm
@@ -269,49 +276,42 @@
     # Passo 9: Instala metrics-server e adiciona --kubelet-insecure-tls
     ###################################################################
 
-    - name: Baixa manifest oficial completo do metrics-server
+    - name: Baixa manifest oficial do metrics-server
       get_url:
         url: https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-        dest: /root/metrics-server-full.yaml
+        dest: /root/metrics-server.yaml
         mode: '0644'
 
-    # 1) Cria todos os recursos base (SA, RBAC, Service, APIService, Deployment)
-    - name: Aplica manifest completo do metrics-server
-      command: kubectl apply -f /root/metrics-server-full.yaml
+    - name: Aplica manifest do metrics-server
+      community.kubernetes.k8s:
+        state: present
+        src: /root/metrics-server.yaml
 
-    # 2) Adiciona a flag no Deployment já existente, preservando os demais args
-    #    - O patch abaixo APENDE a flag ao array .spec.template.spec.containers[0].args
-    #    - Se a flag já existir, o comando retornará erro; por isso usamos ignore_errors + when
-    - name: Adiciona flag --kubelet-insecure-tls no Deployment (append)
-      shell: |
-        set -e
-        # só aplica se ainda não tiver a flag
-        if ! kubectl -n kube-system get deploy metrics-server -o json \
-            | jq -e '.spec.template.spec.containers[0].args[]? | select(. == "--kubelet-insecure-tls")' >/dev/null; then
-          kubectl -n kube-system patch deploy metrics-server --type='json' -p='[
-            {"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}
-          ]'
-        fi
-      args:
-        executable: /bin/bash
+    - name: Verifica se a flag --kubelet-insecure-tls já existe no deployment
+      community.kubernetes.k8s_info:
+        kind: Deployment
+        name: metrics-server
+        namespace: kube-system
+      register: metrics_server_deployment
 
-    # 3) Aguarda rollout
-    - name: Aguarda metrics-server ficar pronto
-      shell: |
-        kubectl rollout status deployment metrics-server -n kube-system --timeout=180s
-      register: metrics_server_rollout
-      retries: 3
-      delay: 10
-      until: metrics_server_rollout.rc == 0
+    - name: Adiciona flag --kubelet-insecure-tls se não existir (patch)
+      community.kubernetes.k8s_json_patch:
+        kind: Deployment
+        name: metrics-server
+        namespace: kube-system
+        patch:
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --kubelet-insecure-tls
+      when: "'--kubelet-insecure-tls' not in metrics_server_deployment.resources[0].spec.template.spec.containers[0].args | default([])"
 
-    # # (Opcional, mas útil para diagnosticar se falhar de novo)
-    # - name: Coleta eventos do namespace kube-system se o rollout falhar
-    #   shell: kubectl get events -n kube-system --sort-by=.lastTimestamp | tail -n 50
-    #   when: metrics_server_rollout is failed
-    #   register: kube_events
-    #   ignore_errors: true
-
-    # - name: Debug eventos kube-system (se coletados)
-    #   debug:
-    #     var: kube_events.stdout
-    #   when: kube_events is defined and kube_events.stdout != ""
+    - name: Aguarda o rollout do metrics-server
+      community.kubernetes.k8s:
+        kind: Deployment
+        name: metrics-server
+        namespace: kube-system
+        wait: yes
+        wait_timeout: 180
+        wait_condition:
+          type: Available
+          status: "True"

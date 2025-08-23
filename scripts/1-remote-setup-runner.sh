@@ -1,9 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
-REPO_USER="$1"
-GH_PAT_RUNNER="$2"
-RUNNER_VERSION="$3"
+REPO_USER="${1}"
+RUNNER_VERSION="${2}"
+
+if [[ -z "${GH_PAT_RUNNER:-}" ]]; then
+  echo "❌ Erro: A variável de ambiente GH_PAT_RUNNER não foi definida." >&2
+  exit 1
+fi
 
 #REPOS=("kind-cluster-n8n" "git-wkf-dash" "garantia-digital")
 REPOS=("kind-cluster-n8n" "git-wkf-dash")
