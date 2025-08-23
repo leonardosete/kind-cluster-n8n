@@ -44,6 +44,11 @@
         state: present
         update_cache: yes
 
+    - name: Instala a biblioteca Python do Kubernetes via pip
+      pip:
+        name: kubernetes
+        state: present
+
     - name: Habilita e inicia serviço Docker
       service:
         name: docker
