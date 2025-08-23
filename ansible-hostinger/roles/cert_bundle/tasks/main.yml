@@ -3,25 +3,6 @@
   shell: kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
   register: install_cert_manager
 
-- name: Copia chart cert-bundle para o servidor
-  tags: [cert_bundle]
-  synchronize:
-    src: "{{ helm_charts_dir }}/cert-bundle/"
-    dest: /root/helm-charts/cert-bundle/
-    recursive: yes
-  register: sync_cert_bundle
-
-- name: Verifica se existe o template do values do cert_bundle
-  stat:
-    path: "{{ helm_charts_dir }}/n8n/values-yaml.j2"
-  register: cert_bundle_template
-
-- name: Renderiza values.yaml a partir do template Jinja2
-  template:
-    src: "{{ helm_charts_dir }}/cert-bundle/values-yaml.j2"
-    dest: /root/helm-charts/cert-bundle/values.yaml
-  tags: [cert_bundle]
-
 - name: Aguarda pods do cert-manager (controller, cainjector, webhook)
   tags: [cert_bundle]
   shell: |
@@ -41,7 +22,22 @@
   retries: 10
   delay: 6
 
-- name: Instala clusterissuer letsencrypt-staging via Helm
+- name: Cria ou atualiza o ClusterIssuer (letsencrypt-staging)
   tags: [cert_bundle]
-  shell: helm upgrade --install cert-bundle -n cert-manager /root/helm-charts/cert-bundle 
-  register: install_cert_bundle
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: "{{ issuer_name }}"
+      spec:
+        acme:
+          server: "{{ issuer_server }}"
+          email: "{{ issuer_email }}"
+          privateKeySecretRef:
+            name: "{{ issuer_secretname }}"
+          solvers:
+            - http01:
+                ingress:
+                  class: "{{ issuer_ingressclass }}"
