@@ -173,7 +173,6 @@
 
     - name: Instala Ingress NGINX no KIND
       command: kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
-      when: "'kind' not in clusters_list.stdout"
 
     - name: Aguarda o namespace ingress-nginx existir
       shell: kubectl get ns ingress-nginx
