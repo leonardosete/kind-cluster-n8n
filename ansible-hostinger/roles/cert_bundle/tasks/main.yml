@@ -40,4 +40,5 @@
           solvers:
             - http01:
                 ingress:
-                  class: "{{ issuer_ingressclass }}"
+                  # 'ingressClassName' é o campo correto para versões recentes
+                  ingressClassName: "{{ issuer_ingressclass }}"

@@ -187,15 +187,12 @@
       until: ingress_ns_check.rc == 0
 
     - name: Aguarda o Ingress NGINX ficar pronto
-      shell: |
-        kubectl wait --namespace ingress-nginx \
-          --for=condition=ready pod \
-          --selector=app.kubernetes.io/component=controller \
-          --timeout=180s
-      register: ingress_wait_result
-      retries: 3
-      delay: 10
-      until: ingress_wait_result.rc == 0
+      # Usar 'rollout status' é mais robusto e idiomático para esperar por um deployment.
+      # Ele fornece feedback em tempo real e tem um timeout único e claro.
+      command: >
+        kubectl rollout status deployment/ingress-nginx-controller
+        --namespace=ingress-nginx --timeout=5m
+      changed_when: false # Este comando apenas observa o estado, não faz alterações.
 
     ###################################################################
     # Passo 6: Instalação do Helm
