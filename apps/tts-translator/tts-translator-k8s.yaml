@@ -69,6 +69,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    acme.cert-manager.io/http01-ingress-path-type: "ImplementationSpecific"    
 spec:
   ingressClassName: nginx
   tls:
