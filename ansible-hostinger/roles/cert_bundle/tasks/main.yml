@@ -33,6 +33,16 @@
   retries: 3
   delay: 10
 
+# >>> Bloco adicionado apenas para corrigir o bug do pathType Exact <<<
+- name: (Fix ACME) Adiciona feature-gate no cert-manager
+  tags: [cert_bundle]
+  shell: |
+    kubectl -n cert-manager patch deploy cert-manager --type='json' -p='[
+      {"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--feature-gates=ACMEHTTP01IngressPathTypeExact=false"}
+    ]'
+    kubectl -n cert-manager rollout restart deploy cert-manager
+# <<< -------------------------------------------------------------- >>>
+
 - name: Aguarda CRD ClusterIssuer estar disponível
   tags: [cert_bundle]
   shell: kubectl get crd clusterissuers.cert-manager.io

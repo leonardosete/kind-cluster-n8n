@@ -34,7 +34,6 @@ n8n:
     enabled: true
     className: nginx
     annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: "/"
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-staging"
       acme.cert-manager.io/http01-ingress-path-type: "ImplementationSpecific"
