@@ -81,7 +81,7 @@ evolutionApi:
     host: "evolution-api-7.devops-master.shop"
     annotations:
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      cert-manager.io/cluster-issuer: "letsencrypt-staging"
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
       acme.cert-manager.io/http01-ingress-path-type: "ImplementationSpecific"
     tls:
       enabled: true

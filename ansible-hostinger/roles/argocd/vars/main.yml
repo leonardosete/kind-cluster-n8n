@@ -4,7 +4,7 @@ ingress_className: "nginx"
 ingress_tls_secretname: "tls-argocd-devops-master"
 
 ingress_annotations:
-  cert-manager.io/cluster-issuer: "letsencrypt-staging"
+  cert-manager.io/cluster-issuer: "letsencrypt-prod"
   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   acme.cert-manager.io/http01-ingress-path-type: "ImplementationSpecific"
