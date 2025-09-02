@@ -29,10 +29,10 @@ jobs:
       - name: ✅ Resumo
         run: |
           echo "========================== ✅ DEPLOY CONCLUÍDO =========================="
-          echo "🌐 Acesse o ArgoCD: https://argocd-6.devops-master.shop"
+          echo "🌐 Acesse o ArgoCD: https://argocd-7.devops-master.shop"
           echo "👤 Login: admin"
           echo "🔑 Senha-> execute: kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 --decode"
-          echo "🌐 Acesse o n8n: https://n8n-6.devops-master.shop"
-          echo "🌐 Acesse o Evolution API: https://evolution-api-6.devops-master.shop/manager"
-          echo "🌐 Acesse o TTS Translator: https://tts-6.devops-master.shop/tts/voices"
+          echo "🌐 Acesse o n8n: https://n8n-7.devops-master.shop"
+          echo "🌐 Acesse o Evolution API: https://evolution-api-7.devops-master.shop/manager"
+          echo "🌐 Acesse o TTS Translator: https://tts-7.devops-master.shop/tts/voices"
           echo "==========================================================================="
