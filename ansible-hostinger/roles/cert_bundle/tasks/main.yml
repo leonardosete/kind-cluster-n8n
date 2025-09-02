@@ -51,7 +51,7 @@
   retries: 10
   delay: 6
 
-- name: Instala clusterissuer letsencrypt-staging via Helm
+- name: Instala clusterissuer letsencrypt-prod via Helm
   tags: [cert_bundle]
   shell: helm upgrade --install cert-bundle -n cert-manager /root/helm-charts/cert-bundle 
   register: install_cert_bundle
