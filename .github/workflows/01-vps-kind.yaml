@@ -9,11 +9,6 @@ name: 01-Configs VPS + Instalar Cluster KIND
 on:
   workflow_dispatch:
     inputs:
-      is_fresh_server:
-        description: "🚀 É um servidor novo (provisionamento inicial)? (Marque para conectar como root)"
-        required: true
-        default: false
-        type: boolean
       acionar_infra_base:
         description: "⚠️  Executar também o deploy da INFRA BASE? (cert-manager, ArgoCD…)"
         required: true
@@ -33,8 +28,7 @@ jobs:
         sudo apt-get update -y
         sudo apt-get install -y ansible sshpass openssh-client curl
         ansible-galaxy collection install community.kubernetes
-        curl -sLO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+        # ... (resto dos comandos de instalação)
 
     - name: 🔐 Configura chave SSH via ssh-agent
       uses: webfactory/ssh-agent@v0.9.0
@@ -44,28 +38,9 @@ jobs:
     - name: ➕ Adiciona Host aos known_hosts
       run: ssh-keyscan -H -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
 
-    # --- PASSO NOVO E CONDICIONAL DE BOOTSTRAP ---
-    - name: 🚀 Bootstrap (APENAS para servidores novos)
-      if: ${{ github.event.inputs.is_fresh_server == 'true' }}
-      run: |
-        echo "Executando bootstrap para servidor novo: garantindo PermitRootLogin=yes temporariamente..."
-        ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_SSH_PORT }} root@${{ secrets.VPS_HOSTNAME }} "sudo sed -i 's/^#?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config && sudo systemctl restart sshd"
-    
-    # --- PASSO DO ANSIBLE COM LÓGICA DINÂMICA ---
     - name: ⚙️ Playbook Ansible
       working-directory: ./ansible-hostinger
-      run: |
-        ANSIBLE_ARGS=""
-        # Se for um servidor novo, usa as extra-vars para conectar como root
-        if [[ "${{ github.event.inputs.is_fresh_server }}" == "true" ]]; then
-          echo "Executando playbook em modo de PROVISIONAMENTO (usuário root)."
-          ANSIBLE_ARGS="--extra-vars 'ansible_user=root ansible_become=no'"
-        else
-          echo "Executando playbook em modo de MANUTENÇÃO (usuário leosete)."
-        fi
-        
-        # Executa o playbook
-        ansible-playbook -i inventory.ini 01-ansible-vps-kind.yaml $ANSIBLE_ARGS
+      run: ansible-playbook -i inventory.ini 01-ansible-vps-kind.yaml
 
 # jobs:
 #   configure-vps-kind-cluster:
