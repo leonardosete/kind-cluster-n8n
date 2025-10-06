@@ -17,10 +17,10 @@ fi
 # 🚀 Script para baixar e ajustar kubeconfig da VPS
 
 # 🔧 Variáveis configuráveis
-VPS_USER="root"
+VPS_USER="leosete"
 VPS_HOST="srv809140.hstgr.cloud"
 VPS_SSH_KEY="$HOME/.ssh/nova_vps_srv809140"
-VPS_KUBECONFIG_PATH="/root/.kube/config"
+VPS_KUBECONFIG_PATH="/leosete/.kube/config"
 
 LOCAL_KUBECONFIG="$HOME/.kube/config-vps"
 VPS_IP="168.231.96.187"
