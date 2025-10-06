@@ -1,16 +1,10 @@
-################################################################################
-# 01 – Configs VPS + Instalar Cluster KIND                                     #
-#                                                                              #
-# ▸ Disparo manual via workflow_dispatch                                       #
-# ▸ Chama o workflow 02-infra-base via workflow_call                           #
-################################################################################
 name: 01-Configs VPS + Instalar Cluster KIND
 
 on:
   workflow_dispatch:
     inputs:
       acionar_infra_base:
-        description: "⚠️  Executar também o deploy da INFRA BASE? (cert-manager, ArgoCD…) "
+        description: "⚠️  Executar também o deploy da INFRA BASE? (cert-manager, ArgoCD…)"
         required: true
         default: false
         type: boolean
@@ -22,28 +16,23 @@ jobs:
     - name: 📦 Checkout repositório
       uses: actions/checkout@v4
 
-    # 1 ▸ Instala pacotes necessários no runner
-    - name: 🔧 Instala dependências (Ansible, SSH, kubectl)
+    # 1 ▸ Garante as dependências mínimas no runner
+    - name: 🔧 Instala dependências (Ansible, SSH)
       run: |
         echo "::group::Instalando dependências"
         sudo apt-get update -y
-        sudo apt-get install -y ansible sshpass openssh-client curl
-        ansible-galaxy collection install community.kubernetes
-        curl -sLO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+        # sshpass foi removido por segurança e redundância
+        sudo apt-get install -y ansible openssh-client
         echo "::endgroup::"
 
-    # 2 ▸ Prepara SSH
+    # 2 ▸ Prepara SSH de forma segura
     - name: 🔐 Configura chave SSH via ssh-agent
       uses: webfactory/ssh-agent@v0.9.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: ➕ Adiciona Host aos known_hosts
-      run: ssh-keyscan -H -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
-
-    - name: 🔍 Valida chave no runner
-      run: ssh-keygen -y -f ~/.ssh/${{ secrets.SSH_KEY_FILENAME }} >/dev/null
+    - name: 🛡️ Adiciona Host conhecido de forma segura
+      run: echo "${{ secrets.VPS_HOST_PUBLIC_KEY }}" >> ~/.ssh/known_hosts
 
     # 3 ▸ Executa playbook KIND
     - name: ⚙️ Playbook Ansible
@@ -54,7 +43,7 @@ jobs:
 
   # 4 ▸ Aciona workflow 02 (infra base) se habilitado
   deploy-infra-base:
-    if: ${{ github.event.inputs.acionar_infra_base == 'true' }}
+    if: ${{ github.event.inputs.acionar_infra_base }}
     needs: configure-vps-kind-cluster
     uses: ./.github/workflows/02-infra-base.yaml
     with:
