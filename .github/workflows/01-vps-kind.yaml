@@ -43,6 +43,15 @@ jobs:
     - name: ➕ Adiciona Host aos known_hosts
       run: ssh-keyscan -H -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
 
+    - name: 🔬 DEBUG - Tenta conexão SSH direta
+      run: |
+        echo "Tentando conectar em ${{ secrets.VPS_HOSTNAME }} como root..."
+        ssh -o StrictHostKeyChecking=no \
+            -o BatchMode=yes \
+            -vvv \
+            root@${{ secrets.VPS_HOSTNAME }} \
+            "echo '>>> Conexão SSH BEM-SUCEDIDA! <<<'"
+
     # 3 ▸ Executa playbook KIND
     - name: ⚙️ Playbook Ansible – KIND
       working-directory: ./ansible-hostinger
