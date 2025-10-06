@@ -1,3 +1,19 @@
-## [SSH_VPS]
+## [Configurações Gerais da VPS]
+# Email para referência ou certificados futuros
 ssh_email: "leonardosete@gmail.com"
+# Porta que seu cluster Kubernetes irá expor
 clusterPort: 42885
+
+# --- VARIÁVEIS DE SEGURANÇA (PREENCHA AQUI) ---
+
+# 1. Defina o nome do usuário que você usará para acessar o servidor via SSH.
+#    NÃO use 'root'. Escolha um nome de usuário, por exemplo: "leonardo".
+admin_user: "leosete"
+
+# 2. Defina a nova porta que será usada para o acesso SSH.
+#    Escolha um número entre 1025 e 65535. Ex: 2222, 4848, etc.
+new_ssh_port: 63715
+
+# 3. Cole aqui o CONTEÚDO COMPLETO da sua chave SSH PÚBLICA.
+#    Você pode obtê-la no seu computador com o comando: cat ~/.ssh/id_rsa.pub
+ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDYHVLALP9gkMX1bY9JC1rVBxOnX66oL0LuwDHsL/LhaVtzLsCZoQ9RSX/0Gs2xMt95j5+lzUpo3kTv++9VFavtg57LvMF6mE6SmdQ5uGAWYx5gEaWB59qcnQZi39B04+KbCRMFH8kw3Qj1TA1ksWLy9HCJ77ao+Z7qFm1/7sxHQ/VZqaX5hfhn5fIhMfwTogZohG9cuDedwE32FMml3QWkrmfcO9Wnei8giY92M0xf7dWlYiZmD6rNBW882DcljvlTzYQHrSkpqtOcZJT+5LfkzU0I0ymdYVbmtRq9kpH8Fd4tSEQaHTfjQcvyyG4kAJ9qy8FVgg5np4Jj8wtbydESDMIldelTShKF48s4OzMchnZFGiR15End2pcskxmrDpwyl6ccehlhQW0n83PXohEQSK/7Kh3oDvzX0GJaD8ahrFwpLKP9utq1Vcwyjrf2++xLAkExt14aTB1Ey2/l84hpQFKIiP2+gcMmKTdgSTo1GaXdkS03PXJ8bamfci1C1PwapJ0Q849xujbnet1DqgDrR0164iS/5nF6Hd+9S+OAuZdPGVAim5UwNOHpUxdW9TerXB8q41qonLP7a8bJ6wLNaGiB+on2qFQSY0q27k3G5u/w7DP5282DEAXw/RvKniujKXWNo+7zDgodXbiXoC9RF/XX6WKoWiZHiTjES/A9tw== leonardosete@gmail.com"

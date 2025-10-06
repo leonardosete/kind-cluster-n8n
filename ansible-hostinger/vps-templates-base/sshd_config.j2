@@ -1,0 +1,33 @@
+# Arquivo: templates/sshd_config.j2
+# /etc/ssh/sshd_config - Gerenciado por Ansible
+# Template de configuração de alta segurança
+
+Include /etc/ssh/sshd_config.d/*.conf
+
+# --- Configurações de Segurança ---
+Port {{ new_ssh_port }}
+Protocol 2
+PermitRootLogin no
+
+# --- Autenticação ---
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+
+# --- Limites e Timeouts ---
+LoginGraceTime 30
+MaxAuthTries 3
+MaxSessions 2
+
+# --- Recursos e Encaminhamento ---
+X11Forwarding no
+AllowAgentForwarding no
+AllowTcpForwarding no
+
+# --- Configurações Gerais ---
+ClientAliveInterval 300
+ClientAliveCountMax 2
+UsePAM yes
+AcceptEnv LANG LC_*
+Subsystem       sftp    /usr/lib/openssh/sftp-server

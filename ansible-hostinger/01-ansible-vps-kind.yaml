@@ -1,27 +1,22 @@
+# Arquivo: 01-ansible-vps-kind.yaml
 ---
 - name: Setup completo do servidor Debian
   hosts: vps_hostinger
-  become: yes # Necessário para executar tarefas como root
-  gather_facts: true # Coleta informações do sistema, como arquitetura e versão 
-  collections: 
+  become: yes
+  gather_facts: true
+  collections:
     - community.general
-
-  vars:
-    kind_version: "v0.27.0"
-    kind_binary_x86_64: "kind-linux-amd64"
-    kind_binary_arm64: "kind-linux-arm64"
-    helm_charts_dir: "{{ playbook_dir }}/../helm-charts"
 
   tasks:
     ###################################################################
     # Passo 1: Setup inicial (apt upgrade, pacotes, Docker, etc.)
     ###################################################################
     - name: Atualiza cache e realiza upgrade de pacotes
-      apt: 
-        update_cache: yes 
+      apt:
+        update_cache: yes
         upgrade: dist
 
-    - name: Instala pacotes essenciais
+    - name: Instala pacotes essenciais e de segurança
       apt:
         name:
           - git
@@ -36,6 +31,7 @@
           - bash-completion
           - openssh-client
           - ufw
+          - fail2ban
           - rsync
           - apt-transport-https
           - ca-certificates
@@ -44,6 +40,58 @@
         state: present
         update_cache: yes
 
+    ###################################################################
+    # Passo 1.5: Hardening de Segurança (Usuário, SSH, Firewall)
+    ###################################################################
+    - name: Cria o usuário administrador com privilégios sudo
+      user:
+        name: "{{ admin_user }}"
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+        create_home: yes
+
+    - name: Configura a chave SSH para acesso sem senha ao novo usuário
+      authorized_key:
+        user: "{{ admin_user }}"
+        state: present
+        key: "{{ ssh_public_key }}"
+
+    - name: Aplica template de configuração segura para o SSHd
+      template:
+        src: "{{ playbook_dir }}/vps-templates-base/sshd_config.j2"
+        dest: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: '0600'
+        validate: 'sshd -t -f %s'
+      notify: Reiniciar SSH
+
+    - name: Garante que o serviço Fail2Ban está ativo e habilitado
+      service:
+        name: fail2ban
+        state: started
+        enabled: yes
+
+    - name: Configura o Firewall (UFW) para negar tudo por padrão
+      community.general.ufw:
+        state: enabled
+        policy: deny
+
+    - name: Libera a nova porta SSH e as portas do K8s no Firewall
+      community.general.ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - "{{ new_ssh_port }}"
+        - "80"
+        - "443"
+        - "{{ clusterPort }}"
+
+    ###################################################################
+    # O restante do seu playbook original continua aqui
+    ###################################################################
     - name: Instala a biblioteca Python do Kubernetes via apt (para contornar PEP 668)
       apt:
         name: python3-kubernetes
@@ -77,9 +125,6 @@
         group: root
         mode: '0644'
 
-    ###################################################################
-    # Passo 2: Instalação do KIND
-    ###################################################################
     - name: Seleciona binário do KIND de acordo com a arquitetura
       set_fact:
         kind_download_url: >-
@@ -100,9 +145,6 @@
       debug:
         msg: "Versão do KIND: {{ kind_version_out.stdout | default('Não foi possível obter') }}"
 
-    ###################################################################
-    # Passo 3: Instala e configura kubectl
-    ###################################################################
     - name: Garante que o diretório de chaves apt exista
       file:
         path: /etc/apt/keyrings
@@ -112,7 +154,7 @@
     - name: Baixa a chave GPG do repositório K8s
       get_url:
         url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
-        dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc # Use .asc for binary keys
+        dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
 
     - name: Configura repositório do Kubernetes
       apt_repository:
@@ -134,10 +176,6 @@
       debug:
         msg: "kubectl: {{ kubectl_version_out.stdout | default('Não foi possível obter') }}"
 
-    ###################################################################
-    # Passo 4: Cria cluster KIND (portas 80, 443 e 6443->42885) + Ingress
-    ###################################################################
-
     - name: Verifica se já existe algum cluster KIND
       command: kind get clusters
       register: clusters_list
@@ -156,26 +194,6 @@
       command: kind create cluster --config=/root/kind-config.yaml
       when: "'kind' not in clusters_list.stdout"
 
-    - name: Libera porta 42885 no firewall UFW
-      ufw:
-        rule: allow
-        port: "{{ clusterPort }}"
-        proto: tcp
-
-    - name: Lista nodes do cluster KIND criado
-      command: kubectl get nodes
-      register: kind_nodes
-      when: "'kind' not in clusters_list.stdout"
-
-    - name: Debug - nós do cluster KIND
-      debug:
-        msg: "{{ kind_nodes.stdout }}"
-      when: "'kind' not in clusters_list.stdout"
-
-    ###################################################################
-    # Passo 5: Configura o Ingress
-    ###################################################################
-
     - name: Instala Ingress NGINX no KIND
       command: kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
 
@@ -187,16 +205,11 @@
       until: ingress_ns_check.rc == 0
 
     - name: Aguarda o Ingress NGINX ficar pronto
-      # Usar 'rollout status' é mais robusto e idiomático para esperar por um deployment.
-      # Ele fornece feedback em tempo real e tem um timeout único e claro.
       command: >
         kubectl rollout status deployment/ingress-nginx-controller
         --namespace=ingress-nginx --timeout=5m
-      changed_when: false # Este comando apenas observa o estado, não faz alterações.
+      changed_when: false
 
-    ###################################################################
-    # Passo 6: Instalação do Helm
-    ###################################################################
     - name: Baixa a chave GPG do repositório Helm
       get_url:
         url: https://baltocdn.com/helm/signing.asc
@@ -226,10 +239,6 @@
       debug:
         msg: "Helm instalado: {{ helm_version_output.stdout | default('Não foi possível obter a versão') }}"
 
-
-    ###################################################################
-    # Passo 7: Cria /root/helm-charts no server
-    ###################################################################
     - name: Garante que a pasta /root/helm-charts existe no servidor
       file:
         path: /root/helm-charts
@@ -238,21 +247,13 @@
         group: root
         mode: '0755'
 
-    - name: Exibe status final da configuração
-      debug:
-        msg: "✅ VPS provisionada e cluster KIND inicializado com sucesso."
-
-    ###################################################################
-    # Passo 8: Instalação do kubeseal (v0.29.0 via binário oficial)
-    ###################################################################
     - name: Baixa kubeseal v0.29.0 tar.gz
       get_url:
         url: https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-0.29.0-linux-amd64.tar.gz
         dest: /tmp/kubeseal.tar.gz
 
     - name: Extrai binário kubeseal do tar.gz
-      shell: |
-        tar -xvzf /tmp/kubeseal.tar.gz kubeseal
+      shell: tar -xvzf /tmp/kubeseal.tar.gz kubeseal
       args:
         chdir: /tmp
         creates: /tmp/kubeseal
@@ -272,10 +273,6 @@
     - name: Debug - Versão do kubeseal
       debug:
         msg: "kubeseal instalado: {{ kubeseal_version_out.stdout | default('Não foi possível obter a versão') }}"
-
-    ###################################################################
-    # Passo 9: Instala metrics-server e adiciona --kubelet-insecure-tls
-    ###################################################################
 
     - name: Baixa manifest oficial do metrics-server
       get_url:
@@ -316,3 +313,16 @@
         wait_condition:
           type: Available
           status: "True"
+
+    - name: Exibe status final da configuração
+      debug:
+        msg: "✅ VPS provisionada, segura e com cluster KIND inicializado com sucesso."
+
+  ###################################################################
+  # Handlers: Tarefas que são executadas apenas quando notificadas
+  ###################################################################
+  handlers:
+    - name: Reiniciar SSH
+      service:
+        name: sshd
+        state: restarted
