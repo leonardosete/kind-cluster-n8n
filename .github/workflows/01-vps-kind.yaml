@@ -44,12 +44,13 @@ jobs:
     - name: ➕ Adiciona Host aos known_hosts
       run: ssh-keyscan -H -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
 
-    - name: 🔬 DEBUG - Tenta conexão SSH direta
+    - name: 🔬 DEBUG - Tenta conexão SSH direta (versão corrigida)
       run: |
-        echo "Tentando conectar em ${{ secrets.VPS_HOSTNAME }} como root..."
+        echo "Tentando conectar em ${{ secrets.VPS_HOSTNAME }} na porta ${{ secrets.VPS_SSH_PORT }} como root..."
         ssh -o StrictHostKeyChecking=no \
             -o BatchMode=yes \
             -vvv \
+            -p ${{ secrets.VPS_SSH_PORT }} \
             root@${{ secrets.VPS_HOSTNAME }} \
             "echo '>>> Conexão SSH BEM-SUCEDIDA! <<<'"
 
