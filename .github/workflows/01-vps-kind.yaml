@@ -10,11 +10,10 @@ on:
   workflow_dispatch:
     inputs:
       acionar_infra_base:
-        description: "⚠️  Executar também o deploy da INFRA BASE? (cert-manager, ArgoCD…)"
+        description: "⚠️  Executar também o deploy da INFRA BASE? (cert-manager, ArgoCD…) "
         required: true
         default: false
         type: boolean
-
 jobs:
   configure-vps-kind-cluster:
     runs-on: self-hosted
@@ -23,13 +22,18 @@ jobs:
     - name: 📦 Checkout repositório
       uses: actions/checkout@v4
 
-    - name: 🔧 Instala dependências
+    # 1 ▸ Instala pacotes necessários no runner
+    - name: 🔧 Instala dependências (Ansible, SSH, kubectl)
       run: |
+        echo "::group::Instalando dependências"
         sudo apt-get update -y
         sudo apt-get install -y ansible sshpass openssh-client curl
         ansible-galaxy collection install community.kubernetes
-        # ... (resto dos comandos de instalação)
+        curl -sLO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+        echo "::endgroup::"
 
+    # 2 ▸ Prepara SSH
     - name: 🔐 Configura chave SSH via ssh-agent
       uses: webfactory/ssh-agent@v0.9.0
       with:
@@ -38,74 +42,21 @@ jobs:
     - name: ➕ Adiciona Host aos known_hosts
       run: ssh-keyscan -H -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
 
+    - name: 🔍 Valida chave no runner
+      run: ssh-keygen -y -f ~/.ssh/${{ secrets.SSH_KEY_FILENAME }} >/dev/null
+
+    # 3 ▸ Executa playbook KIND
     - name: ⚙️ Playbook Ansible
       working-directory: ./ansible-hostinger
+      env:
+        ANSIBLE_REMOTE_USER: ${{ secrets.ANSIBLE_USER }}
       run: ansible-playbook -i inventory.ini 01-ansible-vps-kind.yaml
 
-# jobs:
-#   configure-vps-kind-cluster:
-#     runs-on: self-hosted
-
-#     steps:
-#     - name: 📦 Checkout repositório
-#       uses: actions/checkout@v4
-
-#     # 1 ▸ Instala pacotes necessários no runner
-#     - name: 🔧 Instala dependências (Ansible, SSH, kubectl)
-#       run: |
-#         echo "::group::Instalando dependências"
-#         sudo apt-get update -y
-#         sudo apt-get install -y ansible sshpass openssh-client curl
-#         ansible-galaxy collection install community.kubernetes
-#         curl -sLO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-#         chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-#         echo "::endgroup::"
-
-#     # 2 ▸ Prepara SSH
-#     - name: 🔐 Configura chave SSH via ssh-agent
-#       uses: webfactory/ssh-agent@v0.9.0
-#       with:
-#         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-#         log-public-key: true
-
-#     - name: ➕ Adiciona Host aos known_hosts
-#       run: ssh-keyscan -H -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
-
-#     - name: 🔬 DEBUG - Tenta conexão SSH direta (versão corrigida)
-#       run: |
-#         echo "Tentando conectar em ${{ secrets.VPS_HOSTNAME }} na porta ${{ secrets.VPS_SSH_PORT }} como root..."
-#         ssh -o StrictHostKeyChecking=no \
-#             -o BatchMode=yes \
-#             -vvv \
-#             -p ${{ secrets.VPS_SSH_PORT }} \
-#             root@${{ secrets.VPS_HOSTNAME }} \
-#             "echo '>>> Conexão SSH BEM-SUCEDIDA! <<<'"
-
-#   # 3 ▸ Executa playbook KIND
-#     - name: ⚙️ Playbook Ansible – KIND
-#       working-directory: ./ansible-hostinger
-#       run: |
-#         echo "::group::Executando playbook KIND"
-        
-#         # Define os argumentos extras do Ansible com base no input do workflow
-#         ANSIBLE_ARGS=""
-#         if [[ "${{ github.event.inputs.is_fresh_server }}" == "true" ]]; then
-#           echo "🚀 Modo de Provisionamento Inicial: Conectando como root."
-#           ANSIBLE_ARGS="--extra-vars 'ansible_user=root ansible_become=no'"
-#         else
-#           echo "🔧 Modo de Manutenção: Conectando como usuário padrão."
-#         fi
-        
-#         # Executa o playbook com os argumentos definidos
-#         ansible-playbook -i inventory.ini 01-ansible-vps-kind.yaml $ANSIBLE_ARGS
-
-#         echo "::endgroup::"
-
-#   # 4 ▸ Aciona workflow 02 (infra base) se habilitado
-#   deploy-infra-base:
-#     if: ${{ github.event.inputs.acionar_infra_base == 'true' }}
-#     needs: configure-vps-kind-cluster
-#     uses: ./.github/workflows/02-infra-base.yaml
-#     with:
-#       criar_infra_base: true
-#     secrets: inherit
+  # 4 ▸ Aciona workflow 02 (infra base) se habilitado
+  deploy-infra-base:
+    if: ${{ github.event.inputs.acionar_infra_base == 'true' }}
+    needs: configure-vps-kind-cluster
+    uses: ./.github/workflows/02-infra-base.yaml
+    with:
+      criar_infra_base: true
+    secrets: inherit
