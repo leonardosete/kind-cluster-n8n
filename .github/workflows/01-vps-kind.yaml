@@ -41,9 +41,9 @@ jobs:
         ANSIBLE_REMOTE_USER: ${{ secrets.ANSIBLE_USER }}
       run: ansible-playbook -i inventory.ini 01-ansible-vps-kind.yaml
 
-  # 4 ▸ Aciona workflow 02 (infra base) se habilitado
+# 4 ▸ Aciona workflow 02 (infra base) se habilitado
   deploy-infra-base:
-    if: ${{ github.event.inputs.acionar_infra_base }}
+    if: ${{ github.event.inputs.acionar_infra_base == 'true' }}
     needs: configure-vps-kind-cluster
     uses: ./.github/workflows/02-infra-base.yaml
     with:
