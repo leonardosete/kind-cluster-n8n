@@ -41,7 +41,7 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: ➕ Adiciona Host aos known_hosts
-      run: ssh-keyscan -H ${{ secrets.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
+      run: ssh-keyscan -H -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
 
     # 3 ▸ Executa playbook KIND
     - name: ⚙️ Playbook Ansible – KIND
