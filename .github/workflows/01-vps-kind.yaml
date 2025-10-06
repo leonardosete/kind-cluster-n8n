@@ -9,8 +9,13 @@ name: 01-Configs VPS + Instalar Cluster KIND
 on:
   workflow_dispatch:
     inputs:
+      is_fresh_server:
+        description: "🚀 É um servidor novo (provisionamento inicial)? (Marque para conectar como root)"
+        required: true
+        default: false
+        type: boolean
       acionar_infra_base:
-        description: "⚠️  Executar também o deploy da INFRA BASE? (cert-manager, ArgoCD…) "
+        description: "⚠️  Executar também o deploy da INFRA BASE? (cert-manager, ArgoCD…)"
         required: true
         default: false
         type: boolean
@@ -54,12 +59,24 @@ jobs:
             root@${{ secrets.VPS_HOSTNAME }} \
             "echo '>>> Conexão SSH BEM-SUCEDIDA! <<<'"
 
-    # 3 ▸ Executa playbook KIND
+  # 3 ▸ Executa playbook KIND
     - name: ⚙️ Playbook Ansible – KIND
       working-directory: ./ansible-hostinger
       run: |
         echo "::group::Executando playbook KIND"
-        ansible-playbook -i inventory.ini 01-ansible-vps-kind.yaml
+        
+        # Define os argumentos extras do Ansible com base no input do workflow
+        ANSIBLE_ARGS=""
+        if [[ "${{ github.event.inputs.is_fresh_server }}" == "true" ]]; then
+          echo "🚀 Modo de Provisionamento Inicial: Conectando como root."
+          ANSIBLE_ARGS="--extra-vars 'ansible_user=root ansible_become=no'"
+        else
+          echo "🔧 Modo de Manutenção: Conectando como usuário padrão."
+        fi
+        
+        # Executa o playbook com os argumentos definidos
+        ansible-playbook -i inventory.ini 01-ansible-vps-kind.yaml $ANSIBLE_ARGS
+
         echo "::endgroup::"
 
   # 4 ▸ Aciona workflow 02 (infra base) se habilitado
