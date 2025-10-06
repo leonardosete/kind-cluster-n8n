@@ -3,6 +3,9 @@
 ssh_email: "leonardosete@gmail.com"
 # Porta que seu cluster Kubernetes irá expor
 clusterPort: 42885
+kind_version: "v0.27.0"
+kind_binary_x86_64: "kind-linux-amd64"
+kind_binary_arm64: "kind-linux-arm64"
 
 # --- VARIÁVEIS DE SEGURANÇA (PREENCHA AQUI) ---
 
