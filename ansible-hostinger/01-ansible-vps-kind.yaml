@@ -210,25 +210,24 @@
         --namespace=ingress-nginx --timeout=5m
       changed_when: false
 
-    - name: Baixa a chave GPG do repositório Helm
-      get_url:
-        url: https://baltocdn.com/helm/signing.asc
-        dest: /etc/apt/keyrings/helm.asc
-        mode: '0644'
-
-    - name: Adiciona repositório do Helm
-      apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/helm.asc] https://baltocdn.com/helm/stable/debian/ all main"
-        state: present
-
-    - name: Atualiza cache de pacotes após adicionar Helm
-      apt:
-        update_cache: yes
-
-    - name: Instala Helm
-      apt:
-        name: helm
-        state: present
+#    ###################################################################
+#    # Passo 6: Instalação do Helm (Temporariamente desativado)
+#    ###################################################################
+#    - name: Baixa a chave GPG do repositório Helm
+#      get_url:
+#        url: https://baltocdn.com/helm/signing.asc
+#        dest: /etc/apt/keyrings/helm.asc
+#        mode: '0644'
+#
+#    - name: Adiciona repositório do Helm
+#      apt_repository:
+#        repo: "deb [signed-by=/etc/apt/keyrings/helm.asc] https://baltocdn.com/helm/stable/debian/ all main"
+#        state: present
+#
+#    - name: Instala Helm
+#      apt:
+#        name: helm
+#        state: present
 
     - name: Verifica versão do Helm
       command: helm version
