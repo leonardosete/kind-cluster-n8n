@@ -53,12 +53,12 @@
 
     - name: Configura sudo sem senha para o usuário administrador
       copy:
-        dest: "/etc/sudoers.d/90-{{ admin_user }}"  # Arquivo de configuração específico para o usuário
-        content: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"  # A regra que remove a necessidade de senha
-        mode: '0440'  # Permissões restritas e seguras, exigidas pelo sudo
+        dest: "/etc/sudoers.d/90-{{ admin_user }}"
+        content: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"
+        mode: '0440'
         owner: root
         group: root
-        validate: 'visudo -cf %s'  # Valida a sintaxe do arquivo antes de salvar (MUITO IMPORTANTE)
+        validate: 'visudo -cf %s'
 
     - name: Configura a chave SSH para acesso sem senha ao novo usuário
       authorized_key:
