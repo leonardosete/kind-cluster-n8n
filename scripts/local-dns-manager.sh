@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+#set -euo pipefail
 
 # ========================== CONFIG ==========================
 DOMAIN="devops-master.shop"
