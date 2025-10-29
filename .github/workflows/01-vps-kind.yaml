@@ -21,8 +21,9 @@ jobs:
       run: |
         echo "::group::Instalando dependências"
         sudo apt-get update -y
+        sudo apt-get install -y --no-install-recommends ca-certificates curl git gnupg
         sudo apt-get install -y ansible openssh-client python3-pip
-        ansible-galaxy collection install community.kubernetes
+        ansible-galaxy collection install community.kubernetes -vvv
         echo "::endgroup::"
 
     # 2 ▸ Prepara SSH de forma segura
