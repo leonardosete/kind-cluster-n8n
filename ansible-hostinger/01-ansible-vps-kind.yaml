@@ -246,18 +246,32 @@
       command: kind create cluster --config=/root/kind-config.yaml
       when: "'kind' not in clusters_list.stdout"
 
-    - name: Instala Ingress NGINX no KIND
-      command: kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
+    - name: Adiciona o repositório Helm do Ingress-NGINX
+      community.kubernetes.helm_repository:
+        name: ingress-nginx
+        repo_url: https://kubernetes.github.io/ingress-nginx
 
-    - name: Aguarda o namespace ingress-nginx existir
-      shell: kubectl get ns ingress-nginx
-      register: ingress_ns_check
-      retries: 10
-      delay: 10
-      until: ingress_ns_check.rc == 0
+    - name: Instala o Ingress NGINX via Helm com certificado padrão
+      community.kubernetes.helm:
+        name: ingress-nginx
+        chart_ref: ingress-nginx/ingress-nginx
+        release_namespace: ingress-nginx
+        create_namespace: yes
+        values:
+          controller:
+            extraArgs:
+              # Define o secret padrão para TLS
+              default-ssl-certificate: "ingress-nginx/wildcard-devops-master-shop-tls"
+            # Permite que o Ingress Controller gerencie Ingresses sem uma IngressClass definida
+            watchIngressWithoutClass: true
+          # Garante que o IngressClass seja criado e marcado como padrão
+          ingressClassResource:
+            name: nginx
+            enabled: true
+            default: true
 
     - name: Aguarda o Ingress NGINX ficar pronto
-      command: >
+      ansible.builtin.command: >
         kubectl rollout status deployment/ingress-nginx-controller
         --namespace=ingress-nginx --timeout=5m
       changed_when: false

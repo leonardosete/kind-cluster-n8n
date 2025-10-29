@@ -27,5 +27,5 @@ jobs:
       - name: ✅ Resumo
         run: |
           echo "========================== ✅ DEPLOY CONCLUÍDO =========================="
-          echo "🌐 Acesse o n8n: https://n8n-7.devops-master.shop"
+          echo "🌐 Acesse o n8n: https://n8n-cdn.devops-master.shop"
           echo "==========================================================================="

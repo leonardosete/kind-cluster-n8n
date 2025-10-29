@@ -7,8 +7,8 @@ n8n:
   imagePullPolicy: Always
   protocol: https
   port: 5678
-  domain_name: n8n-7.devops-master.shop
-  webhookUrl: "https://n8n-7.devops-master.shop"
+  domain_name: n8n-cdn.devops-master.shop
+  webhookUrl: "https://n8n-cdn.devops-master.shop"
   timezone: America/Sao_Paulo
   pvcName: n8n-data
   accessModes: ReadWriteOnce
@@ -33,13 +33,9 @@ n8n:
   ingress:
     enabled: true
     className: nginx
-    annotations:
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      cert-manager.io/cluster-issuer: "letsencrypt-prod"
-      acme.cert-manager.io/http01-ingress-path-type: "ImplementationSpecific"
-    tls:
-      enabled: true
-      secretName: n8n-tls
+    # As anotações do Cert-Manager e a seção TLS foram removidas.
+    # O Ingress Controller NGINX aplicará o certificado wildcard padrão.
+    annotations: {}
   queue:
     mode: redis
   redis:

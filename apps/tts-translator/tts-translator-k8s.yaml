@@ -74,10 +74,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - tts-7.devops-master.shop
+        - tts-cdn.devops-master.shop
       secretName: tts-tls
   rules:
-    - host: tts-7.devops-master.shop
+    - host: tts-cdn.devops-master.shop
       http:
         paths:
           - path: /tts/voices

@@ -1,0 +1,17 @@
+---
+- name: Cria o Secret TLS Wildcard no namespace do Ingress Controller
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        # Nome do secret que definimos como padrão no Ingress Controller
+        name: wildcard-devops-master-shop-tls
+        # Namespace onde o Ingress Controller está rodando
+        namespace: ingress-nginx
+      type: kubernetes.io/tls
+      data:
+        # O lookup lê os arquivos do seu diretório CERTS
+        tls.crt: "{{ lookup('file', '{{ playbook_dir }}/../../CERTS/devops-master-shop-cert.pem') | b64encode }}"
+        tls.key: "{{ lookup('file', '{{ playbook_dir }}/../../CERTS/devops-master-shop-key.pem') | b64encode }}"

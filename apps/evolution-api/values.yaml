@@ -4,7 +4,7 @@ evolutionApi:
   image: atendai/evolution-api:v2.1.2
   env:
     - name: SERVER_URL
-      value: "https://evolution-api-7.devops-master.shop"
+      value: "https://evolution-api-cdn.devops-master.shop"
     - name: AUTHENTICATION_TYPE
       value: "apikey"
     - name: AUTHENTICATION_API_KEY
@@ -78,14 +78,10 @@ evolutionApi:
   ingress:
     enabled: true
     className: nginx
-    host: "evolution-api-7.devops-master.shop"
-    annotations:
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      cert-manager.io/cluster-issuer: "letsencrypt-prod"
-      acme.cert-manager.io/http01-ingress-path-type: "ImplementationSpecific"
-    tls:
-      enabled: true
-      secretName: evolution-api-tls
+    host: "evolution-api-cdn.devops-master.shop"
+    annotations: {}
+    # A seção TLS inteira pode ser removida.
+    # O Ingress Controller usará o certificado wildcard padrão.
 postgresql:
   image: "postgres:16-alpine"
   name: evolution-postgres
