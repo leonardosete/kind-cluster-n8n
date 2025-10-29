@@ -23,6 +23,8 @@ SSH_USER="root"
 SSH_PORT="22" # Adicionado para clareza
 SSH_OPTS="-p $SSH_PORT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 -i $SSH_KEY"
 MAX_RETRIES=30
+
+SCP_OPTS="-P $SSH_PORT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 -i $SSH_KEY"
 SLEEP_INTERVAL=15
 
 # --- Funções Auxiliares ---
@@ -188,7 +190,7 @@ echo "✅ Secret 'VPS_HOST_PUBLIC_KEY' atualizado com sucesso!"
 
 echo ""
 echo "📤 Enviando script de setup para $VPS_HOST..."
-scp $SSH_OPTS "$REMOTE_SCRIPT_PATH" "${SSH_USER}@${VPS_HOST}":/tmp/
+scp $SCP_OPTS "$REMOTE_SCRIPT_PATH" "${SSH_USER}@${VPS_HOST}":/tmp/
 
 echo "🚀 Executando script de setup remoto..."
 ssh $SSH_OPTS "${SSH_USER}@${VPS_HOST}" "export GH_PAT_RUNNER='$GH_PAT_RUNNER'; bash /tmp/$(basename "$REMOTE_SCRIPT_PATH") '$REPO_USER' '$RUNNER_VERSION'"

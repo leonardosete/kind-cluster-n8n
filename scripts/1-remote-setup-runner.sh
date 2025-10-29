@@ -6,11 +6,12 @@ RUNNER_VERSION="${2}"
 
 if [[ -z "${GH_PAT_RUNNER:-}" ]]; then
   echo "❌ Erro: A variável de ambiente GH_PAT_RUNNER não foi definida." >&2
+  echo "   Certifique-se de que ela foi exportada para a sessão SSH." >&2
   exit 1
 fi
 
 #REPOS=("kind-cluster-n8n" "git-wkf-dash" "garantia-digital")
-REPOS=("kind-cluster-n8n" "git-wkf-dash")
+REPOS=("kind-cluster-n8n")
 
 RUNNER_USER="github"
 RUNNER_LABELS="self-hosted,linux,kind"
@@ -52,7 +53,8 @@ for REPO_NAME in "${REPOS[@]}"; do
 
   if [[ -z "$REG_TOKEN" || "$REG_TOKEN" == "null" ]]; then
     echo "❌ Falha ao obter token de registro para $REPO_NAME!"
-    continue
+    echo "   Verifique se o token GH_PAT_RUNNER tem as permissões corretas (escopo 'repo')." >&2
+    exit 1 # Alterado de 'continue' para 'exit 1' para parar a execução em caso de falha.
   fi
 
   echo "⚙️  Configurando runner para $REPO_NAME..."
