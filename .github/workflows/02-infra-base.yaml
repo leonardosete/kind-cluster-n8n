@@ -47,7 +47,7 @@ jobs:
       - name: 🛡️ Adiciona Host conhecido de forma segura
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.VPS_HOSTNAME }} >> ~/.ssh/known_hosts
+          echo "${{ secrets.VPS_HOST_PUBLIC_KEY }}" >> ~/.ssh/known_hosts
 
       - name: 🚀 Playbook infra-base
         working-directory: ./ansible-hostinger
