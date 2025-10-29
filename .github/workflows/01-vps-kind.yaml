@@ -37,9 +37,7 @@ jobs:
     # 3 ▸ Executa playbook KIND
     - name: ⚙️ Playbook Ansible
       working-directory: ./ansible-hostinger
-      env:
-        ANSIBLE_REMOTE_USER: ${{ secrets.ANSIBLE_USER }}
-      run: ansible-playbook -i inventory.ini 01-ansible-vps-kind.yaml --extra-vars "ansible_port=22"
+      run: ansible-playbook -i inventory.ini 01-ansible-vps-kind.yaml --extra-vars "ansible_port=22 ansible_user=root"
 
 # 4 ▸ Aciona workflow 02 (infra base) se habilitado
   deploy-infra-base:
