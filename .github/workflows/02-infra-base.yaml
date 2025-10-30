@@ -53,7 +53,7 @@ jobs:
         working-directory: ./ansible-hostinger
         run: |
           echo "::group::Executando playbook infra-base"
-          ansible-playbook -i inventory.ini 02-ansible-infra-base.yml --extra-vars "ansible_user=${{ secrets.VPS_USER }}"
+          ansible-playbook -i inventory.ini 02-ansible-infra-base.yml --extra-vars "ansible_port=22 ansible_user=${{ secrets.VPS_USER }}"
           echo "::endgroup::"
 
   # 2 ▸ Gera & commita SealedSecrets via workflow-03 (um app por vez) ---------
