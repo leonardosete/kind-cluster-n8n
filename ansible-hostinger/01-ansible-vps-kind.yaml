@@ -264,19 +264,19 @@
       command: kind create cluster --config=/root/kind-config.yaml
       when: "'kind' not in clusters_list.stdout"
 
-    - name: Adiciona chave GPG do Helm de forma segura
+    - name: Baixa a chave GPG do repositório Helm (Buildkite)
       ansible.builtin.get_url:
-        url: https://baltocdn.com/helm/signing.asc
-        dest: /etc/apt/trusted.gpg.d/helm.asc
+        url: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
+        dest: /usr/share/keyrings/helm-buildkite-key.asc
         mode: '0644'
         force: true
 
-    - name: Adiciona repositório do Helm
+    - name: Adiciona o repositório Helm (Buildkite)
       ansible.builtin.apt_repository:
-        repo: deb https://baltocdn.com/helm/stable/debian/ all main
+        repo: "deb [signed-by=/usr/share/keyrings/helm-buildkite-key.asc] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main"
         state: present
 
-    - name: Instala Helm via apt (método correto e robusto)
+    - name: Instala Helm via apt (método oficial)
       ansible.builtin.apt:
         name: helm
         state: present
