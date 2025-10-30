@@ -15,6 +15,20 @@
         update_cache: yes
         upgrade: dist
 
+    - name: Instala pacotes essenciais e de rede segura
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+
+    - name: Atualiza cache e realiza upgrade de pacotes
+      apt:
+        update_cache: yes
+        upgrade: dist
+
     - name: Instala pacotes essenciais e de segurança
       apt:
         name:
