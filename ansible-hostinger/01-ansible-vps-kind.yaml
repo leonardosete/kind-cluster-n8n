@@ -1,5 +1,5 @@
 ---
-- name: Setup completo do servidor Debian (Versão Organizada)
+- name: Setup completo do servidor Debian (Versão Final Otimizada)
   hosts: vps_hostinger
   become: yes
   gather_facts: true
@@ -108,6 +108,12 @@
     - name: 2.5 - Força a execução de handlers (Reinicia o SSH agora)
       meta: flush_handlers
 
+    - name: 2.5.1 - Remove regra antiga do UFW para a porta 22 (se existir)
+      community.general.ufw:
+        rule: allow
+        port: "22"
+        delete: yes
+
     - name: 2.6 - Libera a nova porta SSH (customizada) no UFW
       community.general.ufw:
         rule: allow
@@ -164,6 +170,10 @@
       community.general.ufw:
         state: enabled
         policy: deny
+
+    - name: 2.10 - Recarrega as regras do UFW para garantir a aplicação
+      community.general.ufw:
+        state: reloaded
 
     ###################################################################
     # Passo 3: Instalação de Runtimes (Docker)
@@ -293,7 +303,7 @@
         name: ingress-nginx
         repo_url: https://kubernetes.github.io/ingress-nginx
 
-    - name: 6.2 - Instala o Ingress NGINX via Helm
+    - name: 6.2 - Instala o Ingress NGINX (Corrigido para Kind/hostPort)
       community.kubernetes.helm:
         name: ingress-nginx
         chart_ref: ingress-nginx/ingress-nginx
@@ -301,9 +311,20 @@
         create_namespace: yes
         values:
           controller:
+            # ADICIONADO: Força o tipo de serviço para NodePort em vez de LoadBalancer
+            service:
+              type: NodePort
+
+            # ADICIONADO: Habilita o hostPort para funcionar com o kind-config.yaml
+            hostPort:
+              enabled: true
+
+            # Seus valores antigos (corretos)
             extraArgs:
               default-ssl-certificate: "ingress-nginx/wildcard-devops-master-shop-tls"
             watchIngressWithoutClass: true
+
+          # Seus valores antigos (corretos)
           ingressClassResource:
             name: nginx
             enabled: true
