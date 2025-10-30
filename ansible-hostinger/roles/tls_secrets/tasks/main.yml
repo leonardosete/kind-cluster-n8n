@@ -12,6 +12,6 @@
         namespace: ingress-nginx
       type: kubernetes.io/tls
       data:
-        # O lookup lê os arquivos do seu diretório CERTS
-        tls.crt: "{{ lookup('file', '{{ playbook_dir }}/../../CERTS/devops-master-shop-cert.pem') | b64encode }}"
-        tls.key: "{{ lookup('file', '{{ playbook_dir }}/../../CERTS/devops-master-shop-key.pem') | b64encode }}"
+        # As variáveis 'wildcard_cert_pem' e 'wildcard_key_pem' são passadas pelo workflow
+        tls.crt: "{{ wildcard_cert_pem | b64encode }}"
+        tls.key: "{{ wildcard_key_pem | b64encode }}"
