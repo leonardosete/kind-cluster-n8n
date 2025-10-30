@@ -19,20 +19,6 @@
         update_cache: yes
         upgrade: dist
 
-    - name: Instala pacotes essenciais e de rede segura
-      apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg
-        state: present
-
-    - name: Atualiza cache e realiza upgrade de pacotes
-      apt:
-        update_cache: yes
-        upgrade: dist
-
     - name: Instala pacotes essenciais e de segurança
       apt:
         name:
@@ -156,12 +142,6 @@
         - 172.64.0.0/13
         - 131.0.72.0/22
 
-    # Se precisar liberar alguma porta interna do cluster, adicione regras específicas só para a rede interna!
-
-
-    ###################################################################
-    # O restante do seu playbook original continua aqui
-    ###################################################################
     - name: Instala a biblioteca Python do Kubernetes via apt (para contornar PEP 668)
       apt:
         name: python3-kubernetes
@@ -413,6 +393,17 @@
     - name: Exibe status final da configuração
       debug:
         msg: "✅ VPS provisionada, segura e com cluster KIND inicializado com sucesso."
+
+- name: Atualiza o secret da porta SSH no GitHub para os próximos workflows
+  hosts: localhost # Executa esta tarefa no runner, não na VPS
+  become: no
+  gather_facts: no
+  tasks:
+    - name: Usa o GitHub CLI para definir a nova porta SSH
+      ansible.builtin.command: >
+        gh secret set VPS_SSH_PORT --body "{{ new_ssh_port }}" --repo "{{ repo_owner }}/{{ repo_name }}"
+      environment:
+        GH_TOKEN: "{{ lookup('env', 'GH_PAT_RUNNER') }}"
 
   ###################################################################
   # Handlers: Tarefas que são executadas apenas quando notificadas

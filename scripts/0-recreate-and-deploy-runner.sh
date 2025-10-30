@@ -185,6 +185,10 @@ fi
 # O comando `gh secret set` lida com a busca da chave de criptografia e o envio seguro.
 # A chave é passada via stdin para evitar que apareça no histórico de comandos.
 echo "$HOST_PUBLIC_KEY" | gh secret set VPS_HOST_PUBLIC_KEY --repo "$REPO_USER/$MAIN_CI_REPO"
+
+# Define a porta SSH inicial para o primeiro workflow
+echo "22" | gh secret set VPS_SSH_PORT --repo "$REPO_USER/$MAIN_CI_REPO"
+
 echo "✅ Secret 'VPS_HOST_PUBLIC_KEY' atualizado com sucesso!"
 # --- FIM DA NOVA SEÇÃO ---
 

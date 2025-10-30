@@ -53,7 +53,7 @@ jobs:
         working-directory: ./ansible-hostinger
         run: |
           echo "::group::Executando playbook infra-base"
-          ansible-playbook -i inventory.ini 02-ansible-infra-base.yml --extra-vars "ansible_port=22 ansible_user=${{ secrets.VPS_USER }} wildcard_cert_pem='${{ secrets.WILDCARD_CERT_PEM }}' wildcard_key_pem='${{ secrets.WILDCARD_KEY_PEM }}'"
+          ansible-playbook -i inventory.ini 02-ansible-infra-base.yml --extra-vars "ansible_port=${{ secrets.VPS_SSH_PORT }} ansible_user=${{ secrets.VPS_USER }} wildcard_cert_pem='${{ secrets.WILDCARD_CERT_PEM }}' wildcard_key_pem='${{ secrets.WILDCARD_KEY_PEM }}'"
           echo "::endgroup::"
 
   # 2 ▸ Gera & commita SealedSecrets via workflow-03 (um app por vez) ---------
