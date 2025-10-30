@@ -254,6 +254,13 @@
     - name: Instala o Helm (se ausente)
       when: not helm_stat.stat.exists
       block:
+        - name: Garante que o script de instalação do Helm é executável
+          ansible.builtin.file:
+            path: /tmp/get_helm_3.sh
+            mode: '0755'
+            owner: root
+            group: root
+
         - name: Executa o script de instalação do Helm
           ansible.builtin.command:
             cmd: /tmp/get_helm_3.sh
