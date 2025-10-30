@@ -254,12 +254,6 @@
     - name: Instala o Helm (se ausente)
       when: not helm_stat.stat.exists
       block:
-        - name: Copia o script de instalação do Helm para a VPS
-          ansible.builtin.copy:
-            src: "{{ playbook_dir }}/vps-templates-base/get_helm_3.sh"
-            dest: /tmp/get_helm_3.sh
-            mode: '0755'
-
         - name: Executa o script de instalação do Helm
           ansible.builtin.command:
             cmd: /tmp/get_helm_3.sh
