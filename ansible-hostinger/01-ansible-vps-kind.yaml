@@ -1,48 +1,78 @@
 ---
-- name: Setup completo do servidor Debian
+- name: Setup completo do servidor Debian (Versão Organizada)
   hosts: vps_hostinger
   become: yes
   gather_facts: true
   collections:
     - community.general
 
+  ###################################################################
+  # Handlers: São definidos primeiro, mas executados quando notificados
+  ###################################################################
+  handlers:
+    - name: Reiniciar SSH
+      service:
+        name: sshd
+        state: restarted
+
+  ###################################################################
+  # Tasks: O fluxo principal de execução
+  ###################################################################
   tasks:
     ###################################################################
-    # Passo 1: Setup inicial (apt upgrade, pacotes, Docker, etc.)
+    # Passo 1: Configuração Base do Sistema Operacional
     ###################################################################
-    - name: Atualiza cache e realiza upgrade de pacotes
+    - name: 1.1 - Atualiza cache e realiza upgrade de pacotes
       apt:
         update_cache: yes
         upgrade: dist
 
-    - name: Instala pacotes essenciais e de segurança
+    - name: 1.2 - Instala pacotes essenciais e de utilidade
       apt:
         name:
+          # Essenciais
           - git
-          - docker.io
-          - python3
-          - python3-pip
-          - htop
-          - ncdu
-          - duf
-          - btop
-          - mlocate
-          - bash-completion
-          - openssh-client
-          - ufw
-          - fail2ban
-          - rsync
-          - apt-transport-https
-          - ca-certificates
           - curl
           - gnupg
+          - apt-transport-https
+          - ca-certificates
+          - rsync
+          - bash-completion
+          - openssh-client
+          # Python
+          - python3
+          - python3-pip
+          - python3-kubernetes  # Importante para módulos Ansible K8s
+          # Monitoramento e Utilidades
+          - htop
+          - btop
+          - ncdu
+          - duf
+          - mlocate
+          # Segurança
+          - ufw
+          - fail2ban
+          # Runtime
+          - docker.io
         state: present
         update_cache: yes
 
+    - name: 1.3 - Garante que o serviço Fail2Ban está ativo e habilitado
+      service:
+        name: fail2ban
+        state: started
+        enabled: yes
+
+    - name: 1.4 - Garante que o diretório de chaves apt exista
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
     ###################################################################
-    # Passo 1.5: Hardening de Segurança (Usuário, SSH, Firewall)
+    # Passo 2: Hardening de Segurança (Usuário, SSH e Firewall)
     ###################################################################
-    - name: Cria o usuário administrador com privilégios sudo
+    - name: 2.1 - Cria o usuário administrador com privilégios sudo
       user:
         name: "{{ admin_user }}"
         shell: /bin/bash
@@ -50,7 +80,7 @@
         append: yes
         create_home: yes
 
-    - name: Configura sudo sem senha para o usuário administrador
+    - name: 2.2 - Configura sudo sem senha para o usuário administrador
       copy:
         dest: "/etc/sudoers.d/90-{{ admin_user }}"
         content: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"
@@ -59,13 +89,13 @@
         group: root
         validate: 'visudo -cf %s'
 
-    - name: Configura a chave SSH para acesso sem senha ao novo usuário
+    - name: 2.3 - Configura a chave SSH para acesso sem senha ao novo usuário
       authorized_key:
         user: "{{ admin_user }}"
         state: present
         key: "{{ ssh_public_key }}"
 
-    - name: Aplica template de configuração segura para o SSHd
+    - name: 2.4 - Aplica template de configuração segura para o SSHD
       template:
         src: "{{ playbook_dir }}/vps-templates-base/sshd_config.j2"
         dest: /etc/ssh/sshd_config
@@ -73,26 +103,18 @@
         group: root
         mode: '0600'
         validate: 'sshd -t -f %s'
-      notify: Reiniciar SSH
+      notify: Reiniciar SSH # Notifica o handler para reiniciar o SSH
 
-    - name: Garante que o serviço Fail2Ban está ativo e habilitado
-      service:
-        name: fail2ban
-        state: started
-        enabled: yes
+    - name: 2.5 - Força a execução de handlers (Reinicia o SSH agora)
+      meta: flush_handlers
 
-    - name: Configura o Firewall (UFW) para negar tudo por padrão
-      community.general.ufw:
-        state: enabled
-        policy: deny
-
-    - name: Libera a nova porta SSH (customizada) para qualquer IP
+    - name: 2.6 - Libera a nova porta SSH (customizada) no UFW
       community.general.ufw:
         rule: allow
         port: "{{ new_ssh_port }}"
         proto: tcp
-    ## CLOUDFLARE ##    
-    - name: Libera portas 80 apenas para IPs da Cloudflare
+
+    - name: 2.7 - Libera portas 80 (HTTP) apenas para IPs da Cloudflare
       community.general.ufw:
         rule: allow
         src: "{{ item }}"
@@ -115,7 +137,7 @@
         - 172.64.0.0/13
         - 131.0.72.0/22
 
-    - name: Libera portas 443 apenas para IPs da Cloudflare
+    - name: 2.8 - Libera portas 443 (HTTPS) apenas para IPs da Cloudflare
       community.general.ufw:
         rule: allow
         src: "{{ item }}"
@@ -138,97 +160,102 @@
         - 172.64.0.0/13
         - 131.0.72.0/22
 
-    - name: Instala a biblioteca Python do Kubernetes via apt (para contornar PEP 668)
-      apt:
-        name: python3-kubernetes
-        state: present
+    - name: 2.9 - Habilita o Firewall (UFW) com política de negação padrão
+      community.general.ufw:
+        state: enabled
+        policy: deny
 
-    - name: Habilita e inicia serviço Docker
+    ###################################################################
+    # Passo 3: Instalação de Runtimes (Docker)
+    ###################################################################
+    - name: 3.1 - Habilita e inicia serviço Docker
       service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Instala Docker Compose (binário oficial)
+    - name: 3.2 - Instala Docker Compose (binário oficial)
       get_url:
         url: "https://github.com/docker/compose/releases/latest/download/docker-compose-{{ ansible_system|lower }}-{{ ansible_architecture }}"
         dest: /usr/local/bin/docker-compose
         mode: '0755'
 
-    - name: Define MOTD personalizado
-      copy:
-        src: "{{ playbook_dir }}/vps-templates-base/motd"
-        dest: /etc/motd
-        owner: root
-        group: root
-        mode: '0644'
-
-    - name: Configura ~/.bashrc personalizado (root)
-      copy:
-        src: "{{ playbook_dir }}/vps-templates-base/bashrc"
-        dest: /root/.bashrc
-        owner: root
-        group: root
-        mode: '0644'
-
-    - name: Seleciona binário do KIND de acordo com a arquitetura
-      set_fact:
-        kind_download_url: >-
-          https://kind.sigs.k8s.io/dl/{{ kind_version }}/{{ (kind_binary_x86_64 if ansible_architecture == 'x86_64' else kind_binary_arm64) }}
-
-    - name: Baixa binário do KIND
-      get_url:
-        url: "{{ kind_download_url }}"
-        dest: /usr/local/bin/kind
-        mode: '0755'
-
-    - name: Exibe versão do KIND
-      command: kind version
-      register: kind_version_out
-      ignore_errors: true
-
-    - name: Debug - Versão do KIND
-      debug:
-        msg: "Versão do KIND: {{ kind_version_out.stdout | default('Não foi possível obter') }}"
-
-    - name: Garante que o diretório de chaves apt exista
-      file:
-        path: /etc/apt/keyrings
-        state: directory
-        mode: '0755'
-
-    - name: Baixa a chave GPG do repositório K8s
+    ###################################################################
+    # Passo 4: Instalação de Ferramentas K8s (kubectl, Kind, Helm)
+    ###################################################################
+    - name: 4.1 - Baixa a chave GPG do repositório K8s
       get_url:
         url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
         dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
 
-    - name: Configura repositório do Kubernetes
+    - name: 4.2 - Configura repositório do Kubernetes
       apt_repository:
         repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /"
         state: present
 
-    - name: Instala kubectl
+    - name: 4.3 - Instala kubectl
       apt:
         name: kubectl
         state: present
         update_cache: yes
 
-    - name: Exibe versão do kubectl (cliente)
-      command: kubectl version --client
-      register: kubectl_version_out
-      ignore_errors: true
+    - name: 4.4 - Seleciona binário do KIND de acordo com a arquitetura
+      set_fact:
+        kind_download_url: >-
+          https://kind.sigs.k8s.io/dl/{{ kind_version }}/{{ (kind_binary_x86_64 if ansible_architecture == 'x86_64' else kind_binary_arm64) }}
 
-    - name: Debug - Versão do kubectl
-      debug:
-        msg: "kubectl: {{ kubectl_version_out.stdout | default('Não foi possível obter') }}"
+    - name: 4.5 - Baixa binário do KIND
+      get_url:
+        url: "{{ kind_download_url }}"
+        dest: /usr/local/bin/kind
+        mode: '0755'
 
-    - name: Verifica se já existe algum cluster KIND
+    - name: 4.6 - Baixa a chave GPG do repositório Helm (Buildkite)
+      ansible.builtin.get_url:
+        url: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
+        dest: /usr/share/keyrings/helm-buildkite-key.asc
+        mode: '0644'
+        force: true
+
+    - name: 4.7 - Adiciona o repositório Helm (Buildkite)
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/helm-buildkite-key.asc] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main"
+        state: present
+
+    - name: 4.8 - Instala Helm via apt (método oficial)
+      ansible.builtin.apt:
+        name: helm
+        state: present
+        update_cache: yes
+
+    - name: 4.9 - Baixa binário kubeseal v0.29.0
+      get_url:
+        url: https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-0.29.0-linux-amd64.tar.gz
+        dest: /tmp/kubeseal.tar.gz
+
+    - name: 4.10 - Extrai binário kubeseal
+      shell: tar -xvzf /tmp/kubeseal.tar.gz kubeseal
+      args:
+        chdir: /tmp
+        creates: /tmp/kubeseal # Evita re-extração
+
+    - name: 4.11 - Move kubeseal para /usr/local/bin
+      copy:
+        src: /tmp/kubeseal
+        dest: /usr/local/bin/kubeseal
+        mode: '0755'
+        remote_src: yes
+
+    ###################################################################
+    # Passo 5: Criação do Cluster Kubernetes (Kind)
+    ###################################################################
+    - name: 5.1 - Verifica se já existe algum cluster KIND
       command: kind get clusters
       register: clusters_list
       changed_when: false
       ignore_errors: true
 
-    - name: Copia o kind-config.yaml para a VPS
+    - name: 5.2 - Copia o kind-config.yaml para a VPS
       copy:
         src: "{{ playbook_dir }}/vps-templates-base/kind-config.yaml"
         dest: /root/kind-config.yaml
@@ -236,34 +263,37 @@
         group: root
         mode: '0644'
 
-    - name: Cria o cluster KIND com portas 80, 443 e 6443->42885 (se não existir)
+    - name: 5.3 - Cria o cluster KIND (se não existir)
       command: kind create cluster --config=/root/kind-config.yaml
       when: "'kind' not in clusters_list.stdout"
 
-    - name: Baixa a chave GPG do repositório Helm (Buildkite)
-      ansible.builtin.get_url:
-        url: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
-        dest: /usr/share/keyrings/helm-buildkite-key.asc
-        mode: '0644'
-        force: true
+    - name: 5.4 - Garante que o diretório .kube existe para o usuário admin
+      file:
+        path: "/home/{{ admin_user }}/.kube"
+        state: directory
+        owner: "{{ admin_user }}"
+        group: "{{ admin_user }}"
+        mode: '0755'
 
-    - name: Adiciona o repositório Helm (Buildkite)
-      ansible.builtin.apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/helm-buildkite-key.asc] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main"
-        state: present
+    - name: 5.5 - Copia o kubeconfig do root para o usuário admin
+      copy:
+        src: /root/.kube/config
+        dest: "/home/{{ admin_user }}/.kube/config"
+        remote_src: yes
+        owner: "{{ admin_user }}"
+        group: "{{ admin_user }}"
+        mode: '0600'
+      # Esta tarefa garante que o admin_user possa usar kubectl ao logar
 
-    - name: Instala Helm via apt (método oficial)
-      ansible.builtin.apt:
-        name: helm
-        state: present
-        update_cache: yes
-
-    - name: Adiciona o repositório Helm do Ingress-NGINX
+    ###################################################################
+    # Passo 6: Instalação de Serviços Core do Cluster (Helm & Manifests)
+    ###################################################################
+    - name: 6.1 - Adiciona o repositório Helm do Ingress-NGINX
       community.kubernetes.helm_repository:
         name: ingress-nginx
         repo_url: https://kubernetes.github.io/ingress-nginx
 
-    - name: Instala o Ingress NGINX via Helm com certificado padrão
+    - name: 6.2 - Instala o Ingress NGINX via Helm
       community.kubernetes.helm:
         name: ingress-nginx
         chart_ref: ingress-nginx/ingress-nginx
@@ -272,76 +302,38 @@
         values:
           controller:
             extraArgs:
-              # Define o secret padrão para TLS
               default-ssl-certificate: "ingress-nginx/wildcard-devops-master-shop-tls"
-            # Permite que o Ingress Controller gerencie Ingresses sem uma IngressClass definida
             watchIngressWithoutClass: true
-          # Garante que o IngressClass seja criado e marcado como padrão
           ingressClassResource:
             name: nginx
             enabled: true
             default: true
 
-    - name: Aguarda o Ingress NGINX ficar pronto
+    - name: 6.3 - Aguarda o Ingress NGINX ficar pronto
       ansible.builtin.command: >
         kubectl rollout status deployment/ingress-nginx-controller
         --namespace=ingress-nginx --timeout=5m
       changed_when: false
-            
-    - name: Garante que a pasta /root/helm-charts existe no servidor
-      file:
-        path: /root/helm-charts
-        state: directory
-        owner: root
-        group: root
-        mode: '0755'
 
-    - name: Baixa kubeseal v0.29.0 tar.gz
-      get_url:
-        url: https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-0.29.0-linux-amd64.tar.gz
-        dest: /tmp/kubeseal.tar.gz
-
-    - name: Extrai binário kubeseal do tar.gz
-      shell: tar -xvzf /tmp/kubeseal.tar.gz kubeseal
-      args:
-        chdir: /tmp
-        creates: /tmp/kubeseal
-
-    - name: Move kubeseal para /usr/local/bin
-      copy:
-        src: /tmp/kubeseal
-        dest: /usr/local/bin/kubeseal
-        mode: '0755'
-        remote_src: yes
-
-    - name: Verifica versão do kubeseal
-      command: kubeseal --version
-      register: kubeseal_version_out
-      ignore_errors: true
-
-    - name: Debug - Versão do kubeseal
-      debug:
-        msg: "kubeseal instalado: {{ kubeseal_version_out.stdout | default('Não foi possível obter a versão') }}"
-
-    - name: Baixa manifest oficial do metrics-server
+    - name: 6.4 - Baixa manifest oficial do metrics-server
       get_url:
         url: https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
         dest: /root/metrics-server.yaml
         mode: '0644'
 
-    - name: Aplica manifest do metrics-server
+    - name: 6.5 - Aplica manifest do metrics-server
       community.kubernetes.k8s:
         state: present
         src: /root/metrics-server.yaml
 
-    - name: Verifica se a flag --kubelet-insecure-tls já existe no deployment
+    - name: 6.6 - Verifica se a flag --kubelet-insecure-tls já existe
       community.kubernetes.k8s_info:
         kind: Deployment
         name: metrics-server
         namespace: kube-system
       register: metrics_server_deployment
 
-    - name: Adiciona flag --kubelet-insecure-tls se não existir (patch)
+    - name: 6.7 - Adiciona flag --kubelet-insecure-tls (patch)
       community.kubernetes.k8s_json_patch:
         kind: Deployment
         name: metrics-server
@@ -352,7 +344,7 @@
             value: --kubelet-insecure-tls
       when: "'--kubelet-insecure-tls' not in metrics_server_deployment.resources[0].spec.template.spec.containers[0].args | default([])"
 
-    - name: Aguarda o rollout do metrics-server
+    - name: 6.8 - Aguarda o rollout do metrics-server
       community.kubernetes.k8s:
         kind: Deployment
         name: metrics-server
@@ -364,48 +356,54 @@
           status: "True"
 
     ###################################################################
-    ### INÍCIO DA SEÇÃO ADICIONADA PARA CORRIGIR PERMISSÕES         ###
+    # Passo 7: Configurações Finais e Debug
     ###################################################################
-    - name: Garante que o diretório .kube existe para o usuário admin
+    - name: 7.1 - Define MOTD personalizado
+      copy:
+        src: "{{ playbook_dir }}/vps-templates-base/motd"
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: 7.2 - Configura ~/.bashrc personalizado (root)
+      copy:
+        src: "{{ playbook_dir }}/vps-templates-base/bashrc"
+        dest: /root/.bashrc
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: 7.3 - Garante que a pasta /root/helm-charts existe
       file:
-        path: "/home/{{ admin_user }}/.kube"
+        path: /root/helm-charts
         state: directory
-        owner: "{{ admin_user }}"
-        group: "{{ admin_user }}"
+        owner: root
+        group: root
         mode: '0755'
 
-    - name: Copia o kubeconfig do root para o diretório do usuário admin
-      copy:
-        src: /root/.kube/config
-        dest: "/home/{{ admin_user }}/.kube/config"
-        remote_src: yes
-        owner: "{{ admin_user }}"
-        group: "{{ admin_user }}"
-        mode: '0600'
-    ###################################################################
-    ### FIM DA SEÇÃO ADICIONADA                                     ###
-    ###################################################################
+    - name: 7.4 - Debug - Versão do KIND
+      command: kind version
+      register: kind_version_out
+      ignore_errors: true
+      changed_when: false
 
-    - name: Exibe status final da configuração
+    - name: 7.5 - Debug - Versão do kubectl
+      command: kubectl version --client
+      register: kubectl_version_out
+      ignore_errors: true
+      changed_when: false
+
+    - name: 7.6 - Debug - Versão do kubeseal
+      command: kubeseal --version
+      register: kubeseal_version_out
+      ignore_errors: true
+      changed_when: false
+
+    - name: 7.7 - Exibe status final da configuração
       debug:
-        msg: "✅ VPS provisionada, segura e com cluster KIND inicializado com sucesso."
-
-- name: Atualiza o secret da porta SSH no GitHub para os próximos workflows
-  hosts: localhost # Executa esta tarefa no runner, não na VPS
-  become: no
-  gather_facts: no
-  tasks:
-    - name: Usa o GitHub CLI para definir a nova porta SSH
-      ansible.builtin.command: >
-        gh secret set VPS_SSH_PORT --body "{{ new_ssh_port }}" --repo "{{ repo_owner }}/{{ repo_name }}"
-      environment:
-        GH_TOKEN: "{{ lookup('env', 'GH_PAT_RUNNER') }}"
-
-  ###################################################################
-  # Handlers: Tarefas que são executadas apenas quando notificadas
-  ###################################################################
-  handlers:
-    - name: Reiniciar SSH
-      service:
-        name: sshd
-        state: restarted
+        msg:
+          - "✅ VPS provisionada, segura e com cluster KIND inicializado com sucesso."
+          - "KIND: {{ kind_version_out.stdout | default('Não foi possível obter') }}"
+          - "kubectl: {{ kubectl_version_out.stdout | default('Não foi possível obter') }}"
+          - "kubeseal: {{ kubeseal_version_out.stdout | default('Não foi possível obter') }}"
