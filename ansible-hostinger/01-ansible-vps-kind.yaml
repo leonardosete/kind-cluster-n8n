@@ -246,30 +246,23 @@
       command: kind create cluster --config=/root/kind-config.yaml
       when: "'kind' not in clusters_list.stdout"
 
-    - name: Verifica se o Helm já está instalado
-      ansible.builtin.stat:
-        path: /usr/local/bin/helm
-      register: helm_stat
+    - name: Adiciona chave GPG do Helm
+      ansible.builtin.get_url:
+        url: https://baltocdn.com/helm/signing.asc
+        dest: /etc/apt/trusted.gpg.d/helm.asc
+        mode: '0644'
+        force: true
 
-    - name: Instala o Helm (se ausente)
-      when: not helm_stat.stat.exists
-      block:
-        - name: Garante que o script de instalação do Helm é executável
-          ansible.builtin.file:
-            path: /tmp/get_helm_3.sh
-            mode: '0755'
-            owner: root
-            group: root
+    - name: Adiciona repositório do Helm
+      ansible.builtin.apt_repository:
+        repo: deb https://baltocdn.com/helm/stable/debian/ all main
+        state: present
 
-        - name: Executa o script de instalação do Helm
-          ansible.builtin.command:
-            cmd: /tmp/get_helm_3.sh
-          changed_when: true
-
-        - name: Limpa o script de instalação
-          ansible.builtin.file:
-            path: /tmp/get_helm_3.sh
-            state: absent
+    - name: Instala Helm via apt
+      ansible.builtin.apt:
+        name: helm
+        state: present
+        update_cache: yes
 
     - name: Adiciona o repositório Helm do Ingress-NGINX
       community.kubernetes.helm_repository:

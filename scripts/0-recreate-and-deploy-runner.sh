@@ -9,7 +9,6 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 ENV_FILE_GH="$PROJECT_ROOT/.chaves/.env-GH_PAT_RUNNER"
 ENV_FILE_VPS="$PROJECT_ROOT/.chaves/.env-vps"
 REMOTE_SCRIPT_PATH="$SCRIPT_DIR/1-remote-setup-runner.sh"
-HELM_SCRIPT_PATH="$PROJECT_ROOT/ansible-hostinger/vps-templates-base/get_helm_3.sh"
 
 # Configurações da VPS e Runner
 REPO_USER="leonardosete"
@@ -192,7 +191,6 @@ echo "✅ Secret 'VPS_HOST_PUBLIC_KEY' atualizado com sucesso!"
 echo ""
 echo "📤 Enviando script de setup para $VPS_HOST..."
 scp $SCP_OPTS "$REMOTE_SCRIPT_PATH" "${SSH_USER}@${VPS_HOST}":/tmp/
-scp $SCP_OPTS "$HELM_SCRIPT_PATH" "${SSH_USER}@${VPS_HOST}":/tmp/get_helm_3.sh
 
 echo "🚀 Executando script de setup remoto..."
 ssh $SSH_OPTS "${SSH_USER}@${VPS_HOST}" "export GH_PAT_RUNNER='$GH_PAT_RUNNER'; bash /tmp/$(basename "$REMOTE_SCRIPT_PATH") '$REPO_USER' '$RUNNER_VERSION'"
