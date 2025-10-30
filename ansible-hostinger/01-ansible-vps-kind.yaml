@@ -6,10 +6,6 @@
   collections:
     - community.general
 
-  vars:
-    # Define a versão do Helm a ser instalada
-    helm_version: "v3.15.0"
-
   tasks:
     ###################################################################
     # Passo 1: Setup inicial (apt upgrade, pacotes, Docker, etc.)
