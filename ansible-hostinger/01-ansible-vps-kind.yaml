@@ -264,18 +264,23 @@
       command: kind create cluster --config=/root/kind-config.yaml
       when: "'kind' not in clusters_list.stdout"
 
-    - name: Instala Helm via unarchive (seguro e idempotente)
-      ansible.builtin.unarchive:
-        src: "https://get.helm.sh/helm-{{ helm_version }}-linux-amd64.tar.gz"
-        dest: /usr/local/bin
-        extra_opts: ["--strip-components=1"]
-        owner: root
-        group: root
-        mode: '0755'
-        remote_src: true
-        checksum: "sha256:https://get.helm.sh/helm-{{ helm_version }}-linux-amd64.tar.gz.sha256sum"
-        # Se o binário já existir, a tarefa será pulada
-        creates: /usr/local/bin/helm
+    - name: Adiciona chave GPG do Helm de forma segura
+      ansible.builtin.get_url:
+        url: https://baltocdn.com/helm/signing.asc
+        dest: /etc/apt/trusted.gpg.d/helm.asc
+        mode: '0644'
+        force: true
+
+    - name: Adiciona repositório do Helm
+      ansible.builtin.apt_repository:
+        repo: deb https://baltocdn.com/helm/stable/debian/ all main
+        state: present
+
+    - name: Instala Helm via apt (método correto e robusto)
+      ansible.builtin.apt:
+        name: helm
+        state: present
+        update_cache: yes
 
     - name: Adiciona o repositório Helm do Ingress-NGINX
       community.kubernetes.helm_repository:
