@@ -11,7 +11,7 @@ if [[ -z "${GH_PAT_RUNNER:-}" ]]; then
 fi
 
 #REPOS=("kind-cluster-n8n" "git-wkf-dash" "garantia-digital")
-REPOS=("kind-cluster-n8n")
+REPOS=("kind-cluster-n8n" "meu-dash")
 
 RUNNER_USER="github"
 RUNNER_LABELS="self-hosted,linux,kind"
