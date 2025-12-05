@@ -61,6 +61,9 @@ load_env() {
 load_env "$ENV_FILE_VPS"
 load_env "$ENV_FILE_GH"
 
+echo "🔍 Debug: Arquivo de token: $ENV_FILE_GH"
+echo "🔍 Debug: Token carregado (primeiros/últimos 10): ${GH_PAT_RUNNER:0:10}...${GH_PAT_RUNNER: -10}"
+
 [[ -z "${VPS_API_TOKEN:-}" || -z "${VPS_ROOT_PASS:-}" ]] && {
   echo "❌ Variáveis VPS_API_TOKEN ou VPS_ROOT_PASS não definidas no ambiente ou em '$ENV_FILE_VPS'." >&2
   exit 1
