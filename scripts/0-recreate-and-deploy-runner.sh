@@ -10,6 +10,12 @@ ENV_FILE_GH="$PROJECT_ROOT/.chaves/.env-GH_PAT_RUNNER"
 ENV_FILE_VPS="$PROJECT_ROOT/.chaves/.env-vps"
 REMOTE_SCRIPT_PATH="$SCRIPT_DIR/1-remote-setup-runner.sh"
 
+# Debug: verificar caminhos
+echo "🔍 Debug: SCRIPT_DIR=$SCRIPT_DIR"
+echo "🔍 Debug: PROJECT_ROOT=$PROJECT_ROOT"
+echo "🔍 Debug: ENV_FILE_GH=$ENV_FILE_GH"
+echo "🔍 Debug: Arquivo existe? $(test -f "$ENV_FILE_GH" && echo "SIM ✅" || echo "NÃO ❌")"
+
 # Configurações da VPS e Runner
 REPO_USER="leonardosete"
 # ✅ AJUSTE: Defina aqui o repositório que receberá o secret da chave do host.
@@ -37,7 +43,7 @@ load_env() {
         return
     fi
 
-    echo "ℹ️  Carregando variáveis de '$env_file' (se não estiverem no ambiente)..."
+    echo "ℹ️  Carregando variáveis de '$env_file'..."
     while IFS= read -r line || [[ -n "$line" ]]; do
         line="${line%$'\r'}"
         if [[ "$line" =~ ^\s*# || -z "$line" ]]; then
@@ -50,7 +56,10 @@ load_env() {
             if [[ "$value" =~ ^\'(.*)\'$ || "$value" =~ ^\"(.*)\"$ ]]; then
                 value="${BASH_REMATCH[1]}"
             fi
-            if [[ -z "${!key+x}" ]]; then
+            # Para GH_PAT_RUNNER, sempre sobrescrever (não usar versão cacheada)
+            if [[ "$key" == "GH_PAT_RUNNER" ]]; then
+                export "$key"="$value"
+            elif [[ -z "${!key+x}" ]]; then
                 export "$key"="$value"
             fi
         fi

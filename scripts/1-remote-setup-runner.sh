@@ -36,7 +36,7 @@ for REPO_NAME in "${REPOS[@]}"; do
   RUNNER_PKG="actions-runner-linux-x64-$RUNNER_VERSION.tar.gz"
   RUNNER_URL="https://github.com/actions/runner/releases/download/v$RUNNER_VERSION/$RUNNER_PKG"
   REPO_URL="https://github.com/$REPO_USER/$REPO_NAME"
-  SERVICE_NAME="actions-runner-${REPO_NAME}"
+  SERVICE_NAME="actions.runner.${REPO_USER}-${REPO_NAME}.${RUNNER_NAME}.service"
 
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -108,11 +108,9 @@ for REPO_NAME in "${REPOS[@]}"; do
   "
 
   echo "📦 Instalando e iniciando como serviço para $REPO_NAME..."
-  sudo -u "$RUNNER_USER" bash -c "
-    cd $RUNNER_DIR &&
-    ./svc.sh install &&
-    ./svc.sh start
-  "
+  cd "$RUNNER_DIR"
+  sudo ./svc.sh install
+  sudo ./svc.sh start
   echo "✅ Runner instalado e iniciado com sucesso para $REPO_NAME"
 done
 
@@ -121,14 +119,32 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "✅ Processamento concluído!"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
+echo "⏳ Aguardando que os serviços iniciem e conectem ao GitHub..."
+echo "   (Isso pode levar até 30 segundos)"
+sleep 5
+
+echo ""
 echo "📊 Resumo dos runners:"
 for REPO_NAME in "${REPOS[@]}"; do
-  SERVICE_NAME="actions-runner-${REPO_NAME}"
-  if systemctl is-active --quiet "$SERVICE_NAME"; then
-    STATUS="✅ Ativo"
-  else
-    STATUS="⚠️  Inativo"
+  RUNNER_NAME="vps-${REPO_NAME}"
+  SERVICE_NAME="actions.runner.${REPO_USER}-${REPO_NAME}.${RUNNER_NAME}.service"
+  STATUS="⚠️  Inativo"
+  
+  # Tentar até 25 vezes com 2 segundos entre tentativas = até 50 segundos
+  for attempt in {1..25}; do
+    if systemctl is-active --quiet "$SERVICE_NAME"; then
+      STATUS="✅ Ativo"
+      break
+    fi
+    if (( attempt < 25 )); then
+      sleep 2
+    fi
+  done
+  
+  if [[ "$STATUS" == "⚠️  Inativo" ]]; then
+    STATUS="⚠️  Inativo (verificar com: systemctl status $SERVICE_NAME)"
   fi
+  
   echo "  $REPO_NAME: $STATUS"
 done
 echo ""
